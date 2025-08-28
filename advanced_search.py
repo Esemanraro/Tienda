@@ -13,6 +13,7 @@ from sqlalchemy import and_, or_, func, desc, asc
 # Agregar el directorio actual al path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from flask import url_for
 from app import create_app
 from app.extensions import db
 from app.models import Toy, Order, OrderItem
@@ -154,7 +155,7 @@ class AdvancedSearchEngine:
                     'price': float(toy.price),
                     'stock': toy.stock,
                     'category': toy.category,
-                    'image_url': toy.image_url,
+                    'image_url': url_for('static', filename=toy.image_url),
                     'is_on_sale': toy.price < toy.original_price if hasattr(toy, 'original_price') else False,
                     'popularity_score': self._calculate_popularity(toy.id)
                 }

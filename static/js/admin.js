@@ -250,7 +250,7 @@ function initAdminPanel() {
                 if (data.image_url) {
                     imagePreview.innerHTML = `
                         <p>Imagen actual:</p>
-                        <img src="/static/${data.image_url}" alt="Imagen actual" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 8px;">
+                        <img src="${data.image_url}" alt="Imagen actual" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 8px;">
                     `;
                 } else {
                     imagePreview.innerHTML = '<p>Sin imagen actual</p>';
@@ -344,7 +344,7 @@ function editToy(toyId) {
         
         // Mostrar imagen actual si existe
         if (data.image_url) {
-            document.getElementById('currentImage').src = `/static/${data.image_url}`;
+            document.getElementById('currentImage').src = data.image_url;
             document.getElementById('currentImagePreview').style.display = 'block';
         }
         
