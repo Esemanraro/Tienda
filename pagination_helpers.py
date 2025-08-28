@@ -29,9 +29,14 @@ class PaginationHelper:
     def build_pagination_urls(pagination, endpoint, **kwargs):
         """Construir URLs para navegación de páginas"""
         def build_url(page):
-            args = request.args.copy()
+            """Build a pagination URL preserving current query args"""
+            # start with current request args so existing filters persist
+            args = request.args.to_dict()
+            # allow explicit kwargs to override/augment request args
+            args.update(kwargs)
+            # set the desired page number
             args['page'] = page
-            return url_for(endpoint, **kwargs, **args)
+            return url_for(endpoint, **args)
         
         urls = {}
         

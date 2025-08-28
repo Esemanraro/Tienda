@@ -47,7 +47,7 @@
                 {% for toy in toys %}
                     <div class="toy-card">
                         <div class="toy-image">
-                            <img src="{{ url_for('static', filename=toy.image_url) }}" alt="{{ toy.name }}">
+                            <img src="{{ url_for('static', filename=toy.image_url) if toy.image_url else url_for('static', filename='images/placeholder-toy.jpg') }}" alt="{{ toy.name }}">
                         </div>
                         <div class="toy-content">
                             <h3>{{ toy.name }}</h3>
