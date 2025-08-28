@@ -29,7 +29,7 @@
         {% for toy in toys %}
         <div class="toy-card">
             <div class="toy-image">
-                <img src="{{ toy.image_url }}" alt="{{ toy.name }}">
+                <img src="{{ url_for('static', filename=toy.image_url) }}" alt="{{ toy.name }}">
                 <div class="toy-actions">
                     <button class="action-btn edit" onclick="showEditToyModal('{{ toy.id }}')">
                         <i class="fas fa-edit"></i>
