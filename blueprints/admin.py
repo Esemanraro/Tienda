@@ -365,6 +365,7 @@ def toggle_user(user_id):
     return redirect(url_for('admin.all_users'))
 
 
+@admin_bp.route('/toys/add', methods=['POST'])
 @admin_bp.route('/add_toy', methods=['GET', 'POST'])
 @login_required
 @moderate_rate_limit(message="⚠️ Demasiados intentos de agregar juguetes. Espera un momento.")
@@ -420,7 +421,7 @@ def add_toy():
             for error in errors:
                 flash(f'Error en {field}: {error}', 'error')
     
-    return redirect(url_for('admin.dashboard'))
+    return redirect(url_for('admin.toys_page'))
 
 @admin_bp.route('/edit_toy/<int:toy_id>', methods=['GET', 'POST'])
 @login_required
