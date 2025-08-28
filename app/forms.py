@@ -21,7 +21,11 @@ class ToyForm(FlaskForm):
         ('Electronicos', 'Electronicos'),
         ('Educativo', 'Educativo'),
         ('Muñecas', 'Muñecas'),
-        ('Otro', 'Otro')
+        ('Otro', 'Otro'),
+        ('0-3', '0-3 años'),
+        ('4-6', '4-6 años'),
+        ('7-9', '7-9 años'),
+        ('10+', '10+ años')
     ]
     category = SelectField('Categoría', choices=CATEGORIES, validators=[DataRequired()])
     stock = IntegerField('Cantidad en Stock', validators=[DataRequired(), NumberRange(min=0)])
