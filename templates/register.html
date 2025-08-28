@@ -21,6 +21,14 @@
             </div>
 
             <div class="form-group">
+                <label for="email">
+                    <span class="icon">📧</span>
+                    Correo electrónico (requerido)
+                </label>
+                {{ form.email(class="auth-input", placeholder="Tu correo electrónico") }}
+            </div>
+
+            <div class="form-group">
                 <label for="password">
                     <span class="icon">🔒</span>
                     Contraseña
