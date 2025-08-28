@@ -18,10 +18,9 @@
         <input type="text" id="toySearch" placeholder="Buscar juguetes..." class="search-input">
         <select id="categoryFilter" class="filter-select">
             <option value="all">Todas las categorías</option>
-            <option value="0-3">0-3 años</option>
-            <option value="4-6">4-6 años</option>
-            <option value="7-9">7-9 años</option>
-            <option value="10+">10+ años</option>
+            {% for value, label in toy_form.category.choices %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
         </select>
     </div>
 
@@ -69,12 +68,7 @@
                 </div>
                 <div class="form-group">
                     <label for="toyCategory">Categoría de Edad</label>
-                    <select id="toyCategory" name="category" required>
-                        <option value="0-3">0-3 años</option>
-                        <option value="4-6">4-6 años</option>
-                        <option value="7-9">7-9 años</option>
-                        <option value="10+">10+ años</option>
-                    </select>
+                    {{ toy_form.category(id='toyCategory') }}
                 </div>
                 <div class="form-group">
                     <label for="toyImage">Imagen</label>
