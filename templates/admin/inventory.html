@@ -27,14 +27,14 @@
     <!-- Grid de Juguetes -->
     <div class="toys-grid">
         {% for toy in toys %}
-        <div class="toy-card">
+        <div class="toy-card" id="toy-{{ toy.id }}">
             <div class="toy-image">
                 <img src="{{ url_for('static', filename=toy.image_url) }}" alt="{{ toy.name }}">
-                <div class="toy-actions">
-                    <button class="action-btn edit" onclick="showEditToyModal('{{ toy.id }}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn delete" onclick="showDeleteToyModal('{{ toy.id }}')">
+                <div class="stock-controls">
+                    <button class="stock-btn" onclick="adjustStock({{ toy.id }}, -1)">-</button>
+                    <span class="stock-count" id="stock-{{ toy.id }}">{{ toy.stock }}</span>
+                    <button class="stock-btn" onclick="adjustStock({{ toy.id }}, 1)">+</button>
+                    <button class="stock-btn delete-btn" onclick="deleteToy({{ toy.id }})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -128,12 +128,35 @@
     object-fit: cover;
 }
 
-.toy-actions {
+.stock-controls {
     position: absolute;
     top: 10px;
     right: 10px;
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.stock-btn {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.stock-count {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 0 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.delete-btn {
+    background: rgba(244, 67, 54, 0.8);
 }
 
 .toy-info {
@@ -232,11 +255,61 @@ document.getElementById('toySearch').oninput = function(e) {
 document.getElementById('categoryFilter').onchange = function(e) {
     const category = e.target.value;
     const cards = document.querySelectorAll('.toy-card');
-    
+
     cards.forEach(card => {
         const toyCategory = card.querySelector('.toy-category').textContent;
         card.style.display = (category === 'all' || toyCategory === category) ? 'block' : 'none';
     });
 };
+
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
+async function adjustStock(toyId, delta) {
+    try {
+        const response = await fetch(`/admin/toys/${toyId}/stock`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({ delta: delta })
+        });
+        const data = await response.json();
+        if (data.success) {
+            const el = document.getElementById(`stock-${toyId}`);
+            if (el) el.textContent = data.stock;
+        } else {
+            alert(data.message || 'Error actualizando stock');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error actualizando stock');
+    }
+}
+
+async function deleteToy(toyId) {
+    if (!confirm('¿Eliminar este juguete?')) return;
+    try {
+        const response = await fetch(`/admin/delete_toy/${toyId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            const card = document.getElementById(`toy-${toyId}`);
+            if (card) card.remove();
+        } else {
+            alert(data.message || 'Error al eliminar el juguete');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar el juguete');
+    }
+}
 </script>
 {% endblock %}

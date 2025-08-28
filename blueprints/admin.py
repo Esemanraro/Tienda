@@ -544,7 +544,7 @@ def delete_toy(toy_id):
         else:
             flash('¡Juguete eliminado exitosamente!', 'success')
             return redirect(url_for('admin.toys_page'))
-        
+
     except Exception as e:
         db.session.rollback()
         error_msg = f'Error al eliminar el juguete: {str(e)}'
@@ -558,6 +558,23 @@ def delete_toy(toy_id):
         else:
             flash(error_msg, 'error')
             return redirect(url_for('admin.toys_page'))
+@admin_bp.route('/toys/<int:toy_id>/stock', methods=['POST'])
+@login_required
+def update_toy_stock(toy_id):
+    """Ajustar el stock de un juguete"""
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Acceso denegado'}), 403
+
+    toy = Toy.query.get_or_404(toy_id)
+    try:
+        data = request.get_json() or {}
+        delta = int(data.get('delta', 0))
+        toy.stock = max(0, toy.stock + delta)
+        db.session.commit()
+        return jsonify({'success': True, 'stock': toy.stock})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # NUEVA RUTA: Gestión dedicada de juguetes
 @admin_bp.route('/toys')
