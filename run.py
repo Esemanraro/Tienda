@@ -9,10 +9,15 @@ Versión: 2.0
 import os
 import sys
 from pathlib import Path
+
+# Agregar el directorio actual al path para importaciones antes de importar "app"
+sys.path.insert(0, str(Path(__file__).parent))
+
 from app import create_app
 
-# Agregar el directorio actual al path para importaciones
-sys.path.insert(0, str(Path(__file__).parent))
+# Configuración de host y puerto con valores por defecto
+APP_HOST = os.getenv("APP_HOST", "192.168.0.51")
+APP_PORT = int(os.getenv("APP_PORT", 5070))
 
 def initialize_advanced_systems(app):
     """Inicializar sistemas avanzados de la aplicación"""
@@ -67,7 +72,7 @@ def setup_environment():
 
 def print_startup_banner():
     """Mostrar banner de inicio con información del sistema"""
-    banner = """
+    banner = f"""
 ╔══════════════════════════════════════════════════════════════╗
 ║                    🎮 TIENDITA ALOHA 🎮                     ║
 ║                                                              ║
@@ -82,8 +87,8 @@ def print_startup_banner():
 ║  • 📱 Diseño responsive y moderno                          ║
 ║  • 🎯 Panel administrativo completo                        ║
 ║                                                              ║
-║  URL: http://127.0.0.1:5004                                ║
-║  Admin: http://127.0.0.1:5004/admin                        ║
+║  URL: http://{APP_HOST}:{APP_PORT}                                ║
+║  Admin: http://{APP_HOST}:{APP_PORT}/admin                        ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
     """
@@ -112,24 +117,24 @@ def main():
                 "🎉 Tiendita ALOHA started successfully",
                 category='main',
                 extra_data={
-                    'host': '127.0.0.1',
-                    'port': 5004,
+                    'host': APP_HOST,
+                    'port': APP_PORT,
                     'debug': True,
                     'version': '2.0'
                 }
             )
         except:
             pass
-        
+
         print("\n🚀 Starting Flask development server...")
-        print("📱 Access the application at: http://127.0.0.1:5004")
-        print("🔧 Admin panel at: http://127.0.0.1:5004/admin")
+        print(f"📱 Access the application at: http://{APP_HOST}:{APP_PORT}")
+        print(f"🔧 Admin panel at: http://{APP_HOST}:{APP_PORT}/admin")
         print("\n💡 Press Ctrl+C to stop the server\n")
-        
+
         # Ejecutar la aplicación
         app.run(
-            host='127.0.0.1',
-            port=5004,
+            host=APP_HOST,
+            port=APP_PORT,
             debug=False,
             use_reloader=True,
             threaded=True
