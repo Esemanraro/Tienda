@@ -11,10 +11,10 @@
     <div class="search-form-container">
         <form method="GET" action="{{ url_for('shop.search') }}" class="search-form">
             <div class="search-input-group">
-                <input 
-                    type="text" 
-                    name="query" 
-                    value="{{ request.args.get('query', '') }}"
+                <input
+                    type="text"
+                    name="query"
+                    value="{{ query }}"
                     placeholder="Buscar juguetes..."
                     class="search-input"
                 >
@@ -26,15 +26,15 @@
             <div class="filter-group">
                 <select name="category" class="filter-select">
                     <option value="">Todas las categorías</option>
-                    <option value="Niña" {% if request.args.get('category') == 'Niña' %}selected{% endif %}>Niña</option>
-                    <option value="Niño" {% if request.args.get('category') == 'Niño' %}selected{% endif %}>Niño</option>
-                    <option value="Mixta" {% if request.args.get('category') == 'Mixta' %}selected{% endif %}>Mixta</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
                 </select>
-                
+
                 <select name="sort" class="filter-select">
-                    <option value="name" {% if request.args.get('sort') == 'name' %}selected{% endif %}>Nombre A-Z</option>
-                    <option value="price_low" {% if request.args.get('sort') == 'price_low' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                    <option value="price_high" {% if request.args.get('sort') == 'price_high' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                    <option value="name" {% if sort == 'name' %}selected{% endif %}>Nombre A-Z</option>
+                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
                 </select>
             </div>
         </form>
