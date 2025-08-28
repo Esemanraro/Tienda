@@ -570,7 +570,7 @@ def toys_page():
     toy_form = ToyForm()
     toys = Toy.query.filter_by(is_active=True).order_by(Toy.created_at.desc()).all()
 
-    return render_template('admin_toys.html', toy_form=toy_form, toys=toys)
+    return render_template('admin/inventory.html', toy_form=toy_form, toys=toys)
 
 # NUEVA IMPLEMENTACIÓN: Edición de juguetes simple y robusta
 @admin_bp.route('/toy_edit_new/<int:toy_id>', methods=['POST'])
