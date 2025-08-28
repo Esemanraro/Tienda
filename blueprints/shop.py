@@ -133,7 +133,7 @@ def basic_search():
     """Búsqueda básica (fallback)"""
     query = request.args.get('query', '').strip()
     category = request.args.get('category', '')
-    sort = request.args.get('sort', 'created_at')
+    sort = request.args.get('sort', 'name')
     page = PaginationHelper.get_page_number()
     per_page = PaginationHelper.get_per_page(default=12)
     
@@ -160,7 +160,7 @@ def basic_search():
         toys_query = toys_query.order_by(Toy.price.asc())
     elif sort == 'price_desc':
         toys_query = toys_query.order_by(Toy.price.desc())
-    else:  # created_at por defecto
+    else:  # fallback
         toys_query = toys_query.order_by(Toy.created_at.desc())
     
     # Paginación
@@ -179,6 +179,8 @@ def basic_search():
         Toy.is_active == True,
         Toy.category.isnot(None)
     ).distinct().all()
+
+    category_list = sorted(cat[0] for cat in categories)
     
     return render_template(
         'search.html',
@@ -188,7 +190,7 @@ def basic_search():
         query=query,
         category=category,
         sort=sort,
-        categories=[cat[0] for cat in categories]
+        categories=category_list
     )
 
 @shop_bp.route('/search/suggestions')
