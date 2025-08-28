@@ -1,0 +1,231 @@
+{
+  "tests": [
+    {
+      "test": "Servidor disponible",
+      "success": true,
+      "message": "Respuesta HTTP 200",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.119725"
+    },
+    {
+      "test": "Página de login",
+      "success": true,
+      "message": "Página carga correctamente",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.125313"
+    },
+    {
+      "test": "Página de registro",
+      "success": true,
+      "message": "Página carga correctamente",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.129618"
+    },
+    {
+      "test": "Campo centro en registro",
+      "success": true,
+      "message": "Formulario incluye selección de centro",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.129651"
+    },
+    {
+      "test": "Login admin",
+      "success": true,
+      "message": "Login exitoso - Centro: David",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.197173"
+    },
+    {
+      "test": "Acceso perfil admin",
+      "success": true,
+      "message": "Puede acceder a páginas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.204378"
+    },
+    {
+      "test": "Acceso admin admin",
+      "success": true,
+      "message": "Puede acceder al dashboard de administrador",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.304381"
+    },
+    {
+      "test": "Logout admin",
+      "success": true,
+      "message": "Logout exitoso",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.308300"
+    },
+    {
+      "test": "Protección post-logout",
+      "success": true,
+      "message": "4/4 rutas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.317259"
+    },
+    {
+      "test": "Login admin_ana",
+      "success": true,
+      "message": "Login exitoso - Centro: Ana",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.381696"
+    },
+    {
+      "test": "Acceso perfil admin_ana",
+      "success": true,
+      "message": "Puede acceder a páginas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.384845"
+    },
+    {
+      "test": "Acceso admin admin_ana",
+      "success": true,
+      "message": "Puede acceder al dashboard de administrador",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.392669"
+    },
+    {
+      "test": "Logout admin_ana",
+      "success": true,
+      "message": "Logout exitoso",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.396577"
+    },
+    {
+      "test": "Protección post-logout",
+      "success": true,
+      "message": "4/4 rutas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.412428"
+    },
+    {
+      "test": "Login admin_carlos",
+      "success": true,
+      "message": "Login exitoso - Centro: Carlos",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.477213"
+    },
+    {
+      "test": "Acceso perfil admin_carlos",
+      "success": true,
+      "message": "Puede acceder a páginas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.480260"
+    },
+    {
+      "test": "Acceso admin admin_carlos",
+      "success": true,
+      "message": "Puede acceder al dashboard de administrador",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.487711"
+    },
+    {
+      "test": "Logout admin_carlos",
+      "success": true,
+      "message": "Logout exitoso",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.491164"
+    },
+    {
+      "test": "Protección post-logout",
+      "success": true,
+      "message": "4/4 rutas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.500773"
+    },
+    {
+      "test": "Login admin_maria",
+      "success": true,
+      "message": "Login exitoso - Centro: María",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.564811"
+    },
+    {
+      "test": "Acceso perfil admin_maria",
+      "success": true,
+      "message": "Puede acceder a páginas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.568083"
+    },
+    {
+      "test": "Acceso admin admin_maria",
+      "success": true,
+      "message": "Puede acceder al dashboard de administrador",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.576758"
+    },
+    {
+      "test": "Logout admin_maria",
+      "success": true,
+      "message": "Logout exitoso",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.580386"
+    },
+    {
+      "test": "Protección post-logout",
+      "success": true,
+      "message": "4/4 rutas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.591181"
+    },
+    {
+      "test": "Login user_david1",
+      "success": true,
+      "message": "Login exitoso - Centro: David",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.655367"
+    },
+    {
+      "test": "Acceso perfil user_david1",
+      "success": true,
+      "message": "Puede acceder a páginas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.659195"
+    },
+    {
+      "test": "Logout user_david1",
+      "success": true,
+      "message": "Logout exitoso",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.663001"
+    },
+    {
+      "test": "Protección post-logout",
+      "success": true,
+      "message": "4/4 rutas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.672797"
+    },
+    {
+      "test": "Login user_ana1",
+      "success": true,
+      "message": "Login exitoso - Centro: Ana",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.738159"
+    },
+    {
+      "test": "Acceso perfil user_ana1",
+      "success": true,
+      "message": "Puede acceder a páginas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.741376"
+    },
+    {
+      "test": "Logout user_ana1",
+      "success": true,
+      "message": "Logout exitoso",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.744771"
+    },
+    {
+      "test": "Protección post-logout",
+      "success": true,
+      "message": "4/4 rutas protegidas",
+      "details": null,
+      "timestamp": "2025-05-27T15:01:47.755574"
+    }
+  ],
+  "success_count": 32,
+  "total_tests": 32,
+  "errors": []
+}

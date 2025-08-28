@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}✏️ Editar Juguete{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>✏️ Editar Juguete</h2>
+            <p class="auth-subtitle">Modifica los detalles del juguete</p>
+        </div>
+
+        <form action="{{ url_for('admin.edit_toy', toy_id=toy.id) }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">
+                    <span class="icon">📝</span>
+                    Nombre
+                </label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       value="{{ toy.name }}" 
+                       required
+                       placeholder="Nombre del juguete">
+            </div>
+
+            <div class="form-group">
+                <label for="category">
+                    <span class="icon">🏷️</span>
+                    Categoría
+                </label>
+                <select id="category" name="category" required class="category-select">
+                    <option value="" disabled>Selecciona una categoría</option>
+                    <option value="Niña" {% if toy.category == 'Niña' %}selected{% endif %}>👧 Juguetes de Niña</option>
+                    <option value="Niño" {% if toy.category == 'Niño' %}selected{% endif %}>👦 Juguetes de Niño</option>
+                    <option value="Mixta" {% if toy.category == 'Mixta' %}selected{% endif %}>👧👦 Juguetes Mixtos</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">
+                    <span class="icon">📄</span>
+                    Descripción
+                </label>
+                <textarea id="description" 
+                          name="description" 
+                          required
+                          placeholder="Describe el juguete"
+                          rows="4">{{ toy.description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="price">
+                    <span class="icon">💰</span>
+                    Precio (ALOHA $)
+                </label>
+                <input type="number" 
+                       id="price" 
+                       name="price" 
+                       value="{{ toy.price }}" 
+                       step="0.01" 
+                       required
+                       placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label for="image">
+                    <span class="icon">🖼️</span>
+                    Nueva Imagen (opcional)
+                </label>
+                <input type="file" 
+                       id="image" 
+                       name="image" 
+                       accept="image/*"
+                       class="file-input">
+            </div>
+
+            <div class="current-image">
+                <p><strong>Imagen Actual:</strong></p>
+                <img src="{{ toy.image_url }}" 
+                     alt="{{ toy.name }}" 
+                     class="preview-image">
+            </div>
+
+            <div class="action-buttons">
+                <button type="submit" class="auth-button">
+                    ✨ Guardar Cambios
+                </button>
+                <a href="{{ url_for('admin.dashboard') }}" class="back-button">
+                    🔙 Volver al Panel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.category-select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid rgba(76, 175, 80, 0.1);
+    border-radius: var(--border-radius);
+    background: var(--background-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.category-select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+.current-image {
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.preview-image {
+    max-width: 200px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-top: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.auth-button {
+    flex: 1;
+}
+
+.file-input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid rgba(76, 175, 80, 0.1);
+    border-radius: var(--border-radius);
+    background: var(--background-color);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    padding: 0.8rem 1rem;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: var(--font-family);
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

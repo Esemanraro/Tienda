@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}🔑 Iniciar Sesión{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>🔑 Iniciar Sesión</h2>
+            <p class="auth-subtitle">¡Bienvenido de nuevo!</p>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label for="username">
+                    <span class="icon">👤</span>
+                    Usuario
+                </label>
+                {{ form.username(class="auth-input", placeholder="Tu nombre de usuario") }}
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <span class="icon">🔒</span>
+                    Contraseña
+                </label>
+                {{ form.password(class="auth-input", placeholder="Tu contraseña") }}
+            </div>
+
+            <button type="submit" class="auth-button primary">
+                ✨ Iniciar Sesión
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>¿No tienes una cuenta? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.flash-messages {
+    margin-bottom: 1rem;
+}
+
+.flash-message {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.flash-message.error {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.flash-message.success {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+}
+
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 2rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.auth-subtitle {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+}
+
+.auth-input {
+    padding: 0.8rem;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.auth-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    background: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.auth-button:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.auth-links {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

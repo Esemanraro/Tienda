@@ -1,0 +1,100 @@
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Archivos de entorno
+.env
+.venv
+
+# Archivos de base de datos
+*.db
+*.sqlite
+instance/
+
+# Archivos de caché
+.cache/
+.coverage
+htmlcov/
+
+# Archivos de entorno virtual
+.env
+.venv
+
+# Archivos de PyCharm
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Archivos de Redis
+dump.rdb
+
+# Archivos de sesión
+flask_session/
+
+# Archivos de caché de Python
+.pytest_cache/
+.mypy_cache/
+
+# Archivos de cobertura
+.coverage
+htmlcov/
+
+# Archivos de paquetes
+dist/
+build/
+*.egg-info/
+
+# Archivos de entorno virtual
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Archivos de configuración local
+config_local.py
+
+# Archivos de respaldo
+*.bak
+*.swp
+*~
+
+# Archivos de Jupyter Notebook
+.ipynb_checkpoints
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de PyInstaller
+*.spec

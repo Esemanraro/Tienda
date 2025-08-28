@@ -1,0 +1,10 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 40
+📅 Date: 2024-10-27 22:42:01
+💰 Total: A$ 12.00
+
+🎁 Items:
+  • PEGATINA PARA NIÑA x1: A$ 12.00
+
+✨ Thank you for shopping at ALOHA!

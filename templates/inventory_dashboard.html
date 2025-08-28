@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard de Inventario Inteligente - Tiendita ALOHA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .inventory-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #007bff;
+    }
+    
+    .alert-critical {
+        border-left-color: #dc3545;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+    }
+    
+    .alert-low {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+    }
+    
+    .prediction-card {
+        border-left-color: #28a745;
+        background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+    }
+    
+    .stat-box {
+        text-align: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    .health-excellent { color: #28a745; }
+    .health-good { color: #17a2b8; }
+    .health-regular { color: #ffc107; }
+    .health-critical { color: #dc3545; }
+    
+    .urgency-high {
+        background: #dc3545;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .urgency-medium {
+        background: #ffc107;
+        color: #212529;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .btn-send-alerts {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-send-alerts:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+    
+    .refresh-button {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .refresh-button:hover {
+        transform: scale(1.1);
+        background: #218838;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">📦 Dashboard de Inventario Inteligente</h1>
+                    <p class="text-muted">Gestión automática y predicción de stock</p>
+                </div>
+                <div>
+                    <button class="btn btn-send-alerts" onclick="sendAlerts()">
+                        📧 Enviar Alertas
+                    </button>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary ml-2">
+                        ← Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas Generales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number">{{ report.stats.total_products }}</div>
+                <div class="stat-label">Total Productos</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number">{{ report.stats.total_stock_units }}</div>
+                <div class="stat-label">Unidades en Stock</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number">A${{ "%.2f"|format(report.stats.total_inventory_value) }}</div>
+                <div class="stat-label">Valor Total</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number health-{{ report.stats.stock_health.lower() }}">
+                    {{ report.stats.stock_health }}
+                </div>
+                <div class="stat-label">Salud del Inventario</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de Alertas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-box alert-critical">
+                <div class="stat-number text-danger">{{ report.summary.critical_alerts }}</div>
+                <div class="stat-label">🔴 Alertas Críticas</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box alert-low">
+                <div class="stat-number text-warning">{{ report.summary.total_alerts - report.summary.critical_alerts }}</div>
+                <div class="stat-label">🟡 Stock Bajo</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box prediction-card">
+                <div class="stat-number text-success">{{ report.summary.restock_recommendations }}</div>
+                <div class="stat-label">📈 Recomendaciones</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas de Stock -->
+    {% if report.alerts %}
+    <div class="row">
+        <div class="col-12">
+            <div class="inventory-card alert-critical">
+                <h4 class="mb-3">🚨 Alertas de Stock</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Stock Actual</th>
+                                <th>Precio</th>
+                                <th>Nivel de Alerta</th>
+                                <th>Última Actualización</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in report.alerts %}
+                            <tr class="{% if alert.alert_level == 'CRÍTICO' %}table-danger{% else %}table-warning{% endif %}">
+                                <td>
+                                    <strong>{{ alert.name }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge badge-secondary">{{ alert.category }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if alert.current_stock <= 2 %}badge-danger{% else %}badge-warning{% endif %}">
+                                        {{ alert.current_stock }} unidades
+                                    </span>
+                                </td>
+                                <td>A${{ "%.2f"|format(alert.price) }}</td>
+                                <td>
+                                    {% if alert.alert_level == 'CRÍTICO' %}
+                                        <span class="badge badge-danger">🔴 CRÍTICO</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">🟡 BAJO</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">
+                                    {{ alert.last_updated[:10] if alert.last_updated else 'N/A' }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Predicciones de Reabastecimiento -->
+    {% if report.predictions %}
+    <div class="row">
+        <div class="col-12">
+            <div class="inventory-card prediction-card">
+                <h4 class="mb-3">🔮 Predicciones de Reabastecimiento</h4>
+                <p class="text-muted mb-3">Basado en ventas de los últimos 30 días</p>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Stock Actual</th>
+                                <th>Ventas Diarias (Promedio)</th>
+                                <th>Demanda Predicha (30 días)</th>
+                                <th>Cantidad Sugerida</th>
+                                <th>Urgencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pred in report.predictions %}
+                            <tr>
+                                <td>
+                                    <strong>{{ pred.name }}</strong>
+                                    <br><small class="text-muted">{{ pred.category }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info">{{ pred.current_stock }}</span>
+                                </td>
+                                <td>{{ pred.daily_avg_sales }}</td>
+                                <td>{{ pred.predicted_demand }}</td>
+                                <td>
+                                    <strong class="text-success">{{ pred.suggested_order_qty }} unidades</strong>
+                                </td>
+                                <td>
+                                    {% if pred.urgency == 'ALTA' %}
+                                        <span class="urgency-high">🔥 ALTA</span>
+                                    {% else %}
+                                        <span class="urgency-medium">⚠️ MEDIA</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Categorías con Stock Bajo -->
+    {% if report.stats.categories_with_low_stock %}
+    <div class="row">
+        <div class="col-12">
+            <div class="inventory-card">
+                <h4 class="mb-3">📊 Categorías Afectadas</h4>
+                <div class="row">
+                    {% for category, count in report.stats.categories_with_low_stock.items() %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ category }}</h5>
+                                <p class="card-text">
+                                    <span class="badge badge-warning">{{ count }} productos</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Sin Alertas -->
+    {% if not report.alerts and not report.predictions %}
+    <div class="row">
+        <div class="col-12">
+            <div class="inventory-card text-center">
+                <div class="py-5">
+                    <h3 class="text-success">✅ ¡Inventario en Excelente Estado!</h3>
+                    <p class="text-muted">No hay alertas de stock bajo ni recomendaciones de reabastecimiento.</p>
+                    <p class="small text-muted">Última actualización: {{ timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Botón de Refresh -->
+<button class="refresh-button" onclick="location.reload()" title="Actualizar datos">
+    🔄
+</button>
+
+<!-- Modal de Envío de Alertas -->
+<div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">📧 Enviar Alertas por Email</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="alertForm">
+                    <div class="form-group">
+                        <label for="adminEmail">Email del Administrador:</label>
+                        <input type="email" class="form-control" id="adminEmail" 
+                               value="{{ current_user.email }}" required>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Se enviarán:</strong>
+                        <ul class="mb-0">
+                            <li>{{ report.summary.critical_alerts }} alertas críticas</li>
+                            <li>{{ report.summary.total_alerts - report.summary.critical_alerts }} alertas de stock bajo</li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSendAlerts()">
+                    📧 Enviar Alertas
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sendAlerts() {
+    {% if report.summary.total_alerts > 0 %}
+        $('#alertModal').modal('show');
+    {% else %}
+        alert('No hay alertas para enviar.');
+    {% endif %}
+}
+
+function confirmSendAlerts() {
+    const email = document.getElementById('adminEmail').value;
+    if (!email) {
+        alert('Por favor ingresa un email válido.');
+        return;
+    }
+    
+    // Mostrar loading
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Enviando...';
+    btn.disabled = true;
+    
+    fetch('{{ url_for("admin.send_inventory_alerts") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ ' + data.message);
+            $('#alertModal').modal('hide');
+        } else {
+            alert('❌ ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('❌ Error enviando alertas: ' + error.message);
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+// Auto-refresh cada 5 minutos
+setInterval(() => {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

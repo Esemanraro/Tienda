@@ -1,0 +1,10 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 7
+📅 Date: 2024-10-28 16:41:33
+💰 Total: A$ 75.00
+
+🎁 Items:
+  • Pulseras Mágicas x3: A$ 75.00
+
+✨ Thank you for shopping at ALOHA!

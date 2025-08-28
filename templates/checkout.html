@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}✨ Confirmar Compra{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="checkout-header">
+        <h2>✨ Confirmar tu Compra</h2>
+        <p class="checkout-subtitle">Revisa los detalles antes de completar tu compra</p>
+    </div>
+
+    <div class="checkout-content">
+        <!-- Lista de items -->
+        <div class="checkout-items">
+            {% for item in cart_items %}
+                <div class="checkout-item-card">
+                    <div class="item-image">
+                        <img src="{{ item.toy.image_url }}" alt="{{ item.toy.name }}">
+                    </div>
+                    <div class="item-details">
+                        <h3>{{ item.toy.name }}</h3>
+                        <p class="item-description">{{ item.toy.description }}</p>
+                        <div class="item-meta">
+                            <span class="quantity">Cantidad: {{ item.quantity }}</span>
+                            <span class="price">{{ format_currency(item.toy.price) }} c/u</span>
+                        </div>
+                        <p class="item-subtotal">Subtotal: {{ format_currency(item.total) }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Resumen de compra -->
+        <div class="checkout-summary">
+            <div class="summary-card">
+                <h3>💰 Resumen de Compra</h3>
+                
+                <div class="balance-info">
+                    <p>Tu balance actual:</p>
+                    <span class="current-balance">{{ current_user.balance|format_currency }}</span>
+                </div>
+
+                <div class="summary-details">
+                    <div class="summary-row">
+                        <span>Descuento:</span>
+                        <span>A$ 0.00</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total a Pagar:</span>
+                        <span class="total-amount">{{ format_currency(total) }}</span>
+                    </div>
+                </div>
+
+                <div class="summary-actions">
+                    <form id="checkoutForm" action="{{ url_for('shop.checkout') }}" method="POST" onsubmit="return handleCheckoutSubmit(event);">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button id="confirmPurchaseBtn" type="submit" class="action-button primary full-width">
+                            <span class="icon">✨</span>
+                            Confirmar Compra
+                        </button>
+                    </form>
+                    <a href="{{ url_for('shop.view_cart') }}" class="action-button secondary full-width">
+                        <span class="icon">🔙</span>
+                        Volver al Carrito
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.checkout-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.checkout-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.checkout-subtitle {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+.checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+}
+
+/* Estilos para los items */
+.checkout-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.checkout-item-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    transition: var(--transition);
+}
+
+.checkout-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.1);
+}
+
+.item-image {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+}
+
+.item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item-details h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.item-description {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin: 0;
+}
+
+.item-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.item-subtotal {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-top: auto;
+}
+
+/* Estilos para el resumen */
+.summary-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1.5rem;
+    position: sticky;
+    top: 100px;
+}
+
+.summary-card h3 {
+    color: var(--primary-color);
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+.balance-info {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.current-balance {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-color);
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 2px solid rgba(76, 175, 80, 0.1);
+}
+
+.total-amount {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.summary-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.action-button.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-button.secondary {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--primary-color);
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+}
+
+.full-width {
+    width: 100%;
+    text-align: center;
+}
+
+.icon {
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkout-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .checkout-item-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .item-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .item-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .item-subtotal {
+        text-align: center;
+    }
+
+    /* Hacer que el resumen no sea sticky en pantallas pequeñas */
+    .summary-card {
+        position: static;
+        margin-top: 2rem;
+    }
+}
+</style>
+
+<script>
+// Evitar doble envío del formulario de checkout
+function handleCheckoutSubmit(event) {
+    const submitBtn = document.getElementById('confirmPurchaseBtn');
+    if (submitBtn.disabled) {
+        // Ya se envió el formulario
+        return false;
+    }
+    // Deshabilitar el botón y mostrar texto de procesamiento
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="icon">⏳</span> Procesando...';
+    return true; // Permitir envío
+}
+</script>
+{% endblock %}

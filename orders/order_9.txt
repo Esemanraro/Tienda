@@ -1,0 +1,11 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 9
+📅 Date: 2024-10-27 18:53:15
+💰 Total: A$ 122.00
+
+🎁 Items:
+  • PEGATINA PARA NIÑA x6: A$ 72.00
+  • PULSERAS MÁGICAS x2: A$ 50.00
+
+✨ Thank you for shopping at ALOHA!

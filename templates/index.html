@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}🎮 Juguetes{% endblock %}
+
+{% block content %}
+<div class="toys-container">
+    <h2>🎮 Juguetes Disponibles</h2>
+    
+    <!-- Información de resultados -->
+    {% if pagination %}
+    <div class="results-info text-center mb-3">
+        <p class="text-muted">
+            <i class="fas fa-toys"></i> 
+            Mostrando {{ pagination.total }} juguetes disponibles
+        </p>
+    </div>
+    {% endif %}
+    
+    <div class="toys-grid">
+        {% for toy in toys %}
+            <div class="toy-card">
+                <div class="toy-image">
+                    <img src="{{ toy.image_url }}" alt="{{ toy.name }}">
+                </div>
+                <div class="toy-content">
+                    <h3>{{ toy.name }}</h3>
+                    <p class="toy-description">{{ toy.description }}</p>
+                    <p class="toy-price">A$ {{ "%.2f"|format(toy.price) }}</p>
+                    {% if current_user.is_authenticated %}
+                        <button type="button" class="add-to-cart" data-toy-id="{{ toy.id }}" onclick="addToCart({{ toy.id }})">
+                            🛒 Agregar al Carrito
+                        </button>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="login-to-buy">
+                            🔑 Inicia sesión para comprar
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="no-toys-message">
+                <div class="text-center py-5">
+                    <i class="fas fa-toys fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No hay juguetes disponibles</h4>
+                    <p class="text-muted">¡Pronto tendremos nuevos productos para ti!</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Incluir paginación -->
+    {% include 'pagination.html' with context %}
+</div>
+
+<style>
+.toys-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.toys-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.toy-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.toy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.toy-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.toy-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.toy-content {
+    padding: 1.5rem;
+}
+
+.toy-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+}
+
+.toy-description {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin: 0 0 1rem 0;
+}
+
+.toy-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0 0 1rem 0;
+}
+
+.add-to-cart,
+.login-to-buy {
+    display: inline-block;
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.add-to-cart:hover,
+.login-to-buy:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.login-to-buy {
+    background: #666;
+}
+
+.login-to-buy:hover {
+    background: #555;
+}
+</style>
+
+<script>
+function addToCart(toyId) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    
+    // Crear los datos del formulario
+    const formData = new FormData();
+    formData.append('toy_id', toyId);
+    formData.append('quantity', 1);
+    formData.append('csrf_token', csrfToken);
+    
+    fetch('/add_to_cart', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (response.redirected) {
+            // Si hay redirección, probablemente fue exitoso
+            showToast('✨ ¡Producto agregado al carrito!', 'success');
+            return { success: true };
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showToast('✨ ¡Producto agregado al carrito!', 'success');
+        } else {
+            showToast(data.message || '❌ Error al agregar al carrito', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('❌ Error al agregar al carrito', 'error');
+    });
+}
+</script>
+{% endblock %}

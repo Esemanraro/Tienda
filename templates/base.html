@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>{% block title %}{% endblock %} | Tiendita ALOHA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/ALOHALogo12.png') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Tiendita ALOHA">
+</head>
+<body>
+    <!-- Header optimizado -->
+    <header class="site-header">
+        <div class="header-content">
+            <!-- Logo y nombre -->
+            <a href="{{ url_for('shop.index') }}" class="brand-link">
+                <span class="brand-name">Tiendita ALOHA</span>
+                <img src="{{ url_for('static', filename='images/ALOHALogo12.png') }}" alt="ALOHA Logo" class="brand-logo">
+            </a>
+
+            <!-- Navegación desktop -->
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="{{ url_for('shop.index') }}" class="{% if request.endpoint == 'shop.index' %}active{% endif %}">🏠 Inicio</a></li>
+                    <li><a href="{{ url_for('shop.search') }}" class="{% if request.endpoint == 'shop.search' %}active{% endif %}">🔍 Buscar</a></li>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <li><a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">⚙️ Panel Admin</a></li>
+                        {% endif %}
+                        <li><a href="{{ url_for('user.profile') }}" class="{% if request.endpoint == 'user.profile' %}active{% endif %}">👤 Mi Perfil</a></li>
+                        <li>
+                            <a href="{{ url_for('shop.view_cart') }}" class="{% if request.endpoint == 'shop.view_cart' %}active{% endif %} cart-link">
+                                🛒 Carrito
+                                {% if cart_count > 0 %}
+                                    <span class="cart-badge">{{ cart_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.login') }}" class="{% if request.endpoint == 'auth.login' %}active{% endif %}">🔑 Ingresar</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }} fade-in">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Navegación móvil inferior optimizada -->
+    <nav class="mobile-nav">
+        <ul>
+            <li>
+                <a href="{{ url_for('shop.index') }}" 
+                   class="{% if request.endpoint == 'shop.index' %}active{% endif %}" 
+                   aria-label="Inicio">
+                    🏠
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('shop.search') }}" 
+                   class="{% if request.endpoint == 'shop.search' %}active{% endif %}" 
+                   aria-label="Buscar">
+                    🔍
+                </a>
+            </li>
+            {% if current_user.is_authenticated %}
+                <li>
+                    <a href="{{ url_for('shop.view_cart') }}" 
+                       class="{% if request.endpoint == 'shop.view_cart' %}active{% endif %} cart-link-mobile" 
+                       aria-label="Carrito">
+                        🛒
+                        {% if cart_count > 0 %}
+                            <span class="cart-badge-mobile">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('user.profile') }}" 
+                       class="{% if request.endpoint == 'user.profile' %}active{% endif %}" 
+                       aria-label="Perfil">
+                        👤
+                    </a>
+                </li>
+                {% if current_user.is_admin %}
+                    <li>
+                        <a href="{{ url_for('admin.dashboard') }}" 
+                           class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}" 
+                           aria-label="Admin">
+                            ⚙️
+                        </a>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li>
+                    <a href="{{ url_for('auth.login') }}" 
+                       class="{% if request.endpoint == 'auth.login' %}active{% endif %}" 
+                       aria-label="Ingresar">
+                        🔑
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('auth.register') }}" 
+                       class="{% if request.endpoint == 'auth.register' %}active{% endif %}" 
+                       aria-label="Registro">
+                        📝
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
+    
+    <!-- Script de depuración simplificado -->
+    <script>
+        console.log('Script de depuración cargado');
+        console.log('cart_count:', {{ cart_count|tojson|safe }});
+        
+        // Función para actualizar el badge del carrito
+        function updateCartBadge(count) {
+            console.log('Actualizando badge a:', count);
+            // Actualizar badge desktop
+            const desktopBadge = document.querySelector('.cart-badge');
+            const desktopLink = document.querySelector('.cart-link');
+            
+            if (desktopLink) {
+                if (count > 0) {
+                    if (desktopBadge) {
+                        desktopBadge.textContent = count;
+                    } else {
+                        const badge = document.createElement('span');
+                        badge.className = 'cart-badge';
+                        badge.textContent = count;
+                        desktopLink.appendChild(badge);
+                    }
+                } else if (desktopBadge) {
+                    desktopBadge.remove();
+                }
+            }
+            
+            // Actualizar badge móvil
+            const mobileBadge = document.querySelector('.cart-badge-mobile');
+            const mobileLink = document.querySelector('.cart-link-mobile');
+            
+            if (mobileLink) {
+                if (count > 0) {
+                    if (mobileBadge) {
+                        mobileBadge.textContent = count;
+                    } else {
+                        const badge = document.createElement('span');
+                        badge.className = 'cart-badge-mobile';
+                        badge.textContent = count;
+                        mobileLink.appendChild(badge);
+                    }
+                } else if (mobileBadge) {
+                    mobileBadge.remove();
+                }
+            }
+        }
+        
+        // Actualizar el badge al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM completamente cargado');
+            updateCartBadge({{ cart_count|tojson|safe }});
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+<style>
+/* Estilos del header */
+.site-header {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 1rem;
+    box-shadow: var(--box-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+    gap: 0.5rem;
+}
+
+.brand-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Navegación desktop */
+.desktop-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.desktop-nav ul {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+}
+
+.desktop-nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.desktop-nav a:hover {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.cart-link {
+    position: relative;
+}
+
+.cart-badge {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 0.2rem 0.4rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 0.3rem;
+    display: inline-block;
+    min-width: 1.2rem;
+    text-align: center;
+}
+
+/* Navegación móvil */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    padding: 0.8rem;
+    z-index: 1000;
+}
+
+.mobile-nav ul {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-nav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.mobile-nav a:hover {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--primary-color);
+}
+
+.cart-link-mobile {
+    position: relative;
+}
+
+.cart-badge-mobile {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 0.1rem 0.3rem;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: bold;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 1rem;
+    min-height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none;
+    }
+    
+    .mobile-nav {
+        display: block;
+    }
+    
+    .header-content {
+        justify-content: center;
+    }
+}
+
+@media (min-width: 769px) {
+    .header-content {
+        padding: 0 2rem;
+    }
+    
+    .desktop-nav ul {
+        flex-wrap: wrap;
+    }
+}
+</style>

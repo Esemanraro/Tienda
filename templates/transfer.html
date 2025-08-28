@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Transferir Fondos{% endblock %}
+
+{% block content %}
+    <h2>Transferir Fondos</h2>
+    <form method="POST" action="{{ url_for('transfer_balance') }}">
+        <div>
+            <label for="recipient">Usuario destinatario:</label>
+            <input type="text" id="recipient" name="recipient" required>
+        </div>
+        <div>
+            <label for="amount">Cantidad a transferir:</label>
+            <input type="number" id="amount" name="amount" min="0.01" step="0.01" required>
+        </div>
+        <button type="submit">Transferir</button>
+    </form>
+    <a href="{{ url_for('profile') }}">Volver al Perfil</a>
+{% endblock %}

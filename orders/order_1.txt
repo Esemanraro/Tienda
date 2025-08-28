@@ -1,0 +1,11 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 1
+📅 Date: 2024-10-28 17:16:27
+💰 Total: A$ 40.00
+
+🎁 Items:
+  • Pulseras Mágicas x1: A$ 25.00
+  • Carro Hot Wheels x1: A$ 15.00
+
+✨ Thank you for shopping at ALOHA!

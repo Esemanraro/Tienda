@@ -1,0 +1,124 @@
+<!--
+Template de paginación reutilizable para Tiendita ALOHA
+Uso: {% raw %}{% include 'pagination.html' with context %}{% endraw %}
+Variables requeridas: pagination, pagination_urls
+-->
+
+{% if pagination and pagination.pages > 1 %}
+<nav aria-label="Navegación de páginas" class="d-flex justify-content-center mt-4">
+    <ul class="pagination pagination-lg" style="display: flex; gap: 8px; list-style: none; padding: 0; margin: 0;">
+        <!-- Botón Primera Página -->
+        {% if pagination.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ pagination_urls.first }}" aria-label="Primera página"
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3); transition: all 0.3s ease; min-width: 44px; height: 44px;"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.4)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(102, 126, 234, 0.3)';">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="{{ pagination_urls.prev }}" aria-label="Página anterior"
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3); transition: all 0.3s ease; min-width: 44px; height: 44px;"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.4)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(102, 126, 234, 0.3)';">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link" 
+                      style="background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); color: #6c757d; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; min-width: 44px; height: 44px; cursor: not-allowed;">&laquo;&laquo;</span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link"
+                      style="background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); color: #6c757d; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; min-width: 44px; height: 44px; cursor: not-allowed;">&laquo;</span>
+            </li>
+        {% endif %}
+
+        <!-- Números de páginas -->
+        {% for page_info in pagination_urls.pages %}
+            {% if page_info.current %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link"
+                          style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%); color: white; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(16, 172, 132, 0.4); min-width: 44px; height: 44px;">
+                        {{ page_info.number }}
+                        <span class="sr-only">(página actual)</span>
+                    </span>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ page_info.url }}"
+                       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3); transition: all 0.3s ease; min-width: 44px; height: 44px;"
+                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.4)';"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(102, 126, 234, 0.3)';">{{ page_info.number }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Botón Última Página -->
+        {% if pagination.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ pagination_urls.next }}" aria-label="Página siguiente"
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3); transition: all 0.3s ease; min-width: 44px; height: 44px;"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.4)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(102, 126, 234, 0.3)';">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="{{ pagination_urls.last }}" aria-label="Última página"
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3); transition: all 0.3s ease; min-width: 44px; height: 44px;"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.4)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(102, 126, 234, 0.3)';">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"
+                      style="background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); color: #6c757d; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; min-width: 44px; height: 44px; cursor: not-allowed;">&raquo;</span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link"
+                      style="background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); color: #6c757d; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.9rem; min-width: 44px; height: 44px; cursor: not-allowed;">&raquo;&raquo;</span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- Información de paginación -->
+<div class="text-center text-muted mt-2">
+    <small>
+        Mostrando {{ pagination.per_page * (pagination.page - 1) + 1 }} - 
+        {{ pagination.per_page * (pagination.page - 1) + pagination.items|length }} 
+        de {{ pagination.total }} resultados
+        {% if pagination.pages > 1 %}
+            (Página {{ pagination.page }} de {{ pagination.pages }})
+        {% endif %}
+    </small>
+</div>
+
+<!-- Selector de elementos por página -->
+<div class="text-center mt-3">
+    <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;">
+        <span style="background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); color: #6c757d; padding: 8px 12px; border-radius: 6px; font-weight: 500; font-size: 0.85rem;">Por página:</span>
+        {% for per_page_option in [12, 24, 48] %}
+            {% set current_per_page = request.args.get('per_page', '12')|int %}
+            {% if per_page_option == current_per_page %}
+                <span style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%); color: white; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; box-shadow: 0 3px 8px rgba(16, 172, 132, 0.3); min-width: 32px; text-align: center;">{{ per_page_option }}</span>
+            {% else %}
+                {% set args = request.args.copy() %}
+                {% set _ = args.update({'per_page': per_page_option, 'page': 1}) %}
+                <a href="{{ url_for(request.endpoint, **args.to_dict()) }}" 
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3); transition: all 0.3s ease; min-width: 32px; text-align: center; display: inline-block;"
+                   onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(102, 126, 234, 0.3)';">{{ per_page_option }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Estilos inline aplicados directamente para máxima especificidad y consistencia visual -->
+<!-- Todos los estilos están aplicados inline en cada elemento para evitar conflictos de CSS -->

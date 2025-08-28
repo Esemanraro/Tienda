@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Detalles de la Transacción{% endblock %}
+
+{% block content %}
+    <h2>Detalles de la Transacción</h2>
+    <p>Fecha: {{ transaction.order_date.strftime('%d/%m/%Y %H:%M') }}</p>
+    <p>Tipo: Compra</p>
+    <p>Monto Total: {{ format_currency(transaction.total_price) }}</p>
+    
+    <h3>Artículos Comprados</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Juguete</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in transaction.items %}
+                <tr>
+                    <td>{{ item.toy.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ format_currency(item.price) }}</td>
+                    <td>{{ format_currency(item.price * item.quantity) }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <a href="{{ url_for('user.profile') }}">Volver al Perfil</a>
+{% endblock %}

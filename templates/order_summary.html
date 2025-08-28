@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}📦 Resumen de Orden{% endblock %}
+
+{% block content %}
+<div class="order-container">
+    <div class="order-card">
+        <div class="card-header">
+            <h2>📦 Orden #{{ order.id }}</h2>
+            <span class="order-date">{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</span>
+        </div>
+        
+        <div class="card-content">
+            <!-- Detalles de los items -->
+            <div class="order-items">
+                {% for item in order.items %}
+                    <div class="order-item">
+                        <div class="item-image">
+                            <img src="{{ item.toy.image_url }}" alt="{{ item.toy.name }}">
+                        </div>
+                        <div class="item-details">
+                            <h3>{{ item.toy.name }}</h3>
+                            <div class="item-meta">
+                                <span>Cantidad: {{ item.quantity }}</span>
+                                <span>Precio: {{ format_currency(item.price) }}</span>
+                            </div>
+                            <p class="item-subtotal">Subtotal: {{ format_currency(item.price * item.quantity) }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Resumen de la orden -->
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span>Total de la Orden:</span>
+                    <span class="total-amount">{{ format_currency(order.total_price) }}</span>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="order-actions">
+                <a href="{{ url_for('shop.download_receipt', order_id=order.id) }}" class="action-button primary full-width" target="_blank">
+                    <span class="icon">📄</span>
+                    Descargar Recibo (PDF)
+                </a>
+                <a href="{{ url_for('shop.index') }}" class="action-button secondary full-width">
+                    <span class="icon">🏪</span>
+                    Volver a la Tienda
+                </a>
+                <a href="/admin/dashboard" class="action-button secondary full-width">
+                    <span class="icon">👤</span>
+                    Ir al Perfil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación de compra -->
+<div id="purchaseCompleteModal" class="modal" style="display: block; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 10% auto; padding: 2rem; border-radius: 10px; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+        <div style="text-align: center;">
+            <h2 style="color: #4CAF50; margin-bottom: 1rem;">¡Compra Realizada con Éxito! 🎉</h2>
+            <p>Tu orden #{{ order.id }} ha sido procesada correctamente.</p>
+            <p>Total: {{ format_currency(order.total_price) }}</p>
+            
+            <div style="margin: 2rem 0;">
+                <a href="{{ url_for('shop.download_receipt', order_id=order.id) }}" 
+                   class="action-button primary" 
+                   style="display: inline-block; margin: 0.5rem;"
+                   target="_blank"
+                   id="downloadReceiptBtn">
+                    <span class="icon">📄</span> Descargar Recibo
+                </a>
+                <a href="/admin/dashboard" 
+                   class="action-button secondary" 
+                   style="display: inline-block; margin: 0.5rem;">
+                    <span class="icon">🏪</span> Volver a la Tienda
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar el modal automáticamente
+    const modal = document.getElementById('purchaseCompleteModal');
+    modal.style.display = 'block';
+    
+    // Cerrar el modal al hacer clic fuera del contenido
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Descargar automáticamente el recibo después de 1 segundo
+    setTimeout(function() {
+        const downloadBtn = document.getElementById('downloadReceiptBtn');
+        if (downloadBtn) {
+            // Abrir en una nueva pestaña para la descarga
+            window.open(downloadBtn.href, '_blank');
+        }
+    }, 1000);
+});
+</script>
+
+<style>
+.order-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.order-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 1.5rem;
+    border-bottom: 2px solid rgba(76, 175, 80, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.order-date {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.order-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: rgba(76, 175, 80, 0.05);
+    border-radius: var(--border-radius);
+}
+
+.item-image {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+}
+
+.item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item-details h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.item-meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.item-subtotal {
+    margin-top: auto;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.order-summary {
+    padding: 1.5rem;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.total-amount {
+    color: var(--primary-color);
+}
+
+.order-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.action-button.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-button.secondary {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--primary-color);
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+}
+
+.full-width {
+    width: 100%;
+    text-align: center;
+}
+
+.icon {
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .order-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .item-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .item-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .item-subtotal {
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

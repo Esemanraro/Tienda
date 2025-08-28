@@ -1,0 +1,11 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 3
+📅 Date: 2024-10-28 15:43:33
+💰 Total: A$ 65.00
+
+🎁 Items:
+  • Carro Hot Wheels x3: A$ 45.00
+  • Cubo Rubik x1: A$ 20.00
+
+✨ Thank you for shopping at ALOHA!

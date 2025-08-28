@@ -1,0 +1,87 @@
+from .extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from sqlalchemy import CheckConstraint
+from flask_login import UserMixin
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+    balance = db.Column(db.Float, default=0.0)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    last_login = db.Column(db.DateTime)
+    center = db.Column(db.String(64), index=True)
+    profile_pic = db.Column(db.String(120))
+    is_active = db.Column(db.Boolean, default=True)
+    
+    __table_args__ = (CheckConstraint('balance >= 0'),)
+    
+    # Relaciones
+    orders = db.relationship('Order', backref='user', lazy='select', cascade='all, delete-orphan')
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+    def get_id(self):
+        return str(self.id)
+        
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Toy(db.Model):
+    __tablename__ = 'toy'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, index=True)
+    description = db.Column(db.Text)
+    price = db.Column(db.Float, nullable=False)
+    image_url = db.Column(db.String(200))
+    category = db.Column(db.String(50), index=True)
+    stock = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now)
+    deleted_at = db.Column(db.DateTime, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    __table_args__ = (CheckConstraint('price > 0'),)
+    
+    # Relaciones
+    order_items = db.relationship('OrderItem', backref='toy', lazy=True)
+
+class Order(db.Model):
+    __tablename__ = 'order'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    order_date = db.Column(db.DateTime, nullable=False, default=datetime.now, index=True)
+    total_price = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), default='completada', nullable=False)  # completada, en_proceso, cancelada
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now)
+    deleted_at = db.Column(db.DateTime, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Relaciones
+    items = db.relationship('OrderItem', backref='order', lazy='select', cascade='all, delete-orphan')
+
+class OrderItem(db.Model):
+    __tablename__ = 'order_item'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
+    toy_id = db.Column(db.Integer, db.ForeignKey('toy.id', ondelete='CASCADE'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    __table_args__ = (CheckConstraint('quantity > 0'),)

@@ -1,0 +1,1246 @@
+{% extends "base.html" %}
+
+{% block title %}⚙️ Panel de Administración{% endblock %}
+
+{% block extra_head %}
+<!-- 🎨 ESTILOS CSS INLINE PARA GARANTIZAR APLICACIÓN INMEDIATA -->
+<style>
+/* 🔥 ESTILOS MODERNOS FORZADOS - APLICACIÓN INMEDIATA */
+
+/* ===== BOTONES DE ACCIONES RÁPIDAS ===== */
+.action-btn {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+    padding: 15px 20px !important;
+    border-radius: 12px !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3) !important;
+    transition: all 0.3s ease !important;
+    min-height: 50px !important;
+    margin: 5px !important;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4) !important;
+    text-decoration: none !important;
+    color: white !important;
+}
+
+.action-btn:active {
+    transform: translateY(-1px) !important;
+}
+
+/* ===== ENLACES SECUNDARIOS ===== */
+.secondary-link {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+    color: #2d3748 !important;
+    padding: 12px 18px !important;
+    border-radius: 10px !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    border: none !important;
+    box-shadow: 0 3px 10px rgba(168, 237, 234, 0.3) !important;
+    transition: all 0.3s ease !important;
+    margin: 5px 0 !important;
+}
+
+.secondary-link:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(168, 237, 234, 0.4) !important;
+    text-decoration: none !important;
+    color: #2d3748 !important;
+}
+
+/* ===== TARJETAS DE NAVEGACIÓN ===== */
+.nav-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    border-radius: 15px !important;
+    padding: 25px !important;
+    margin: 15px 0 !important;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-decoration: none !important;
+    display: block !important;
+    color: white !important;
+}
+
+.nav-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4) !important;
+    text-decoration: none !important;
+    color: white !important;
+}
+
+.nav-card h3 {
+    color: white !important;
+    font-size: 1.3rem !important;
+    margin: 10px 0 5px 0 !important;
+    font-weight: 600 !important;
+}
+
+.nav-card p {
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 !important;
+    font-size: 0.95rem !important;
+}
+
+/* ===== GRID DE ACCIONES ===== */
+.actions-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 15px !important;
+    margin: 20px 0 !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .actions-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+    
+    .action-btn {
+        padding: 12px 16px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav-card,
+.action-btn,
+.secondary-link {
+    animation: fadeInUp 0.6s ease-out !important;
+}
+
+/* ===== FORZAR APLICACIÓN ===== */
+a.action-btn,
+a.secondary-link,
+a.nav-card {
+    text-decoration: none !important;
+}
+
+a.action-btn:hover,
+a.secondary-link:hover,
+a.nav-card:hover {
+    text-decoration: none !important;
+}
+
+/* ===== FOCUS STATES ===== */
+.action-btn:focus,
+.secondary-link:focus,
+.nav-card:focus {
+    outline: 3px solid #4facfe !important;
+    outline-offset: 2px !important;
+}
+</style>
+
+<!-- Script para verificar aplicación de estilos -->
+<script>
+(function() {
+    console.log('🎨 Estilos CSS inline aplicados directamente');
+    
+    // Verificar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            const actionBtns = document.querySelectorAll('.action-btn');
+            const secondaryLinks = document.querySelectorAll('.secondary-link');
+            
+            console.log(`📊 Elementos encontrados: ${actionBtns.length} action-btn, ${secondaryLinks.length} secondary-link`);
+            
+            if (actionBtns.length > 0) {
+                const firstBtn = actionBtns[0];
+                const computedStyle = window.getComputedStyle(firstBtn);
+                const background = computedStyle.background || computedStyle.backgroundColor;
+                
+                console.log('🔍 Background del primer botón:', background);
+                
+                if (background.includes('gradient') || background.includes('rgb(79, 172, 254)')) {
+                    console.log('✅ ¡Estilos CSS aplicados correctamente!');
+                    
+                    // Mostrar mensaje de éxito en la página
+                    const successMsg = document.createElement('div');
+                    successMsg.innerHTML = '🎉 ¡Estilos CSS modernos aplicados perfectamente!';
+                    successMsg.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 12px;
+                        font-weight: 600;
+                        font-size: 0.9rem;
+                        z-index: 9999;
+                        box-shadow: 0 6px 20px rgba(16, 172, 132, 0.4);
+                        animation: slideInRight 0.5s ease-out;
+                    `;
+                    document.body.appendChild(successMsg);
+                    
+                    // Remover mensaje después de 4 segundos
+                    setTimeout(() => {
+                        if (successMsg.parentNode) {
+                            successMsg.style.animation = 'slideOutRight 0.3s ease-in';
+                            setTimeout(() => {
+                                if (successMsg.parentNode) {
+                                    successMsg.parentNode.removeChild(successMsg);
+                                }
+                            }, 300);
+                        }
+                    }, 4000);
+                } else {
+                    console.log('❌ Estilos CSS NO aplicados. Background:', background);
+                    
+                    // Mostrar mensaje de corrección
+                    const errorMsg = document.createElement('div');
+                    errorMsg.innerHTML = '🔧 Aplicando estilos CSS modernos...';
+                    errorMsg.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%);
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 12px;
+                        font-weight: 600;
+                        font-size: 0.9rem;
+                        z-index: 9999;
+                        box-shadow: 0 6px 20px rgba(255, 159, 243, 0.4);
+                        animation: slideInRight 0.5s ease-out;
+                    `;
+                    document.body.appendChild(errorMsg);
+                    
+                    // Aplicar estilos forzados a todos los botones
+                    actionBtns.forEach((btn, index) => {
+                        // Determinar el gradiente según la clase
+                        let gradient = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+                        if (btn.classList.contains('primary')) {
+                            gradient = 'linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%)';
+                        } else if (btn.classList.contains('secondary')) {
+                            gradient = 'linear-gradient(135deg, #a55eea 0%, #26de81 100%)';
+                        } else if (btn.classList.contains('tertiary')) {
+                            gradient = 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)';
+                        }
+                        
+                        btn.style.cssText = `
+                            background: ${gradient} !important;
+                            color: white !important;
+                            padding: 1.25rem 1.5rem !important;
+                            border-radius: 16px !important;
+                            text-decoration: none !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            gap: 0.75rem !important;
+                            font-weight: 600 !important;
+                            font-size: 0.95rem !important;
+                            border: 2px solid transparent !important;
+                            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3) !important;
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                            position: relative !important;
+                            overflow: hidden !important;
+                            min-height: 60px !important;
+                            transform: translateZ(0) !important;
+                        `;
+                        
+                        // Agregar efectos hover
+                        btn.addEventListener('mouseenter', function() {
+                            this.style.transform = 'translateY(-3px) translateZ(0) !important';
+                            this.style.boxShadow = '0 8px 25px rgba(79, 172, 254, 0.4) !important';
+                        });
+                        
+                        btn.addEventListener('mouseleave', function() {
+                            this.style.transform = 'translateY(0) translateZ(0) !important';
+                            this.style.boxShadow = '0 4px 15px rgba(79, 172, 254, 0.3) !important';
+                        });
+                    });
+                    
+                    // Cambiar mensaje a éxito después de aplicar estilos
+                    setTimeout(() => {
+                        errorMsg.innerHTML = '✅ ¡Estilos aplicados exitosamente!';
+                        errorMsg.style.background = 'linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%)';
+                        
+                        setTimeout(() => {
+                            if (errorMsg.parentNode) {
+                                errorMsg.style.animation = 'slideOutRight 0.3s ease-in';
+                                setTimeout(() => {
+                                    if (errorMsg.parentNode) {
+                                        errorMsg.parentNode.removeChild(errorMsg);
+                                    }
+                                }, 300);
+                            }
+                        }, 3000);
+                    }, 1000);
+                }
+            }
+        }, 500);
+    });
+})();
+</script>
+
+<!-- Animación para el mensaje de éxito -->
+<style>
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container admin-dashboard">
+    <!-- Navegación Principal Limpia -->
+    <div class="admin-header">
+        <h1>⚙️ Panel de Administración</h1>
+        <p class="admin-subtitle">Gestiona tu tienda ALOHA de forma simple y eficiente</p>
+    </div>
+
+    <!-- Navegación por Cards -->
+    <div class="nav-cards-grid">
+
+        <a href="{{ url_for('admin.toys_page') }}" class="nav-card">
+            <div class="nav-icon">🎮</div>
+            <h3>Juguetes</h3>
+            <p>Gestionar inventario</p>
+        </a>
+        
+        <a href="{{ url_for('admin.all_users') }}" class="nav-card">
+            <div class="nav-icon">👥</div>
+            <h3>Usuarios</h3>
+            <p>Administrar usuarios</p>
+        </a>
+        
+        <a href="{{ url_for('admin.all_orders') }}" class="nav-card">
+            <div class="nav-icon">🛒</div>
+            <h3>Órdenes</h3>
+            <p>Historial de compras</p>
+        </a>
+        
+        <a href="{{ url_for('admin.backup_dashboard') }}" class="nav-card backup-card">
+            <div class="nav-icon">💾</div>
+            <h3>Backup</h3>
+            <p>Proteger datos</p>
+        </a>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+                <h3>{{ sales_stats.total_sales }}</h3>
+                <p>Ventas Totales</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-content">
+                <h3>{{ sales_stats.total_orders }}</h3>
+                <p>Órdenes Procesadas</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">👤</div>
+            <div class="stat-content">
+                <h3>{{ sales_stats.total_users }}</h3>
+                <p>Usuarios Registrados</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🎮</div>
+            <div class="stat-content">
+                <h3>{{ toys|length if toys else 0 }}</h3>
+                <p>Juguetes Activos</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de Actividad Reciente -->
+    <div class="activity-section">
+        <div class="section-header">
+            <h2>📈 Actividad Reciente</h2>
+        </div>
+        
+        <div class="activity-grid">
+            <!-- Órdenes Recientes -->
+            <div class="activity-card">
+                <h3>🛒 Últimas Órdenes</h3>
+                {% if recent_orders %}
+                    <div class="recent-list">
+                        {% for order in recent_orders[:5] %}
+                        <div class="recent-item">
+                            <div class="item-info">
+                                <strong>Orden #{{ order.id }}</strong>
+                                <span class="item-user">{{ order.user.username }}</span>
+                            </div>
+                            <div class="item-value">{{ format_currency(order.total_price) }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{{ url_for('admin.all_orders') }}" class="secondary-link" 
+                       style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #2d3748; padding: 12px 18px; border-radius: 10px; text-decoration: none; display: inline-block; font-weight: 500; font-size: 0.9rem; border: none; box-shadow: 0 3px 10px rgba(168, 237, 234, 0.3); transition: all 0.3s ease; margin: 5px 0;" 
+                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(168, 237, 234, 0.4)';" 
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(168, 237, 234, 0.3)';">Ver todas las órdenes →</a>
+                {% else %}
+                    <p class="empty-state">No hay órdenes recientes</p>
+                {% endif %}
+            </div>
+
+            <!-- Usuarios Recientes -->
+            <div class="activity-card">
+                <h3>👥 Nuevos Usuarios</h3>
+                {% if recent_users %}
+                    <div class="recent-list">
+                        {% for user in recent_users[:5] %}
+                        <div class="recent-item">
+                            <div class="item-info">
+                                <strong>{{ user.username }}</strong>
+                                <span class="item-center">{{ user.center }}</span>
+                            </div>
+                            <div class="item-date">{{ user.created_at.strftime('%d/%m') }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{{ url_for('admin.all_users') }}" class="secondary-link" 
+                       style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #2d3748; padding: 12px 18px; border-radius: 10px; text-decoration: none; display: inline-block; font-weight: 500; font-size: 0.9rem; border: none; box-shadow: 0 3px 10px rgba(168, 237, 234, 0.3); transition: all 0.3s ease; margin: 5px 0;" 
+                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(168, 237, 234, 0.4)';" 
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(168, 237, 234, 0.3)';">Ver todos los usuarios →</a>
+                {% else %}
+                    <p class="empty-state">No hay usuarios recientes</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="quick-actions">
+        <div class="section-header">
+            <h2>⚡ Acciones Rápidas</h2>
+        </div>
+        
+        <div class="actions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+            <a href="{{ url_for('admin.toys_page') }}" class="action-btn primary" 
+               style="background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%); color: white; padding: 1.25rem 1.5rem; border-radius: 16px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 0.95rem; border: 2px solid transparent; box-shadow: 0 4px 15px rgba(16, 172, 132, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; min-height: 60px; transform: translateZ(0);" 
+               onmouseover="this.style.transform='translateY(-3px) translateZ(0)'; this.style.boxShadow='0 8px 25px rgba(16, 172, 132, 0.4)';" 
+               onmouseout="this.style.transform='translateY(0) translateZ(0)'; this.style.boxShadow='0 4px 15px rgba(16, 172, 132, 0.3)';">
+                <span class="action-icon" style="font-size: 1.2rem;">➕</span>
+                <span class="action-text">Agregar Juguete</span>
+            </a>
+            
+            <a href="{{ url_for('admin.all_users') }}" class="action-btn secondary" 
+               style="background: linear-gradient(135deg, #a55eea 0%, #26de81 100%); color: white; padding: 1.25rem 1.5rem; border-radius: 16px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 0.95rem; border: 2px solid transparent; box-shadow: 0 4px 15px rgba(165, 94, 234, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; min-height: 60px; transform: translateZ(0);" 
+               onmouseover="this.style.transform='translateY(-3px) translateZ(0)'; this.style.boxShadow='0 8px 25px rgba(165, 94, 234, 0.4)';" 
+               onmouseout="this.style.transform='translateY(0) translateZ(0)'; this.style.boxShadow='0 4px 15px rgba(165, 94, 234, 0.3)';">
+                <span class="action-icon" style="font-size: 1.2rem;">👤</span>
+                <span class="action-text">Gestionar Usuarios</span>
+            </a>
+            
+            <a href="{{ url_for('admin.export_inventory') }}" class="action-btn secondary" 
+               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.25rem 1.5rem; border-radius: 16px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 0.95rem; border: 2px solid transparent; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; min-height: 60px; transform: translateZ(0);" 
+               onmouseover="this.style.transform='translateY(-3px) translateZ(0)'; this.style.boxShadow='0 8px 25px rgba(102, 126, 234, 0.4)';" 
+               onmouseout="this.style.transform='translateY(0) translateZ(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.3)';">
+                <span class="action-icon" style="font-size: 1.2rem;">📊</span>
+                <span class="action-text">Exportar Inventario</span>
+            </a>
+            
+            <a href="{{ url_for('shop.index') }}" class="action-btn tertiary" 
+               style="background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%); color: white; padding: 1.25rem 1.5rem; border-radius: 16px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 0.95rem; border: 2px solid transparent; box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; min-height: 60px; transform: translateZ(0);" 
+               onmouseover="this.style.transform='translateY(-3px) translateZ(0)'; this.style.boxShadow='0 8px 25px rgba(253, 121, 168, 0.4)';" 
+               onmouseout="this.style.transform='translateY(0) translateZ(0)'; this.style.boxShadow='0 4px 15px rgba(253, 121, 168, 0.3)';">
+                <span class="action-icon" style="font-size: 1.2rem;">🏪</span>
+                <span class="action-text">Ver Tienda</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<!-- 📱 CSS MÓVIL OPTIMIZADO -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-admin.css') }}">
+<!-- 🎨 ESTILOS MODERNOS UNIFICADOS - VERSIÓN 2.0 - {{ moment().format('YYYY-MM-DD HH:mm:ss') }} -->
+<style>
+/* 🔄 FORZAR RECARGA - CACHE BUSTER */
+/* Versión: 2025-01-04-13:35 */
+/* Estilos del Panel Admin Limpio */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+}
+
+.admin-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.admin-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* 🎨 SISTEMA DE DISEÑO UNIFICADO PARA PANEL ADMIN */
+
+/* Variables de colores unificados */
+:root {
+    --admin-primary: #007bff;
+    --admin-secondary: #6c757d;
+    --admin-success: #28a745;
+    --admin-info: #17a2b8;
+    --admin-warning: #ffc107;
+    --admin-danger: #dc3545;
+    --admin-light: #f8f9fa;
+    --admin-dark: #343a40;
+    
+    /* Gradientes modernos */
+    --gradient-primary: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    --gradient-success: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    --gradient-info: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    --gradient-warning: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    --gradient-danger: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    
+    /* Sombras unificadas */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 25px rgba(0,0,0,0.15);
+    --shadow-xl: 0 12px 35px rgba(0,0,0,0.2);
+    
+    /* Efectos hover */
+    --hover-lift: translateY(-3px);
+    --hover-scale: scale(1.02);
+}
+
+/* Navegación por Cards - Grid Responsivo */
+.nav-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding: 0;
+}
+
+/* 🎯 ESTILO BASE PARA TODAS LAS CARDS */
+.nav-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.nav-card:hover::before {
+    opacity: 0.05;
+}
+
+.nav-card:hover {
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--admin-primary);
+}
+
+.nav-card:active {
+    transform: translateY(-1px);
+    transition: transform 0.1s ease;
+}
+
+/* 💾 ESTILO ESPECIAL PARA BACKUP (Verde) */
+.backup-card {
+    background: var(--gradient-success);
+    color: white;
+    border: 2px solid var(--admin-success);
+}
+
+.backup-card::before {
+    background: rgba(255,255,255,0.1);
+}
+
+.backup-card:hover {
+    background: linear-gradient(135deg, #218838 0%, #1ea080 100%);
+    transform: var(--hover-lift);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    border-color: #20c997;
+}
+
+.backup-card .nav-icon {
+    animation: pulse 2s infinite;
+    color: white;
+}
+
+.backup-card h3,
+.backup-card p {
+    color: white !important;
+}
+
+/* 🎮 ESTILO PARA JUGUETES (Azul) */
+.nav-card[href*="toys"] {
+    background: var(--gradient-primary);
+    color: white;
+    border: 2px solid var(--admin-primary);
+}
+
+.nav-card[href*="toys"] .nav-icon {
+    color: white;
+}
+
+.nav-card[href*="toys"] h3,
+.nav-card[href*="toys"] p {
+    color: white !important;
+}
+
+.nav-card[href*="toys"]:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+}
+
+/* 👤 ESTILO PARA USUARIOS (Cian) */
+.nav-card[href*="users"] {
+    background: var(--gradient-info);
+    color: white;
+    border: 2px solid var(--admin-info);
+}
+
+.nav-card[href*="users"] .nav-icon {
+    color: white;
+}
+
+.nav-card[href*="users"] h3,
+.nav-card[href*="users"] p {
+    color: white !important;
+}
+
+.nav-card[href*="users"]:hover {
+    background: linear-gradient(135deg, #138496 0%, #0f6674 100%);
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+}
+
+/* 🛒 ESTILO PARA ÓRDENES (Naranja) */
+.nav-card[href*="orders"] {
+    background: var(--gradient-warning);
+    color: var(--admin-dark);
+    border: 2px solid var(--admin-warning);
+}
+
+.nav-card[href*="orders"] .nav-icon {
+    color: var(--admin-dark);
+}
+
+.nav-card[href*="orders"] h3,
+.nav-card[href*="orders"] p {
+    color: var(--admin-dark) !important;
+}
+
+.nav-card[href*="orders"]:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+}
+
+/* 🎯 ANIMACIONES UNIFICADAS */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav-cards-grid .nav-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.nav-cards-grid .nav-card:nth-child(1) { animation-delay: 0.1s; }
+.nav-cards-grid .nav-card:nth-child(2) { animation-delay: 0.2s; }
+.nav-cards-grid .nav-card:nth-child(3) { animation-delay: 0.3s; }
+.nav-cards-grid .nav-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* 🎯 ICONOS Y TEXTO UNIFICADOS */
+.nav-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.nav-card:hover .nav-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+.nav-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s ease;
+}
+
+.nav-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.nav-card:hover p {
+    opacity: 1;
+}
+
+/* 📱 RESPONSIVE DESIGN PARA MÓVIL */
+@media (max-width: 768px) {
+    .nav-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .nav-card {
+        padding: 1.5rem 1rem;
+        min-height: 120px;
+    }
+    
+    .nav-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .nav-card h3 {
+        font-size: 1.1rem;
+    }
+    
+    .nav-card p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+    
+    .nav-card {
+        padding: 1.2rem 0.8rem;
+        min-height: 100px;
+    }
+    
+    .nav-icon {
+        font-size: 2.2rem;
+        margin-bottom: 0.6rem;
+    }
+    
+    .nav-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .nav-card p {
+        font-size: 0.8rem;
+    }
+}
+
+/* 🎆 EFECTOS ESPECIALES PARA INTERACCIÓN */
+.nav-card:focus {
+    outline: none;
+    box-shadow: var(--shadow-lg), 0 0 0 3px rgba(0, 123, 255, 0.25);
+    transform: var(--hover-lift);
+}
+
+.nav-card:focus-visible {
+    outline: 2px solid var(--admin-primary);
+    outline-offset: 2px;
+}
+
+/* Efecto de carga suave */
+.nav-cards-grid {
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .nav-card,
+    .nav-icon,
+    .nav-cards-grid .nav-card {
+        animation: none;
+        transition: none;
+    }
+    
+    .nav-card:hover {
+        transform: none;
+    }
+}
+
+/* Estadísticas */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.8;
+}
+
+.stat-content h3 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.stat-content p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Actividad Reciente */
+.activity-section {
+    margin-bottom: 3rem;
+}
+
+.section-header {
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.activity-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.activity-card h3 {
+    margin: 0 0 1rem 0;
+    color: var(--primary-color);
+}
+
+.recent-list {
+    margin-bottom: 1rem;
+}
+
+.recent-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+}
+
+.item-info strong {
+    display: block;
+    color: var(--text-primary);
+}
+
+.item-user, .item-center {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.item-value {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.item-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* 🔗 ENLACES SECUNDARIOS MODERNOS - FORZAR APLICACIÓN */
+.view-all-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1.25rem !important;
+    background: var(--gradient-info) !important;
+    color: white !important;
+    text-decoration: none !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    border-radius: 12px !important;
+    border: 2px solid var(--admin-info) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: var(--shadow-sm) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.view-all-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.view-all-btn:hover {
+    transform: var(--hover-lift);
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+    background: linear-gradient(135deg, #138496 0%, #0f6674 100%);
+    text-decoration: none;
+}
+
+.view-all-btn:hover::before {
+    opacity: 1;
+}
+
+.view-all-btn:active {
+    transform: translateY(-1px);
+    transition: transform 0.1s ease;
+}
+
+.empty-state {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+/* ⚡ ACCIONES RÁPIDAS MODERNAS */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.75rem !important;
+    padding: 1.25rem 1.5rem !important;
+    border-radius: 16px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 2px solid transparent !important;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    min-height: 60px !important;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.action-btn:hover::before {
+    opacity: 1;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4) !important;
+    text-decoration: none !important;
+    color: white !important;
+}
+
+.action-btn:active {
+    transform: translateY(-1px);
+    transition: transform 0.1s ease;
+}
+
+/* 🎯 BOTÓN PRIMARIO (Agregar Juguete) - Verde - FORZAR APLICACIÓN */
+.action-btn.primary {
+    background: var(--gradient-success) !important;
+    color: white !important;
+    border-color: var(--admin-success) !important;
+    border-radius: 16px !important;
+    padding: 1.25rem 1.5rem !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.action-btn.primary:hover {
+    background: linear-gradient(135deg, #218838 0%, #1ea080 100%);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+}
+
+/* 🔧 BOTONES SECUNDARIOS (Gestionar Usuarios, Exportar) - Azul - FORZAR */
+.action-btn.secondary {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border-color: var(--admin-primary) !important;
+    border-radius: 16px !important;
+    padding: 1.25rem 1.5rem !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.action-btn.secondary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%) !important;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3) !important;
+    transform: var(--hover-lift) !important;
+}
+
+/* 🏪 BOTÓN TERCIARIO (Ver Tienda) - Naranja - FORZAR */
+.action-btn.tertiary {
+    background: var(--gradient-warning) !important;
+    color: var(--admin-dark) !important;
+    border-color: var(--admin-warning) !important;
+    border-radius: 16px !important;
+    padding: 1.25rem 1.5rem !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.action-btn.tertiary:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%) !important;
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3) !important;
+    transform: var(--hover-lift) !important;
+}
+
+.action-icon {
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.action-btn:hover .action-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+.action-text {
+    font-size: 0.95rem;
+    position: relative;
+    z-index: 1;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+}
+
+/* 📱 RESPONSIVE PARA ACCIONES RÁPIDAS */
+@media (max-width: 768px) {
+    .actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    
+    .action-btn {
+        padding: 1rem 1.25rem;
+        min-height: 50px;
+    }
+    
+    .action-icon {
+        font-size: 1.3rem;
+    }
+    
+    .action-text {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .actions-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+    
+    .action-btn {
+        padding: 0.9rem 1rem;
+        min-height: 45px;
+        gap: 0.6rem;
+    }
+    
+    .action-icon {
+        font-size: 1.2rem;
+    }
+    
+    .action-text {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .nav-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .nav-card {
+        padding: 1.5rem;
+    }
+    
+    .stats-overview {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .activity-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+</style>
+
+<!-- 🔄 SCRIPT PARA FORZAR RECARGA DE ESTILOS -->
+<script>
+// Forzar recarga de estilos si no se han aplicado
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎨 Verificando estilos modernos del panel admin...');
+    
+    // Verificar si los estilos se aplicaron correctamente
+    const primaryBtn = document.querySelector('.action-btn.primary');
+    if (primaryBtn) {
+        const computedStyle = window.getComputedStyle(primaryBtn);
+        const background = computedStyle.background || computedStyle.backgroundColor;
+        
+        console.log('🔍 Estilo actual del botón primario:', background);
+        
+        // Si no tiene gradiente, forzar recarga
+        if (!background.includes('gradient') && !background.includes('rgb(40, 167, 69)')) {
+            console.log('⚠️ Estilos no aplicados, forzando recarga...');
+            // Agregar timestamp para romper caché
+            const timestamp = new Date().getTime();
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = window.location.href + '?v=' + timestamp;
+            document.head.appendChild(link);
+            
+            // Recargar página después de 1 segundo
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1000);
+        } else {
+            console.log('✅ Estilos modernos aplicados correctamente!');
+        }
+    }
+    
+    // Agregar clase para indicar que los estilos están cargados
+    document.body.classList.add('modern-styles-loaded');
+});
+</script>
+{% endblock %}

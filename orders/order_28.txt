@@ -1,0 +1,12 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 28
+📅 Date: 2024-10-27 21:49:58
+💰 Total: A$ 52.00
+
+🎁 Items:
+  • MANGAS TATTOO x1: A$ 15.00
+  • STICKERS REFLECTIVOS DE EMOJIS x1: A$ 12.00
+  • PULSERAS MÁGICAS x1: A$ 25.00
+
+✨ Thank you for shopping at ALOHA!

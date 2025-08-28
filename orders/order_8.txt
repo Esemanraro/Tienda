@@ -1,0 +1,10 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 8
+📅 Date: 2024-10-27 18:49:25
+💰 Total: A$ 36.00
+
+🎁 Items:
+  • PEGATINA PARA NIÑA x3: A$ 36.00
+
+✨ Thank you for shopping at ALOHA!

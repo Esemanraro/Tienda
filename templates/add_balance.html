@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}💰 Agregar Balance{% endblock %}
+
+{% block content %}
+<div class="balance-container">
+    <div class="balance-card">
+        <div class="card-header">
+            <h2>💰 Agregar Balance</h2>
+        </div>
+        <div class="card-content">
+            <form method="POST" action="{{ url_for('user.add_balance') }}" class="balance-form">
+                <div class="form-group">
+                    <label for="amount">Cantidad a Agregar:</label>
+                    <div class="amount-input">
+                        <span class="currency-symbol">A$</span>
+                        <input type="number" 
+                               id="amount" 
+                               name="amount" 
+                               step="0.01" 
+                               min="0.01" 
+                               required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="action-button primary">
+                        <span class="icon">💰</span>
+                        Agregar Balance
+                    </button>
+                    <a href="{{ url_for('user.profile') }}" class="action-button secondary">
+                        <span class="icon">↩️</span>
+                        Volver
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.balance-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.balance-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 1.5rem;
+    border-bottom: 2px solid rgba(76, 175, 80, 0.1);
+}
+
+.card-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.balance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+.amount-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.amount-input input {
+    width: 100%;
+    padding: 0.8rem;
+    padding-left: 3rem;
+    border: 2px solid rgba(76, 175, 80, 0.2);
+    border-radius: var(--border-radius);
+    font-size: 1.2rem;
+    transition: var(--transition);
+}
+
+.amount-input input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.form-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    width: 100%;
+}
+
+.action-button.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-button.secondary {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--primary-color);
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+}
+
+.icon {
+    font-size: 1.2rem;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}📋 Todas las Órdenes - Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>📋 Todas las Órdenes</h1>
+        <p>Gestiona y revisa todas las órdenes realizadas en la tienda.</p>
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link">
+            ← Volver al panel de administración
+        </a>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="admin-filters">
+        <form method="GET" class="search-form">
+            <div class="form-group">
+                <input type="text" name="search" value="{{ search_query }}" 
+                       placeholder="Buscar por ID, usuario o email..." class="search-input">
+                <button type="submit" class="search-button">🔍 Buscar</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Filtrar por estado:</label>
+                <select name="status" id="status" class="status-select" onchange="this.form.submit()">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos los estados</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pendiente</option>
+                    <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>En proceso</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completada</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelada</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Resumen de estadísticas -->
+    <div class="stats-summary">
+        <div class="stat-card">
+            <span class="stat-label">Total de Órdenes</span>
+            <span class="stat-value">{{ total_orders }}</span>
+        </div>
+    </div>
+
+    <!-- Lista de órdenes -->
+    <div class="admin-orders-list">
+        {% if orders.items %}
+            {% for order in orders.items %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3>Orden #{{ order.id }}</h3>
+                            <span class="order-date">{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</span>
+                            <span class="order-status status-{{ order.status }}">
+                                {{ order.status|title }}
+                            </span>
+                        </div>
+                        <div class="order-user">
+                            <span class="user-name">👤 {{ order.user.username }}</span>
+                            <span class="user-email">✉️ {{ order.user.email }}</span>
+                            <span class="user-center">🏪 {{ order.user.center }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-details">
+                        <div class="items-summary">
+                            {% for item in order.items %}
+                                <div class="order-item">
+                                    <span class="item-name">{{ item.toy.name }}</span>
+                                    <span class="item-quantity">x{{ item.quantity }}</span>
+                                    <span class="item-price">{{ format_currency(item.price * item.quantity) }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="order-total">
+                            <span>Total:</span>
+                            <span class="total-amount">{{ format_currency(order.total_price) }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <a href="{{ url_for('shop.order_summary', order_id=order.id) }}" class="action-button" target="_blank">
+                            Ver Detalles
+                        </a>
+                        <a href="{{ url_for('admin.download_receipt', order_id=order.id) }}" class="action-button secondary">
+                            📄 Descargar Recibo
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <!-- Paginación -->
+            {% if orders.pages > 1 %}
+                <div class="pagination">
+                    {% if orders.has_prev %}
+                        <a href="{{ url_for('admin.all_orders', page=orders.prev_num, search=search_query, status=status_filter) }}" class="page-link">
+                            &laquo; Anterior
+                        </a>
+                    {% endif %}
+                    
+                    <span class="current-page">
+                        Página {{ orders.page }} de {{ orders.pages }}
+                    </span>
+                    
+                    {% if orders.has_next %}
+                        <a href="{{ url_for('admin.all_orders', page=orders.next_num, search=search_query, status=status_filter) }}" class="page-link">
+                            Siguiente &raquo;
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+        {% else %}
+            <div class="no-results">
+                <p>No se encontraron órdenes que coincidan con los criterios de búsqueda.</p>
+                <a href="{{ url_for('admin.all_orders') }}" class="action-button">
+                    Limpiar filtros
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Estilos generales */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.admin-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Filtros y búsqueda */
+.admin-filters {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.search-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.search-button:hover {
+    background: var(--primary-dark);
+}
+
+.status-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Estadísticas */
+.stats-summary {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: var(--primary-color);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Lista de órdenes */
+.admin-orders-list {
+    margin-top: 1.5rem;
+}
+
+.order-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.order-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+}
+
+.order-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.order-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-processing {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.order-user {
+    text-align: right;
+}
+
+.user-name, .user-email, .user-center {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.user-email {
+    color: var(--text-muted);
+}
+
+.order-details {
+    margin-bottom: 1.5rem;
+}
+
+.items-summary {
+    margin-bottom: 1rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-name {
+    flex: 2;
+}
+
+.item-quantity {
+    flex: 1;
+    text-align: center;
+}
+
+.item-price {
+    flex: 1;
+    text-align: right;
+}
+
+.order-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.order-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.action-button {
+    padding: 0.5rem 1.25rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.action-button {
+    background: var(--primary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
+}
+
+.action-button:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.action-button.secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.action-button.secondary:hover {
+    background: rgba(76, 175, 80, 0.1);
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.page-link {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.page-link:hover {
+    background: var(--primary-dark);
+}
+
+.current-page {
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* Sin resultados */
+.no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px dashed var(--border-color);
+}
+
+.no-results p {
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .order-header {
+        flex-direction: column;
+    }
+    
+    .order-user {
+        text-align: left;
+        margin-top: 1rem;
+    }
+    
+    .order-actions {
+        flex-direction: column;
+    }
+    
+    .action-button {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

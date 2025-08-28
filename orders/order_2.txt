@@ -1,0 +1,11 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 2
+📅 Date: 2024-10-28 15:22:04
+💰 Total: A$ 110.00
+
+🎁 Items:
+  • Pulseras Mágicas x2: A$ 50.00
+  • Cubo Rubik x3: A$ 60.00
+
+✨ Thank you for shopping at ALOHA!

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}💰 Mi Balance ALOHA{% endblock %}
+
+{% block content %}
+<div class="balance-container">
+    <div class="balance-card">
+        <div class="balance-header">
+            <h2>💰 Mi Balance ALOHA</h2>
+            <div class="current-balance">
+                <img src="{{ url_for('static', filename='images/aloha_coin.svg') }}" alt="ALOHA Coin" class="balance-icon">
+                <span class="balance-amount">{{ current_user.balance|format_currency }}</span>
+            </div>
+        </div>
+
+        <div class="balance-actions">
+            <form method="POST" action="{{ url_for('user.add_balance') }}" class="balance-form">
+                <a href="{{ url_for('user.profile') }}" class="back-link">
+                <a href="{{ url_for('user.add_balance') }}" class="action-button">
+                    ➕ Agregar ALOHA Dollars
+                <a href="{{ url_for('main.transfer_balance') }}" class="action-button">
+                    ➕ Transferir ALOHA Dollars
+            </form>
+        </div>
+
+        <div class="transactions-section">
+            <h3>📊 Historial de Compras</h3>
+            {% if recent_transactions %}
+                <div class="transactions-list">
+                    {% for transaction in recent_transactions %}
+                        <div class="transaction-card">
+                            <div class="transaction-info">
+                                <span class="transaction-id">Orden #{{ transaction.id }}</span>
+                                <span class="transaction-date">{{ transaction.order_date.strftime('%d/%m/%Y') }}</span>
+                            </div>
+                            <div class="transaction-amount">
+                                <span class="amount negative">-{{ format_currency(transaction.total_price) }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-transactions">No hay compras recientes para mostrar</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

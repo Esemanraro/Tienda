@@ -1,0 +1,14 @@
+Flask>=3.0
+Flask-WTF
+Flask-Login
+Flask-Migrate
+Flask-SQLAlchemy
+Flask-Caching
+SQLAlchemy
+redis
+rq
+WTForms
+bleach
+pyotp
+reportlab
+python-dotenv

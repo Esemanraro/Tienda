@@ -1,0 +1,12 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 19
+📅 Date: 2024-10-27 21:27:40
+💰 Total: A$ 90.00
+
+🎁 Items:
+  • PULSERAS MÁGICAS x1: A$ 25.00
+  • JUEGO DE TÉ x2: A$ 50.00
+  • BRILLO LABIAL x3: A$ 15.00
+
+✨ Thank you for shopping at ALOHA!

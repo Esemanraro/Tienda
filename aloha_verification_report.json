@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-05-27T14:59:06.544141",
+  "summary": {
+    "success_rate": 100.0,
+    "total_tests": 42,
+    "successful_tests": 42,
+    "errors": 0,
+    "warnings": 0
+  },
+  "details": {
+    "centers": {
+      "total": 4,
+      "list": [
+        "Ana",
+        "Carlos",
+        "David",
+        "María"
+      ],
+      "Ana": {
+        "users": 3,
+        "admins": 1
+      },
+      "Carlos": {
+        "users": 3,
+        "admins": 1
+      },
+      "David": {
+        "users": 3,
+        "admins": 1
+      },
+      "María": {
+        "users": 3,
+        "admins": 1
+      }
+    },
+    "authentication": {},
+    "database": {},
+    "users": {
+      "total": 12,
+      "active": 12,
+      "admins": 4
+    },
+    "errors": [],
+    "warnings": [],
+    "success_count": 42,
+    "total_tests": 42
+  }
+}

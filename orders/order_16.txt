@@ -1,0 +1,10 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 16
+📅 Date: 2024-10-27 19:26:50
+💰 Total: A$ 34.00
+
+🎁 Items:
+  • BURBUJEROS x2: A$ 34.00
+
+✨ Thank you for shopping at ALOHA!

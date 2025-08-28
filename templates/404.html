@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Página no encontrada{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>😢 ¡Oops! Página no encontrada</h2>
+            <p class="auth-subtitle">La página que buscas no existe o fue movida</p>
+        </div>
+        
+        <div class="error-content">
+            <p>404 - Página no encontrada</p>
+            <p>¿Qué tal si volvemos al inicio y exploramos algunos juguetes increíbles? ✨</p>
+            
+            <a href="{{ url_for('shop.index') }}" class="auth-button">
+                🏠 Volver al Inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

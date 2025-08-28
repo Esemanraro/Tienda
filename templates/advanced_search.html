@@ -1,0 +1,794 @@
+{% extends "base.html" %}
+
+{% block title %}Búsqueda Avanzada - Tiendita ALOHA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .search-box {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    .filter-sidebar {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .filter-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .filter-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .filter-title {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .facet-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .facet-item:hover {
+        background: #f8f9fa;
+        padding-left: 0.5rem;
+        border-radius: 4px;
+    }
+    
+    .facet-item.active {
+        background: #e3f2fd;
+        color: #1976d2;
+        font-weight: 500;
+    }
+    
+    .facet-count {
+        background: #6c757d;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+    }
+    
+    .facet-item.active .facet-count {
+        background: #1976d2;
+    }
+    
+    .toy-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .toy-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .toy-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: #f8f9fa;
+    }
+    
+    .toy-info {
+        padding: 1.25rem;
+    }
+    
+    .toy-name {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .toy-category {
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin-bottom: 0.75rem;
+    }
+    
+    .toy-price {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #28a745;
+        margin-bottom: 0.5rem;
+    }
+    
+    .toy-stock {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .stock-available {
+        color: #28a745;
+    }
+    
+    .stock-low {
+        color: #ffc107;
+    }
+    
+    .stock-out {
+        color: #dc3545;
+    }
+    
+    .search-input {
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        color: #495057;
+    }
+    
+    .search-input:focus {
+        box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
+        border-color: #007bff;
+    }
+    
+    .search-btn {
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+    }
+    
+    .sort-controls {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .results-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .results-count {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .clear-filters {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+    
+    .clear-filters:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .suggestions-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+    }
+    
+    .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f3f4;
+        transition: background 0.2s ease;
+    }
+    
+    .suggestion-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+    
+    .no-results h3 {
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .relevance-score {
+        background: #17a2b8;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+    }
+    
+    .popular-searches {
+        margin-top: 1rem;
+    }
+    
+    .popular-tag {
+        display: inline-block;
+        background: #e9ecef;
+        color: #495057;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        margin: 0.25rem;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+    
+    .popular-tag:hover {
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header de Búsqueda -->
+<div class="search-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="search-box">
+                    <h2 class="text-center mb-4 text-dark">🔍 Búsqueda Avanzada de Juguetes</h2>
+                    <form id="searchForm" method="GET">
+                        <div class="input-group position-relative">
+                            <input type="text" 
+                                   class="form-control search-input" 
+                                   name="query" 
+                                   id="searchInput"
+                                   value="{{ current_query }}" 
+                                   placeholder="Buscar juguetes por nombre, categoría o descripción..."
+                                   autocomplete="off">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary search-btn" type="submit">
+                                    🔍 Buscar
+                                </button>
+                            </div>
+                            <div id="suggestions" class="suggestions-dropdown"></div>
+                        </div>
+                        
+                        <!-- Búsquedas Populares -->
+                        {% if interface_data.popular_searches %}
+                        <div class="popular-searches">
+                            <small class="text-muted">Búsquedas populares:</small><br>
+                            {% for search in interface_data.popular_searches[:5] %}
+                                <a href="?query={{ search.query }}" class="popular-tag">
+                                    {{ search.label }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar de Filtros -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">🎯 Filtros</h5>
+                    {% if current_filters %}
+                    <button class="clear-filters" onclick="clearAllFilters()">
+                        Limpiar
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <!-- Filtro por Categoría -->
+                {% if facets.categories %}
+                <div class="filter-section">
+                    <div class="filter-title">Categorías</div>
+                    {% for category in facets.categories %}
+                    <div class="facet-item {% if category.active %}active{% endif %}" 
+                         onclick="toggleFilter('category', '{{ category.value }}')">
+                        <span>{{ category.label }}</span>
+                        <span class="facet-count">{{ category.count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Filtro por Grupo de Edad -->
+                {% if facets.age_groups %}
+                <div class="filter-section">
+                    <div class="filter-title">Grupo de Edad</div>
+                    {% for age in facets.age_groups %}
+                    <div class="facet-item {% if age.active %}active{% endif %}" 
+                         onclick="toggleFilter('age_group', '{{ age.value }}')">
+                        <span>{{ age.label }}</span>
+                        <span class="facet-count">{{ age.count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Filtro por Precio -->
+                <div class="filter-section">
+                    <div class="filter-title">Rango de Precio</div>
+                    <div class="row">
+                        <div class="col-6">
+                            <input type="number" 
+                                   class="form-control form-control-sm" 
+                                   name="price_min" 
+                                   placeholder="Mín"
+                                   value="{{ current_filters.price_min or '' }}"
+                                   onchange="applyPriceFilter()">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" 
+                                   class="form-control form-control-sm" 
+                                   name="price_max" 
+                                   placeholder="Máx"
+                                   value="{{ current_filters.price_max or '' }}"
+                                   onchange="applyPriceFilter()">
+                        </div>
+                    </div>
+                    
+                    <!-- Rangos Predefinidos -->
+                    {% for range in facets.price_ranges %}
+                    <div class="facet-item" onclick="setPriceRange({{ range.min }}, {{ range.max }})">
+                        <span>{{ range.label }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Filtros Adicionales -->
+                <div class="filter-section">
+                    <div class="filter-title">Disponibilidad</div>
+                    <div class="form-check">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               name="in_stock" 
+                               id="inStock"
+                               {% if current_filters.in_stock %}checked{% endif %}
+                               onchange="applyFilters()">
+                        <label class="form-check-label" for="inStock">
+                            Solo con stock disponible
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               name="on_sale" 
+                               id="onSale"
+                               {% if current_filters.on_sale %}checked{% endif %}
+                               onchange="applyFilters()">
+                        <label class="form-check-label" for="onSale">
+                            En oferta
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Área de Resultados -->
+        <div class="col-lg-9">
+            <!-- Controles de Ordenamiento -->
+            <div class="sort-controls">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="results-count">
+                            {% if pagination.total > 0 %}
+                                Mostrando {{ ((pagination.page - 1) * pagination.per_page) + 1 }} - 
+                                {{ pagination.page * pagination.per_page if pagination.page * pagination.per_page < pagination.total else pagination.total }} 
+                                de {{ pagination.total }} resultados
+                                {% if metadata.query %}
+                                    para "{{ metadata.query }}"
+                                    {% if results and results[0].relevance_score %}
+                                        <span class="relevance-score">
+                                            Relevancia: {{ "%.1f"|format(results[0].relevance_score) }}
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                No se encontraron resultados
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-end align-items-center">
+                            <label class="mr-2 mb-0">Ordenar por:</label>
+                            <select class="form-control form-control-sm" 
+                                    style="width: auto;" 
+                                    name="sort" 
+                                    onchange="applyFilters()">
+                                {% for key, option in interface_data.sort_options.items() %}
+                                <option value="{{ key }}" {% if current_sort == key %}selected{% endif %}>
+                                    {{ option.label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resultados -->
+            {% if results %}
+            <div class="row">
+                {% for toy in results %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="toy-card">
+                        <img src="{{ toy.image_url or '/static/images/placeholder-toy.jpg' }}" 
+                             alt="{{ toy.name }}" 
+                             class="toy-image">
+                        <div class="toy-info">
+                            <h6 class="toy-name">{{ toy.name }}</h6>
+                            <span class="toy-category">{{ toy.category }}</span>
+                            {% if toy.age_group %}
+                            <span class="toy-category">{{ toy.age_group }}</span>
+                            {% endif %}
+                            <div class="toy-price">A${{ "%.2f"|format(toy.price) }}</div>
+                            <div class="toy-stock">
+                                {% if toy.stock > 10 %}
+                                    <span class="stock-available">✅ En stock ({{ toy.stock }})</span>
+                                {% elif toy.stock > 0 %}
+                                    <span class="stock-low">⚠️ Pocas unidades ({{ toy.stock }})</span>
+                                {% else %}
+                                    <span class="stock-out">❌ Sin stock</span>
+                                {% endif %}
+                            </div>
+                            {% if toy.relevance_score %}
+                            <div class="mt-2">
+                                <span class="relevance-score">
+                                    Relevancia: {{ "%.1f"|format(toy.relevance_score) }}
+                                </span>
+                            </div>
+                            {% endif %}
+                            {% if toy.popularity_score > 0 %}
+                            <div class="mt-1">
+                                <small class="text-muted">
+                                    🔥 {{ toy.popularity_score|int }} vendidos
+                                </small>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Botón Agregar al Carrito -->
+                            {% if toy.stock > 0 %}
+                            <form method="POST" action="{{ url_for('shop.add_to_cart') }}" class="mt-3">
+                                <input type="hidden" name="toy_id" value="{{ toy.id }}">
+                                <button type="submit" class="btn btn-primary btn-sm btn-block">
+                                    🛒 Agregar al Carrito
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Paginación -->
+            {% if pagination.total_pages > 1 %}
+            <nav aria-label="Paginación de resultados" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ build_query_string(page=pagination.prev_page) }}">
+                            ← Anterior
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in range(1, pagination.total_pages + 1) %}
+                        {% if page_num == pagination.page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% elif page_num <= 3 or page_num > pagination.total_pages - 3 or (page_num >= pagination.page - 1 and page_num <= pagination.page + 1) %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{{ build_query_string(page=page_num) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% elif page_num == 4 or page_num == pagination.total_pages - 3 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ build_query_string(page=pagination.next_page) }}">
+                            Siguiente →
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <!-- Sin Resultados -->
+            <div class="no-results">
+                <h3>🔍 No se encontraron resultados</h3>
+                {% if metadata.query %}
+                <p>No encontramos juguetes que coincidan con "{{ metadata.query }}"</p>
+                {% endif %}
+                <p>Intenta con:</p>
+                <ul class="list-unstyled">
+                    <li>• Términos de búsqueda más generales</li>
+                    <li>• Verificar la ortografía</li>
+                    <li>• Usar menos filtros</li>
+                    <li>• Explorar diferentes categorías</li>
+                </ul>
+                
+                {% if interface_data.popular_searches %}
+                <div class="mt-4">
+                    <h5>Búsquedas populares:</h5>
+                    {% for search in interface_data.popular_searches[:8] %}
+                        <a href="?query={{ search.query }}" class="popular-tag">
+                            {{ search.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variables globales
+let searchTimeout;
+const searchInput = document.getElementById('searchInput');
+const suggestionsDiv = document.getElementById('suggestions');
+
+// Autocompletado
+searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const query = this.value.trim();
+    
+    if (query.length < 2) {
+        hideSuggestions();
+        return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+        fetchSuggestions(query);
+    }, 300);
+});
+
+// Ocultar sugerencias al hacer clic fuera
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-input') && !e.target.closest('.suggestions-dropdown')) {
+        hideSuggestions();
+    }
+});
+
+function fetchSuggestions(query) {
+    fetch(`{{ url_for('shop.search_suggestions') }}?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(suggestions => {
+            showSuggestions(suggestions);
+        })
+        .catch(error => {
+            console.error('Error fetching suggestions:', error);
+        });
+}
+
+function showSuggestions(suggestions) {
+    if (suggestions.length === 0) {
+        hideSuggestions();
+        return;
+    }
+    
+    const html = suggestions.map(suggestion => 
+        `<div class="suggestion-item" onclick="selectSuggestion('${suggestion}')">
+            ${suggestion}
+        </div>`
+    ).join('');
+    
+    suggestionsDiv.innerHTML = html;
+    suggestionsDiv.style.display = 'block';
+}
+
+function hideSuggestions() {
+    suggestionsDiv.style.display = 'none';
+}
+
+function selectSuggestion(suggestion) {
+    searchInput.value = suggestion;
+    hideSuggestions();
+    document.getElementById('searchForm').submit();
+}
+
+// Funciones de filtrado
+function toggleFilter(filterType, value) {
+    const url = new URL(window.location);
+    
+    if (url.searchParams.get(filterType) === value) {
+        url.searchParams.delete(filterType);
+    } else {
+        url.searchParams.set(filterType, value);
+    }
+    
+    url.searchParams.set('page', '1'); // Reset a primera página
+    window.location.href = url.toString();
+}
+
+function applyPriceFilter() {
+    const priceMin = document.querySelector('input[name="price_min"]').value;
+    const priceMax = document.querySelector('input[name="price_max"]').value;
+    
+    const url = new URL(window.location);
+    
+    if (priceMin) {
+        url.searchParams.set('price_min', priceMin);
+    } else {
+        url.searchParams.delete('price_min');
+    }
+    
+    if (priceMax) {
+        url.searchParams.set('price_max', priceMax);
+    } else {
+        url.searchParams.delete('price_max');
+    }
+    
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+function setPriceRange(min, max) {
+    const url = new URL(window.location);
+    
+    if (min !== null) {
+        url.searchParams.set('price_min', min);
+    } else {
+        url.searchParams.delete('price_min');
+    }
+    
+    if (max !== null) {
+        url.searchParams.set('price_max', max);
+    } else {
+        url.searchParams.delete('price_max');
+    }
+    
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+function applyFilters() {
+    const form = document.getElementById('searchForm');
+    const formData = new FormData(form);
+    const url = new URL(window.location);
+    
+    // Limpiar parámetros existentes excepto query
+    const query = url.searchParams.get('query');
+    url.search = '';
+    if (query) {
+        url.searchParams.set('query', query);
+    }
+    
+    // Agregar nuevos parámetros
+    for (let [key, value] of formData.entries()) {
+        if (value) {
+            url.searchParams.set(key, value);
+        }
+    }
+    
+    // Agregar checkboxes
+    const inStock = document.getElementById('inStock').checked;
+    const onSale = document.getElementById('onSale').checked;
+    
+    if (inStock) url.searchParams.set('in_stock', 'true');
+    if (onSale) url.searchParams.set('on_sale', 'true');
+    
+    // Agregar ordenamiento
+    const sortSelect = document.querySelector('select[name="sort"]');
+    if (sortSelect.value) {
+        url.searchParams.set('sort', sortSelect.value);
+    }
+    
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+function clearAllFilters() {
+    const url = new URL(window.location);
+    const query = url.searchParams.get('query');
+    
+    // Mantener solo la query de búsqueda
+    url.search = '';
+    if (query) {
+        url.searchParams.set('query', query);
+    }
+    
+    window.location.href = url.toString();
+}
+
+// Helper para construir query strings en templates
+function buildQueryString(newParams) {
+    const url = new URL(window.location);
+    
+    for (let [key, value] of Object.entries(newParams)) {
+        url.searchParams.set(key, value);
+    }
+    
+    return url.search.substring(1); // Remove the '?'
+}
+
+// Hacer disponible globalmente para los templates
+window.build_query_string = function(params) {
+    const url = new URL(window.location);
+    
+    for (let [key, value] of Object.entries(params)) {
+        url.searchParams.set(key, value);
+    }
+    
+    return url.search.substring(1);
+};
+</script>
+{% endblock %}

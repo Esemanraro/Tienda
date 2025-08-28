@@ -1,0 +1,574 @@
+{% extends "base.html" %}
+
+{% block title %}👥 Usuarios Registrados - Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>👥 Usuarios Registrados</h1>
+        <p>Gestiona y revisa todos los usuarios registrados en la plataforma.</p>
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link">
+            ← Volver al panel de administración
+        </a>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="admin-filters">
+        <form method="GET" class="search-form">
+            <div class="form-group">
+                <input type="text" name="search" value="{{ search_query }}" 
+                       placeholder="Buscar por nombre, email o centro..." class="search-input">
+                <button type="submit" class="search-button">🔍 Buscar</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Filtrar por estado:</label>
+                <select name="status" id="status" class="status-select" onchange="this.form.submit()">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos los usuarios</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Activos</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactivos</option>
+                    <option value="admin" {% if status_filter == 'admin' %}selected{% endif %}>Administradores</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Resumen de estadísticas -->
+    <div class="stats-summary">
+        <div class="stat-card">
+            <span class="stat-label">Total de Usuarios</span>
+            <span class="stat-value">{{ total_users }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Administradores</span>
+            <span class="stat-value">
+                {{ users.items|selectattr('is_admin', 'equalto', True)|list|length }}
+            </span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Registros Hoy</span>
+            <span class="stat-value">
+                {{ users.items|selectattr('created_at', 'greaterthan', today_start)|list|length }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Lista de usuarios -->
+    <div class="admin-users-list">
+        {% if users.items %}
+            <div class="table-responsive">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Centro</th>
+                            <th>Registro</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users.items %}
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <span class="user-avatar">
+                                            {{ user.username[0]|upper }}
+                                        </span>
+                                        <div class="user-info">
+                                            <span class="user-name">
+                                                {{ user.username }}
+                                                {% if user.is_admin %}
+                                                    <span class="admin-badge">Admin</span>
+                                                {% endif %}
+                                            </span>
+                                            <span class="user-balance">
+                                                Saldo: {{ format_currency(user.balance) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="mailto:{{ user.email }}" class="user-email">
+                                        {{ user.email }}
+                                    </a>
+                                </td>
+                                <td>{{ user.center or 'No especificado' }}</td>
+                                <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                                        {{ 'Activo' if user.is_active else 'Inactivo' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="user-actions">
+                                        <a href="{{ url_for('user.profile', user_id=user.id) }}" 
+                                           class="action-button" target="_blank">
+                                            Ver
+                                        </a>
+                                        {% if not user.is_admin %}
+                                            <form action="{{ url_for('admin.toggle_admin', user_id=user.id) }}" 
+                                                  method="POST" class="inline-form">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="action-button {% if user.is_admin %}danger{% else %}secondary{% endif %}">
+                                                    {{ 'Quitar Admin' if user.is_admin else 'Hacer Admin' }}
+                                                </button>
+                                            </form>
+                                            
+                                            <form action="{{ url_for('admin.toggle_user', user_id=user.id) }}" 
+                                                  method="POST" class="inline-form">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="action-button {% if user.is_active %}danger{% else %}success{% endif %}">
+                                                    {{ 'Desactivar' if user.is_active else 'Activar' }}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            {% if users.pages > 1 %}
+                <div class="pagination">
+                    {% if users.has_prev %}
+                        <a href="{{ url_for('admin.all_users', page=users.prev_num, search=search_query, status=status_filter) }}" class="page-link">
+                            &laquo; Anterior
+                        </a>
+                    {% endif %}
+                    
+                    <span class="current-page">
+                        Página {{ users.page }} de {{ users.pages }}
+                    </span>
+                    
+                    {% if users.has_next %}
+                        <a href="{{ url_for('admin.all_users', page=users.next_num, search=search_query, status=status_filter) }}" class="page-link">
+                            Siguiente &raquo;
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+        {% else %}
+            <div class="no-results">
+                <p>No se encontraron usuarios que coincidan con los criterios de búsqueda.</p>
+                <a href="{{ url_for('admin.all_users') }}" class="action-button">
+                    Limpiar filtros
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Estilos generales */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.admin-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Filtros y búsqueda */
+.admin-filters {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.search-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.search-button:hover {
+    background: var(--primary-dark);
+}
+
+.status-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Estadísticas */
+.stats-summary {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: var(--primary-color);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Tabla de usuarios */
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    background: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.users-table th {
+    background: rgba(0, 0, 0, 0.02);
+    font-weight: 600;
+    color: var(--text-color);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.users-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.users-table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.01);
+}
+
+/* Celdas personalizadas */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-badge {
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.user-balance {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.user-email {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.user-email:hover {
+    text-decoration: underline;
+}
+
+/* Badges de estado */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Acciones de usuario */
+.user-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.action-button {
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.action-button {
+    background: var(--primary-color);
+    color: white;
+    border: 1px solid var(--primary-color);
+}
+
+.action-button:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.action-button.secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.action-button.secondary:hover {
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.action-button.success {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.action-button.success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+}
+
+.action-button.danger {
+    background: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.action-button.danger:hover {
+    background: #c82333;
+    border-color: #bd2130;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.page-link {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.page-link:hover {
+    background: var(--primary-dark);
+}
+
+.current-page {
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* Sin resultados */
+.no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px dashed var(--border-color);
+}
+
+.no-results p {
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .users-table {
+        display: block;
+    }
+    
+    .users-table thead {
+        display: none;
+    }
+    
+    .users-table tbody, 
+    .users-table tr, 
+    .users-table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .users-table tr {
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .users-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .users-table td:last-child {
+        border-bottom: none;
+    }
+    
+    .users-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+    
+    .user-actions {
+        justify-content: flex-start;
+    }
+    
+    .action-button {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-summary {
+        flex-direction: column;
+    }
+    
+    .stat-card {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+// Obtener la fecha de hoy a medianoche para filtrar registros de hoy
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const todayStart = Math.floor(today.getTime() / 1000);
+</script>
+{% endblock %}

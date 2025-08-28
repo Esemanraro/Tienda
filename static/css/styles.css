@@ -1,0 +1,643 @@
+:root {
+    /* Colores principales */
+    --primary-color: #2E7D32; /* Verde más oscuro para mejor contraste */
+    --primary-light: #4CAF50;
+    --primary-dark: #1B5E20;
+    --secondary-color: #0288D1; /* Azul para acciones secundarias */
+    --background-color: #f5f7fa;
+    --text-color: #263238; /* Gris oscuro para mejor legibilidad */
+    --text-light: #607D8B;
+    --card-bg: white;
+    --border-color: #e0e0e0;
+    
+    /* Estados */
+    --success-color: #388E3C;
+    --warning-color: #F57C00;
+    --error-color: #D32F2F;
+    --info-color: #0288D1;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    
+    /* Transiciones */
+    --transition-fast: all 0.15s ease;
+    --transition-normal: all 0.3s ease;
+    --transition-slow: all 0.5s ease;
+    --font-family: 'Futura', 'Futura PT', 'Futura Std', 'Century Gothic', system-ui, -apple-system, sans-serif;
+    --border-radius: 12px;
+    --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Ajustes generales */
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    padding-bottom: 60px;
+    position: relative;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header y navegación */
+.site-header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.8rem 2rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition-normal);
+}
+
+.site-header.scrolled {
+    padding: 0.5rem 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+    gap: 0.5rem;
+}
+
+.brand-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.brand-aloha {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.desktop-nav ul {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.desktop-nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.desktop-nav a:hover {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--primary-color);
+}
+
+/* Grid de juguetes */
+.toys-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.toy-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.toy-image {
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.toy-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.toy-card:hover .toy-image img {
+    transform: scale(1.05);
+}
+
+.toy-content {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.toy-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+.toy-description {
+    font-size: 0.85rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+    opacity: 0.8;
+    flex: 1;
+}
+
+.toy-price {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0.5rem 0;
+}
+
+/* Botones */
+.add-to-cart {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+.add-to-cart:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+/* Botón visible cuando el usuario no ha iniciado sesión */
+.login-to-buy {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    background: #666;
+    color: white;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    text-align: center;
+    text-decoration: none;
+}
+
+.login-to-buy:hover {
+    background: #555;
+    transform: translateY(-2px);
+}
+
+/* Navegación móvil actualizada */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    padding: 0.8rem;
+    z-index: 1000;
+}
+
+.mobile-nav ul {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-nav a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+/* Contador del carrito */
+.cart-counter {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.75rem;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: bounce 0.3s ease;
+}
+
+/* Alertas actualizadas */
+.flash-messages {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 90%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.flash-message {
+    width: 100%;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    background: var(--card-bg);
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+/* Animaciones */
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Botones de cantidad en el carrito */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(76, 175, 80, 0.1);
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+}
+
+.quantity-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-btn:hover {
+    background: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+.quantity {
+    font-weight: bold;
+    min-width: 32px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none;
+    }
+    
+    .mobile-nav {
+        display: block;
+    }
+    
+    body {
+        padding-bottom: 80px;
+    }
+}
+
+/* Flash messages */
+.flash-message.success {
+    border-left: 4px solid var(--primary-color);
+}
+
+.flash-message.error {
+    border-left: 4px solid #dc3545;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Tarjetas */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: var(--transition-normal);
+    border: 1px solid var(--border-color);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* ======================
+   Componentes de UI
+   ====================== */
+
+/* Botones */
+.admin-button {
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    user-select: none;
+}
+
+/* Efecto ripple para botones */
+.admin-button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
+}
+
+.admin-button:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+}
+
+/* Variantes de botones */
+.admin-button.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.admin-button.primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.admin-button.primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-button.secondary {
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    border: 1px solid #dee2e6;
+}
+
+.admin-button.secondary:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+.admin-button.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.admin-button.danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220,53,69,0.2);
+}
+
+/* Tamaños de botones */
+.admin-button.small {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.admin-button.large {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+/* Estados de botones */
+.admin-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Grupos de botones */
+.button-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.5rem 0;
+}
+
+.button-group .admin-button {
+    margin: 0;
+}
+.admin-button.secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Size modifiers */
+.admin-button.small {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+}
+.admin-button.tiny {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Disabled state */
+.admin-button:disabled,
+.admin-button[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------
+   Loading Overlay
+------------------------------------------------------------------ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.loading-overlay .spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid var(--primary-color);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------------
+   Admin Order Actions Alignment (existing styles)
+------------------------------------------------------------------ */
+.order-actions {
+    display: flex;
+    gap: 0.5rem; /* Adds a small space between buttons */
+    align-items: center; /* Vertically aligns buttons if they have different heights */
+    margin-top: 1rem; /* Adds some space above the button group */
+    /* To push buttons to one side, e.g., right: */
+    /* justify-content: flex-end; */ 
+    /* Or to center them: */
+    /* justify-content: center; */
+}
+
+.order-actions .action-button {
+    padding: 0.5rem 1rem; /* Adjust padding as needed */
+    text-decoration: none;
+    border-radius: var(--border-radius, 8px); /* Use existing variable or a default */
+    transition: var(--transition, all 0.3s ease);
+    font-size: 0.9rem;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid transparent; /* Base for consistent height */
+}
+
+/* Primary action button style (default for .action-button) */
+.order-actions .action-button {
+    background-color: var(--primary-color, #4CAF50);
+    color: white;
+}
+
+.order-actions .action-button:hover {
+    background-color: var(--secondary-color, #388E3C);
+}
+
+/* Secondary action button style */
+.order-actions .action-button.secondary {
+    background-color: #6c757d; /* A common secondary/gray color */
+    color: white;
+    border-color: #6c757d; /* Ensure border color matches for secondary */
+}
+
+.order-actions .action-button.secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62; /* Ensure hover border color matches for secondary */
+}

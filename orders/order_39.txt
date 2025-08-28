@@ -1,0 +1,11 @@
+🧾 Order Summary
+==============================
+📋 Order ID: 39
+📅 Date: 2024-10-27 22:34:20
+💰 Total: A$ 50.00
+
+🎁 Items:
+  • JUEGO DE TÉ x1: A$ 25.00
+  • JUEGO DE COCINA x1: A$ 25.00
+
+✨ Thank you for shopping at ALOHA!

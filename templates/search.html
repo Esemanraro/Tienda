@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}🔍 Buscar Juguetes{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-header">
+        <h2>🔍 Buscar Juguetes</h2>
+    </div>
+
+    <div class="search-form-container">
+        <form method="GET" action="{{ url_for('shop.search') }}" class="search-form">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    name="query" 
+                    value="{{ request.args.get('query', '') }}"
+                    placeholder="Buscar juguetes..."
+                    class="search-input"
+                >
+                <button type="submit" class="search-button">
+                    🔍 Buscar
+                </button>
+            </div>
+            
+            <div class="filter-group">
+                <select name="category" class="filter-select">
+                    <option value="">Todas las categorías</option>
+                    <option value="Niña" {% if request.args.get('category') == 'Niña' %}selected{% endif %}>Niña</option>
+                    <option value="Niño" {% if request.args.get('category') == 'Niño' %}selected{% endif %}>Niño</option>
+                    <option value="Mixta" {% if request.args.get('category') == 'Mixta' %}selected{% endif %}>Mixta</option>
+                </select>
+                
+                <select name="sort" class="filter-select">
+                    <option value="name" {% if request.args.get('sort') == 'name' %}selected{% endif %}>Nombre A-Z</option>
+                    <option value="price_low" {% if request.args.get('sort') == 'price_low' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                    <option value="price_high" {% if request.args.get('sort') == 'price_high' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    {% if toys %}
+        <div class="search-results">
+            <p class="results-count">{{ toys|length }} resultado(s) encontrado(s)</p>
+            <div class="toys-grid">
+                {% for toy in toys %}
+                    <div class="toy-card">
+                        <div class="toy-image">
+                            <img src="{{ toy.image_url }}" alt="{{ toy.name }}">
+                        </div>
+                        <div class="toy-content">
+                            <h3>{{ toy.name }}</h3>
+                            <p class="toy-description">{{ toy.description }}</p>
+                            <p class="toy-price">{{ toy.price|format_currency }}</p>
+                            {% if current_user.is_authenticated %}
+                                <button onclick="addToCart({{ toy.id }})" class="add-to-cart" data-toy-id="{{ toy.id }}">
+                                    🛒 Agregar al Carrito
+                                </button>
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="login-to-buy">
+                                    🔑 Inicia sesión para comprar
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="no-results">
+            <div class="no-results-content">
+                <span class="no-results-icon">🔍</span>
+                <h3>No se encontraron resultados</h3>
+                <p>Intenta con otros términos de búsqueda</p>
+                <a href="{{ url_for('shop.search') }}" class="reset-search">
+                    🔄 Reiniciar Búsqueda
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.search-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.search-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.search-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.search-form-container {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid rgba(76, 175, 80, 0.2);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.search-button {
+    padding: 0 2rem;
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.search-button:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.filter-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.filter-select {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid rgba(76, 175, 80, 0.2);
+    border-radius: var(--border-radius);
+    background: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.results-count {
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 2rem;
+}
+
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+}
+
+.no-results p {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin: 0 0 1.5rem 0;
+}
+
+.reset-search {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.reset-search:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .search-input-group,
+    .filter-group {
+        flex-direction: column;
+    }
+    
+    .search-button {
+        width: 100%;
+        padding: 0.8rem;
+    }
+}
+</style>
+{% endblock %}

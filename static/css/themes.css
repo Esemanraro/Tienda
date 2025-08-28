@@ -1,0 +1,64 @@
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #45a049;
+    --text-color: #333;
+    --background-color: #fff;
+    --card-bg: #f9f9f9;
+    --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --primary-color-rgb: 76, 175, 80;
+}
+
+/* Tema ALOHA Oscuro */
+[data-theme='aloha-dark'] {
+    --primary-color: #66bb6a;
+    --secondary-color: #57a85c;
+    --text-color: #fff;
+    --background-color: #121212;
+    --card-bg: #1e1e1e;
+    --box-shadow: 0 2px 5px rgba(255,255,255,0.1);
+    --primary-color-rgb: 102, 187, 106;
+}
+
+/* Tema Cherry Blossom */
+[data-theme='cherry-blossom'] {
+    --primary-color: #ff4d6d;
+    --secondary-color: #ff758c;
+    --text-color: #2c1810;
+    --background-color: #fff0f3;
+    --card-bg: #ffd6e0;
+    --box-shadow: 0 2px 5px rgba(255,77,109,0.2);
+    --primary-color-rgb: 255, 77, 109;
+}
+
+/* Tema Bajo el Agua */
+[data-theme='underwater'] {
+    --primary-color: #006064;
+    --secondary-color: #00838f;
+    --text-color: #004d40;
+    --background-color: #e0f7fa;
+    --card-bg: #b2ebf2;
+    --box-shadow: 0 2px 5px rgba(0,96,100,0.2);
+    --primary-color-rgb: 0, 96, 100;
+}
+
+/* Tema Halloween */
+[data-theme='halloween'] {
+    --primary-color: #ff9800;
+    --secondary-color: #f57c00;
+    --text-color: #ffffff;
+    --background-color: #200f21;
+    --card-bg: #382039;
+    --box-shadow: 0 2px 5px rgba(255,152,0,0.3);
+    --primary-color-rgb: 255, 152, 0;
+}
+
+/* Tema Patriótico */
+[data-theme='patriotic'] {
+    --primary-color: #006847;
+    --secondary-color: #ce1126;
+    --text-color: #000000;
+    --background-color: #ffffff;
+    --card-bg: #f8f9fa;
+    --box-shadow: 0 2px 5px rgba(0,104,71,0.2);
+    --primary-color-rgb: 0, 104, 71;
+}

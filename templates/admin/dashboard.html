@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Panel de Administración</h1>
+    </div>
+
+    <div class="admin-grid">
+        <!-- Resumen Rápido -->
+        <div class="admin-card summary-card">
+            <h2>Resumen Rápido</h2>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ total_users }}</span>
+                    <span class="stat-label">Usuarios</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ total_sales }}</span>
+                    <span class="stat-label">Ventas Hoy</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ total_toys }}</span>
+                    <span class="stat-label">Juguetes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú de Navegación Rápida -->
+        <div class="admin-card quick-nav">
+            <h2>Acceso Rápido</h2>
+            <div class="quick-nav-buttons">
+                <a href="{{ url_for('admin.users') }}" class="quick-nav-btn">
+                    <i class="fas fa-users"></i>
+                    Gestión de Usuarios
+                </a>
+                <a href="{{ url_for('admin.inventory') }}" class="quick-nav-btn">
+                    <i class="fas fa-box"></i>
+                    Inventario
+                </a>
+                <a href="{{ url_for('admin.sales') }}" class="quick-nav-btn">
+                    <i class="fas fa-chart-line"></i>
+                    Ventas
+                </a>
+                <a href="{{ url_for('admin.logs') }}" class="quick-nav-btn">
+                    <i class="fas fa-list"></i>
+                    Logs del Sistema
+                </a>
+            </div>
+        </div>
+
+        <!-- Últimas Ventas -->
+        <div class="admin-card recent-sales">
+            <h2>Últimas Ventas</h2>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Juguete</th>
+                            <th>Precio</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in recent_sales %}
+                        <tr>
+                            <td>{{ sale.user.username }}</td>
+                            <td>{{ sale.toy.name }}</td>
+                            <td>{{ sale.price }}</td>
+                            <td>{{ sale.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="admin-card stats-card">
+            <h2>Estadísticas</h2>
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 1rem;
+    background: rgba(var(--primary-color-rgb), 0.1);
+    border-radius: 10px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.quick-nav-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.quick-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.quick-nav-btn:hover {
+    transform: translateY(-2px);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(var(--text-color-rgb), 0.1);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ dates|safe }},
+            datasets: [{
+                label: 'Ventas por Día',
+                data: {{ sales_data|safe }},
+                borderColor: '#4CAF50',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

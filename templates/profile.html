@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block title %}👤 Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>¡Hola {{ current_user.username }}! 👋</h1>
+        <div class="balance-box">
+            <span class="balance-label">Mis ALOHA Dólares:</span>
+            <span class="balance-amount">{{ current_user.balance|format_currency }}</span>
+            <a href="#" onclick="showAddBalanceModal()" class="add-balance-button">
+                ➕ Agregar ALOHA Dólares
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <!-- Sección de Cuenta -->
+        <div class="profile-section">
+            <h2>👤 Mi Cuenta</h2>
+            <div class="account-details">
+                <div class="detail-item">
+                    <span class="detail-label">Centro ALOHA:</span>
+                    <select id="centerSelect" class="center-select" onchange="updateCenter(this.value)">
+                        <option value="Aguadulce" {% if current_user.center == "Aguadulce" %}selected{% endif %}>Aguadulce</option>
+                        <option value="Anclas Mall" {% if current_user.center == "Anclas Mall" %}selected{% endif %}>Anclas Mall</option>
+                        <option value="Brisas del Golf" {% if current_user.center == "Brisas del Golf" %}selected{% endif %}>Brisas del Golf</option>
+                        <option value="Calle 50" {% if current_user.center == "Calle 50" %}selected{% endif %}>Calle 50</option>
+                        <option value="Costa del Este" {% if current_user.center == "Costa del Este" %}selected{% endif %}>Costa del Este</option>
+                        <option value="David" {% if current_user.center == "David" %}selected{% endif %}>David</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Personalización -->
+        <div class="profile-section">
+            <h2>🎨 Personalización</h2>
+            <div class="themes-grid">
+                <button onclick="changeTheme('aloha-light')" class="theme-btn aloha-light">ALOHA Claro 🌞</button>
+                <button onclick="changeTheme('aloha-dark')" class="theme-btn aloha-dark">ALOHA Oscuro 🌙</button>
+                <button onclick="changeTheme('cherry-blossom')" class="theme-btn cherry-blossom">Cherry Blossom 🌸</button>
+                <button onclick="changeTheme('underwater')" class="theme-btn underwater">Bajo el Agua 🌊</button>
+                <button onclick="changeTheme('halloween')" class="theme-btn halloween">Halloween 🎃</button>
+                <button onclick="changeTheme('patriotic')" class="theme-btn patriotic">Patriótico 🇲🇽</button>
+            </div>
+        </div>
+
+        <!-- Sección de Mis Órdenes -->
+        <div class="profile-section">
+            <h2>📦 Mis Órdenes ({{ orders|length }})</h2>
+            {% if orders %}
+                <div class="orders-list">
+                    {% for order in orders %}
+                        <div class="order-item">
+                            <div class="order-header">
+                                <span class="order-id">Orden #{{ order.id }}</span>
+                                <span class="order-date">{{ order.order_date }}</span>
+                            </div>
+                            <div class="order-details">
+                                <span class="order-items">{{ order.item_count }} {{ 'producto' if order.item_count == 1 else 'productos' }}</span>
+                                <span class="order-total">{{ order.total }}</span>
+                            </div>
+                            <div class="order-actions">
+                                <a href="{{ url_for('shop.order_summary', order_id=order.id) }}" class="view-order-btn">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No has realizado ninguna compra aún.</p>
+                <a href="{{ url_for('shop.index') }}" class="action-button">
+                    🛍️ Ir de compras
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Sección de Seguridad -->
+        <div class="profile-section">
+            <h2>🔐 Seguridad</h2>
+            <div class="security-actions">
+                <button onclick="showChangePasswordModal()" class="action-button">
+                    🔑 Cambiar Contraseña
+                </button>
+                <a href="{{ url_for('auth.logout') }}" class="logout-button">
+                    🚪 Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cambiar contraseña -->
+<div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+        <h2>🔑 Cambiar Contraseña</h2>
+        <form id="changePasswordForm" action="{{ url_for('user.change_password') }}" method="POST">
+            <div class="form-group">
+                <label for="currentPassword">Contraseña Actual:</label>
+                <input type="password" id="currentPassword" name="current_password" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">Nueva Contraseña:</label>
+                <input type="password" id="newPassword" name="new_password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Nueva Contraseña:</label>
+                <input type="password" id="confirmPassword" name="confirm_password" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="add-button">Cambiar</button>
+                <button type="button" onclick="closeModal('changePasswordModal')" class="cancel-button">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para agregar balance -->
+<div id="addBalanceModal" class="modal">
+    <div class="modal-content">
+        <h2>💰 Agregar ALOHA Dólares</h2>
+        <form action="{{ url_for('user.add_balance') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="amount">Cantidad a agregar:</label>
+                <input type="number" id="amount" name="amount" min="1" step="0.01" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="add-button">Agregar</button>
+                <button type="button" onclick="closeModal('addBalanceModal')" class="cancel-button">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.balance-box {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    display: inline-block;
+}
+
+.balance-label {
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.balance-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.profile-content {
+    background: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: var(--box-shadow);
+    padding: 2rem;
+}
+
+.profile-section {
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.profile-actions {
+    margin-top: 2rem;
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(76, 175, 80, 0.1);
+}
+
+.logout-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #dc3545;  /* Color rojo para cerrar sesión */
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+}
+
+.themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.theme-btn {
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.theme-btn.aloha-light { background: #f0f8ff; color: #4CAF50; }
+.theme-btn.aloha-dark { background: #2c3e50; color: #66bb6a; }
+.theme-btn.cherry-blossom { background: #ffd6e0; color: #ff4d6d; }
+.theme-btn.underwater { background: #e0f7fa; color: #006064; }
+.theme-btn.halloween { background: #ff9800; color: #000000; }
+.theme-btn.patriotic { background: linear-gradient(45deg, #006847, #ffffff, #ce1126); color: #000000; }
+
+.add-balance-button {
+    display: block;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.add-balance-button:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 15px;
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.add-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cancel-button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.account-details {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.detail-label {
+    font-weight: bold;
+    min-width: 120px;
+}
+
+.center-select {
+    flex: 1;
+    padding: 0.5rem;
+    border: 2px solid rgba(76, 175, 80, 0.2);
+    border-radius: var(--border-radius);
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+/* Estilos para la sección de Mis Órdenes */
+.orders-list {
+    margin-top: 1.5rem;
+}
+
+.order-item {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.order-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.order-id {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.order-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.order-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.order-items {
+    color: var(--text-color);
+}
+
+.order-total {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.order-actions {
+    text-align: right;
+}
+
+.view-order-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.view-order-btn:hover {
+    background: var(--primary-dark);
+    color: white;
+}
+
+.action-button {
+    padding: 0.8rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.action-button:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.security-actions {
+    margin-top: 1rem;
+}
+</style>
+
+<script>
+function showChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'block';
+}
+
+function updateCenter(newCenter) {
+    fetch('/update_center', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ center: newCenter })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('✨ Centro actualizado correctamente', 'success');
+        } else {
+            showToast('❌ Error al actualizar el centro', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('❌ Error al actualizar el centro', 'error');
+    });
+}
+
+function showAddBalanceModal() {
+    document.getElementById('addBalanceModal').style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function changeTheme(themeName) {
+    const themes = {
+        'aloha-light': {
+            '--primary-color': '#4CAF50',
+            '--secondary-color': '#45a049',
+            '--text-color': '#333',
+            '--background-color': '#fff',
+            '--card-bg': '#f9f9f9'
+        },
+        'aloha-dark': {
+            '--primary-color': '#66bb6a',
+            '--secondary-color': '#57a85c',
+            '--text-color': '#fff',
+            '--background-color': '#121212',
+            '--card-bg': '#1e1e1e'
+        },
+        'cherry-blossom': {
+            '--primary-color': '#ff4d6d',
+            '--secondary-color': '#ff758c',
+            '--text-color': '#2c1810',
+            '--background-color': '#fff0f3',
+            '--card-bg': '#ffd6e0'
+        },
+        'underwater': {
+            '--primary-color': '#006064',
+            '--secondary-color': '#00838f',
+            '--text-color': '#004d40',
+            '--background-color': '#e0f7fa',
+            '--card-bg': '#b2ebf2'
+        },
+        'halloween': {
+            '--primary-color': '#ff9800',
+            '--secondary-color': '#f57c00',
+            '--text-color': '#ffffff',
+            '--background-color': '#200f21',
+            '--card-bg': '#382039'
+        },
+        'patriotic': {
+            '--primary-color': '#006847',
+            '--secondary-color': '#ce1126',
+            '--text-color': '#000000',
+            '--background-color': '#ffffff',
+            '--card-bg': '#f8f9fa'
+        }
+    };
+
+    const root = document.documentElement;
+    const theme = themes[themeName];
+    Object.entries(theme).forEach(([property, value]) => {
+        root.style.setProperty(property, value);
+    });
+    localStorage.setItem('theme', themeName);
+}
+
+// Cargar tema guardado
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    changeTheme(savedTheme);
+}
+</script>
+{% endblock %}

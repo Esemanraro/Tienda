@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}📝 Registro{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>📝 Registro</h2>
+            <p class="auth-subtitle">¡Únete a la comunidad ALOHA!</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label for="username">
+                    <span class="icon">👤</span>
+                    Usuario
+                </label>
+                {{ form.username(class="auth-input", placeholder="Elige un nombre de usuario") }}
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <span class="icon">🔒</span>
+                    Contraseña
+                </label>
+                {{ form.password(class="auth-input", placeholder="Elige una contraseña segura") }}
+            </div>
+
+            <div class="form-group">
+                <label for="center">
+                    <span class="icon">🏫</span>
+                    Centro ALOHA
+                </label>
+                <select name="center" id="center" class="auth-input" required>
+                    <option value="" disabled selected>Selecciona tu centro</option>
+                    <option value="Aguadulce">Aguadulce</option>
+                    <option value="Anclas Mall">Anclas Mall</option>
+                    <option value="Brisas del Golf">Brisas del Golf</option>
+                    <option value="Calle 50">Calle 50</option>
+                    <option value="Costa del Este">Costa del Este</option>
+                    <option value="David">David</option>
+                </select>
+            </div>
+
+            <button type="submit" class="auth-button primary">
+                ✨ Registrarme
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión aquí</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 2rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.auth-subtitle {
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+}
+
+.auth-input {
+    padding: 0.8rem;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.auth-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    background: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.auth-button:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.auth-links {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
