@@ -16,7 +16,7 @@
                 {% for item in order.items %}
                     <div class="order-item">
                         <div class="item-image">
-                            <img src="{{ item.toy.image_url }}" alt="{{ item.toy.name }}">
+                            <img src="{{ url_for('static', filename=item.toy.image_url) }}" alt="{{ item.toy.name }}">
                         </div>
                         <div class="item-details">
                             <h3>{{ item.toy.name }}</h3>

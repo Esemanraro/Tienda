@@ -77,8 +77,8 @@
 
             <div class="current-image">
                 <p><strong>Imagen Actual:</strong></p>
-                <img src="{{ toy.image_url }}" 
-                     alt="{{ toy.name }}" 
+                <img src="{{ url_for('static', filename=toy.image_url) }}"
+                     alt="{{ toy.name }}"
                      class="preview-image">
             </div>
 
