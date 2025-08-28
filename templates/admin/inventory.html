@@ -77,6 +77,10 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="toyStock">Stock</label>
+                    <input type="number" id="toyStock" name="stock" min="0" required>
+                </div>
+                <div class="form-group">
                     <label for="toyImage">Imagen</label>
                     <input type="file" id="toyImage" name="image" accept="image/*" required>
                 </div>
@@ -198,6 +202,7 @@ function closeModal(modalId) {
 document.getElementById('addToyForm').onsubmit = async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
+    formData.set('stock', document.getElementById('toyStock').value);
     try {
         const response = await fetch('/admin/toys/add', {
             method: 'POST',
