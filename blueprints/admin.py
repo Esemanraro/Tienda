@@ -501,7 +501,7 @@ def edit_toy(toy_id):
             'price': float(toy.price),
             'category': toy.category,
             'stock': toy.stock,
-            'image_url': toy.image_url
+            'image_url': url_for('static', filename=toy.image_url)
         }
         return jsonify(toy_data)
 
@@ -596,7 +596,7 @@ def toy_edit_new(toy_id):
                 'price': float(toy.price),
                 'category': toy.category,
                 'stock': toy.stock,
-                'image_url': toy.image_url
+                'image_url': url_for('static', filename=toy.image_url)
             }
         })
     
