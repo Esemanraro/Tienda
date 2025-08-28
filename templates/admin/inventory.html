@@ -55,6 +55,7 @@
         <div class="modal-content">
             <h2>Agregar Juguete</h2>
             <form id="addToyForm" enctype="multipart/form-data">
+                {{ toy_form.hidden_tag() }}
                 <div class="form-group">
                     <label for="toyName">Nombre del Juguete</label>
                     <input type="text" id="toyName" name="name" required>
@@ -198,6 +199,7 @@ function closeModal(modalId) {
 document.getElementById('addToyForm').onsubmit = async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
+    formData.set('csrf_token', document.querySelector('input[name="csrf_token"]').value);
     try {
         const response = await fetch('/admin/toys/add', {
             method: 'POST',
