@@ -10,6 +10,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user, login_user, logout_user
 from datetime import datetime, timedelta
 from sqlalchemy import desc, or_
+from sqlalchemy.orm import selectinload
 from decimal import Decimal, InvalidOperation
 
 # Importaciones absolutas
@@ -602,9 +603,60 @@ def toys_page():
         return redirect(url_for('shop.index'))
 
     toy_form = ToyForm()
-    toys = Toy.query.filter_by(is_active=True).order_by(Toy.created_at.desc()).all()
+    toys = (
+        Toy.query.options(selectinload(Toy.centers))
+        .filter_by(is_active=True)
+        .order_by(Toy.created_at.desc())
+        .all()
+    )
 
     return render_template('admin/inventory.html', toy_form=toy_form, toys=toys)
+
+# Administrar centros por juguete (obtener/actualizar)
+@admin_bp.route('/toys/<int:toy_id>/centers', methods=['GET', 'POST'])
+@login_required
+def manage_toy_centers(toy_id):
+    """Obtener o actualizar disponibilidad por centro para un juguete."""
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Acceso denegado'}), 403
+
+    toy = Toy.query.get_or_404(toy_id)
+
+    if request.method == 'GET':
+        # Centros actuales asignados al juguete
+        current = [c.center for c in ToyCenterAvailability.query.filter_by(toy_id=toy.id).all()]
+        return jsonify({'success': True, 'centers': current})
+
+    # POST: actualizar lista de centros
+    try:
+        if request.is_json:
+            payload = request.get_json() or {}
+            new_centers = payload.get('centers', []) or []
+        else:
+            new_centers = request.form.getlist('centers') or []
+
+        # Normalizar (opcional): valores en minúscula para consistencia
+        new_centers = [c.strip().lower() for c in new_centers if isinstance(c, str)]
+
+        # Centros actuales
+        existing_rows = ToyCenterAvailability.query.filter_by(toy_id=toy.id).all()
+        existing = {row.center for row in existing_rows}
+
+        # Eliminar los que ya no están
+        to_remove = [row for row in existing_rows if row.center not in set(new_centers)]
+        for row in to_remove:
+            db.session.delete(row)
+
+        # Agregar nuevos
+        to_add = [c for c in new_centers if c not in existing]
+        for center in to_add:
+            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+
+        db.session.commit()
+        return jsonify({'success': True, 'centers': new_centers})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # NUEVA IMPLEMENTACIÓN: Edición de juguetes simple y robusta
 @admin_bp.route('/toy_edit_new/<int:toy_id>', methods=['POST'])

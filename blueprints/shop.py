@@ -187,6 +187,12 @@ def basic_search():
     if toy_type:
         toys_query = toys_query.filter(Toy.category == toy_type)
     
+    # Nuevos filtros por columnas del item (Toy)
+    if age:
+        toys_query = toys_query.filter(Toy.age_range == age)
+    if gender:
+        toys_query = toys_query.filter(Toy.gender_category == gender)
+    
     # Aplicar ordenamiento
     if sort == 'name':
         toys_query = toys_query.order_by(Toy.name.asc())

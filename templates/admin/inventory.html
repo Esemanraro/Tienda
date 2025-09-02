@@ -44,6 +44,18 @@
                 <p class="toy-price">{{ toy.price }} ALOHA Dolares</p>
                 <p class="toy-category">{{ toy.category }}</p>
                 <p class="toy-description">{{ toy.description }}</p>
+                <div class="toy-centers">
+                    {% if toy.centers and toy.centers|length > 0 %}
+                        {% for tc in toy.centers %}
+                            <span class="center-chip">{{ tc.center|title }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="center-chip center-all">Todos los centros</span>
+                    {% endif %}
+                </div>
+                <div style="margin-top:.5rem">
+                    <button class="admin-btn" style="padding:.4rem .6rem;font-size:.85rem" onclick="openCentersModal({{ toy.id }}, '{{ toy.name|e }}')">Editar Centros</button>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -96,6 +108,8 @@
                         <label><input type="checkbox" name="centers" value="santiago"> Santiago</label>
                         <label><input type="checkbox" name="centers" value="condado del rey"> Condado Del Rey</label>
                         <label><input type="checkbox" name="centers" value="centro autorizado arraijan"> Centro Autorizado Arraijan</label>
+                        <label><input type="checkbox" name="centers" value="escuela bet yacoov"> Escuela Bet Yacoov</label>
+                        <label><input type="checkbox" name="centers" value="escuela de la salle"> Escuela De La Salle</label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -108,6 +122,35 @@
                 </div>
             </form>
         </div>
+    </div>
+</div>
+
+<!-- Modal Editar Centros -->
+<div id="editCentersModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Editar Centros</h2>
+        <p id="centersToyName" style="opacity:.8;margin-top:-.5rem"></p>
+        <form id="editCentersForm">
+            <input type="hidden" id="centersToyId" name="toy_id" />
+            <div class="centers-group" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem;max-height:260px;overflow:auto;border:1px solid var(--border-color);padding:.6rem;border-radius:6px;">
+                <label><input type="checkbox" name="centers" value="aguadulce"> Aguadulce</label>
+                <label><input type="checkbox" name="centers" value="anclas mall"> Anclas Mall</label>
+                <label><input type="checkbox" name="centers" value="brisas del golf"> Brisas del Golf</label>
+                <label><input type="checkbox" name="centers" value="calle 50"> Calle 50</label>
+                <label><input type="checkbox" name="centers" value="costa del este"> Costa del Este</label>
+                <label><input type="checkbox" name="centers" value="david"> David</label>
+                <label><input type="checkbox" name="centers" value="chitre"> Chitre</label>
+                <label><input type="checkbox" name="centers" value="santiago"> Santiago</label>
+                <label><input type="checkbox" name="centers" value="condado del rey"> Condado Del Rey</label>
+                <label><input type="checkbox" name="centers" value="centro autorizado arraijan"> Centro Autorizado Arraijan</label>
+                <label><input type="checkbox" name="centers" value="escuela bet yacoov"> Escuela Bet Yacoov</label>
+                <label><input type="checkbox" name="centers" value="escuela de la salle"> Escuela De La Salle</label>
+            </div>
+            <div class="form-actions" style="margin-top:1rem;display:flex;gap:.5rem;justify-content:flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeModal('editCentersModal')">Cancelar</button>
+                <button type="button" class="btn-primary" onclick="saveCenters()">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -207,6 +250,21 @@
     font-size: 0.9rem;
     margin-top: 0.5rem;
     color: var(--text-color);
+}
+
+.toy-centers { margin-top: .5rem; display: flex; flex-wrap: wrap; gap: .3rem; }
+.center-chip {
+    display: inline-block;
+    background: rgba(0,0,0,0.06);
+    color: var(--text-color);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: .15rem .5rem;
+    font-size: .8rem;
+}
+.center-chip.center-all {
+    background: rgba(76,175,80,0.08);
+    border-color: rgba(76,175,80,0.2);
 }
 
 .form-group textarea {
@@ -333,6 +391,57 @@ async function deleteToy(toyId) {
         console.error('Error:', error);
         alert('Error al eliminar el juguete');
     }
+}
+
+// --------- Editar Centros (Disponibilidad) ---------
+function openCentersModal(toyId, toyName) {
+    document.getElementById('centersToyId').value = toyId;
+    document.getElementById('centersToyName').textContent = `Juguete: ${toyName}`;
+
+    // Desmarcar todo
+    document.querySelectorAll('#editCentersForm input[name="centers"]').forEach(cb => cb.checked = false);
+
+    // Cargar centros actuales
+    fetch(`/admin/toys/${toyId}/centers`, {
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success && Array.isArray(data.centers)) {
+            const set = new Set(data.centers.map(c => (c || '').toLowerCase()));
+            document.querySelectorAll('#editCentersForm input[name="centers"]').forEach(cb => {
+                if (set.has(cb.value.toLowerCase())) cb.checked = true;
+            });
+        }
+        document.getElementById('editCentersModal').style.display = 'block';
+    })
+    .catch(() => {
+        document.getElementById('editCentersModal').style.display = 'block';
+    });
+}
+
+function saveCenters() {
+    const toyId = document.getElementById('centersToyId').value;
+    const selected = Array.from(document.querySelectorAll('#editCentersForm input[name="centers"]:checked')).map(cb => cb.value);
+    fetch(`/admin/toys/${toyId}/centers`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ centers: selected })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Centros actualizados');
+            closeModal('editCentersModal');
+        } else {
+            alert(data.message || 'Error al actualizar centros');
+        }
+    })
+    .catch(() => alert('Error de conexión'));
 }
 </script>
 {% endblock %}

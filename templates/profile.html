@@ -23,12 +23,18 @@
                 <div class="detail-item">
                     <span class="detail-label">Centro ALOHA:</span>
                     <select id="centerSelect" class="center-select" onchange="updateCenter(this.value)">
-                        <option value="Aguadulce" {% if current_user.center == "Aguadulce" %}selected{% endif %}>Aguadulce</option>
-                        <option value="Anclas Mall" {% if current_user.center == "Anclas Mall" %}selected{% endif %}>Anclas Mall</option>
-                        <option value="Brisas del Golf" {% if current_user.center == "Brisas del Golf" %}selected{% endif %}>Brisas del Golf</option>
-                        <option value="Calle 50" {% if current_user.center == "Calle 50" %}selected{% endif %}>Calle 50</option>
-                        <option value="Costa del Este" {% if current_user.center == "Costa del Este" %}selected{% endif %}>Costa del Este</option>
-                        <option value="David" {% if current_user.center == "David" %}selected{% endif %}>David</option>
+                        <option value="aguadulce" {% if current_user.center and current_user.center|lower == 'aguadulce' %}selected{% endif %}>Aguadulce</option>
+                        <option value="anclas mall" {% if current_user.center and current_user.center|lower == 'anclas mall' %}selected{% endif %}>Anclas Mall</option>
+                        <option value="brisas del golf" {% if current_user.center and current_user.center|lower == 'brisas del golf' %}selected{% endif %}>Brisas del Golf</option>
+                        <option value="calle 50" {% if current_user.center and current_user.center|lower == 'calle 50' %}selected{% endif %}>Calle 50</option>
+                        <option value="costa del este" {% if current_user.center and current_user.center|lower == 'costa del este' %}selected{% endif %}>Costa del Este</option>
+                        <option value="david" {% if current_user.center and current_user.center|lower == 'david' %}selected{% endif %}>David</option>
+                        <option value="chitre" {% if current_user.center and current_user.center|lower == 'chitre' %}selected{% endif %}>Chitre</option>
+                        <option value="santiago" {% if current_user.center and current_user.center|lower == 'santiago' %}selected{% endif %}>Santiago</option>
+                        <option value="condado del rey" {% if current_user.center and current_user.center|lower == 'condado del rey' %}selected{% endif %}>Condado Del Rey</option>
+                        <option value="centro autorizado arraijan" {% if current_user.center and current_user.center|lower == 'centro autorizado arraijan' %}selected{% endif %}>Centro Autorizado Arraijan</option>
+                        <option value="escuela bet yacoov" {% if current_user.center and current_user.center|lower == 'escuela bet yacoov' %}selected{% endif %}>Escuela Bet Yacoov</option>
+                        <option value="escuela de la salle" {% if current_user.center and current_user.center|lower == 'escuela de la salle' %}selected{% endif %}>Escuela De La Salle</option>
                     </select>
                 </div>
             </div>
@@ -446,7 +452,7 @@ function showChangePasswordModal() {
 }
 
 function updateCenter(newCenter) {
-    fetch('/update_center', {
+    fetch('/user/update_center', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

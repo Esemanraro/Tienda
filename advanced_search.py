@@ -51,7 +51,23 @@ class AdvancedSearchEngine:
                 'label': 'En oferta'
             }
         }
-        
+
+        # Agregar filtros para nuevas columnas del item (Toy)
+        # - age_range (rango de edad)
+        # - gender (mapea a Toy.gender_category)
+        self.available_filters.update({
+            'age_range': {
+                'type': 'select',
+                'label': 'Rango de edad',
+                'options': self._get_age_ranges()
+            },
+            'gender': {
+                'type': 'select',
+                'label': 'Gnero',
+                'options': self._get_gender_categories()
+            }
+        })
+
         # Opciones de ordenamiento
         self.sort_options = {
             'relevance': {'label': 'Relevancia', 'default': True},
@@ -79,6 +95,38 @@ class AdvancedSearchEngine:
                 for cat in categories if cat.category
             ]
     
+    def _get_age_ranges(self) -> List[Dict]:
+        """Obtener rangos de edad disponibles desde Toy.age_range"""
+        with self.app.app_context():
+            age_ranges = db.session.query(
+                Toy.age_range,
+                func.count(Toy.id).label('count')
+            ).filter(
+                Toy.is_active == True,
+                Toy.age_range.isnot(None)
+            ).group_by(Toy.age_range).all()
+
+            return [
+                {'value': ar.age_range, 'label': ar.age_range, 'count': ar.count}
+                for ar in age_ranges if ar.age_range
+            ]
+
+    def _get_gender_categories(self) -> List[Dict]:
+        """Obtener categoras de gnero disponibles desde Toy.gender_category"""
+        with self.app.app_context():
+            genders = db.session.query(
+                Toy.gender_category,
+                func.count(Toy.id).label('count')
+            ).filter(
+                Toy.is_active == True,
+                Toy.gender_category.isnot(None)
+            ).group_by(Toy.gender_category).all()
+
+            return [
+                {'value': g.gender_category, 'label': g.gender_category, 'count': g.count}
+                for g in genders if g.gender_category
+            ]
+
     def _get_age_groups(self) -> List[Dict]:
         """Obtener grupos de edad disponibles"""
         # NOTA: El modelo Toy no tiene campo age_group, devolver lista vacía
@@ -205,7 +253,16 @@ class AdvancedSearchEngine:
         # Filtro por categoría
         if filters.get('category'):
             query_obj = query_obj.filter(Toy.category == filters['category'])
-        
+
+        # Filtro por rango de edad (Toy.age_range)
+        if filters.get('age_range'):
+            query_obj = query_obj.filter(Toy.age_range == filters['age_range'])
+
+        # Filtro por gnero (Toy.gender_category) acepta 'gender' o 'gender_category'
+        gender_value = filters.get('gender') or filters.get('gender_category')
+        if gender_value:
+            query_obj = query_obj.filter(Toy.gender_category == gender_value)
+
         # Filtro por rango de precios
         if filters.get('price_min') is not None:
             query_obj = query_obj.filter(Toy.price >= float(filters['price_min']))
@@ -320,6 +377,30 @@ class AdvancedSearchEngine:
             for cat in categories
         ]
         
+        # Facetas de rangos de edad
+        age_ranges = self._get_age_ranges()
+        facets['age_ranges'] = [
+            {
+                'value': ar['value'],
+                'label': ar['label'],
+                'count': ar['count'],
+                'active': current_filters.get('age_range') == ar['value']
+            }
+            for ar in age_ranges
+        ]
+
+        # Facetas de gnero
+        genders = self._get_gender_categories()
+        facets['genders'] = [
+            {
+                'value': g['value'],
+                'label': g['label'],
+                'count': g['count'],
+                'active': (current_filters.get('gender') or current_filters.get('gender_category')) == g['value']
+            }
+            for g in genders
+        ]
+
         # Rangos de precio sugeridos
         facets['price_ranges'] = [
             {'label': 'Menos de $10', 'min': 0, 'max': 10},

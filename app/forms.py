@@ -15,6 +15,9 @@ class ToyForm(FlaskForm):
         ('Figuras', 'Figuras'),
         ('Peluches', 'Peluches'),
         ('Juegos de Mesa', 'Juegos de Mesa'),
+        ('Sensorial', 'Sensorial'),
+        ('Juego', 'Juego'),
+        ('Accesorio', 'Accesorio'),
         ('Bloques', 'Bloques'),
         ('VehÃ­culos', 'VehÃ­culos'),
         ('Outdoor', 'Outdoor'),
@@ -33,6 +36,9 @@ class ToyForm(FlaskForm):
         ('Figuras', 'Figuras'),
         ('Peluches', 'Peluches'),
         ('Juegos de Mesa', 'Juegos de Mesa'),
+        ('Sensorial', 'Sensorial'),
+        ('Juego', 'Juego'),
+        ('Accesorio', 'Accesorio'),
         ('Bloques', 'Bloques'),
         ('Vehiculos', 'Vehiculos'),
         ('Outdoor', 'Outdoor'),
@@ -76,6 +82,8 @@ class AddUserForm(FlaskForm):
         ('santiago', 'Santiago'),
         ('condado del rey', 'Condado Del Rey'),
         ('centro autorizado arraijan', 'Centro Autorizado Arraijan'),
+        ('escuela bet yacoov', 'Escuela Bet Yacoov'),
+        ('escuela de la salle', 'Escuela De La Salle'),
     ]
     center = SelectField('Centro/Sucursal', choices=CENTERS, validators=[DataRequired()])
     is_admin = BooleanField('Â¿Es Administrador?', default=False)
