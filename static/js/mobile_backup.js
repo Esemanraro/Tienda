@@ -1,22 +1,22 @@
 /**
- * JavaScript específico para funcionalidad móvil
- * Tiendita ALOHA - Optimización Mobile
+ * JavaScript especifico para funcionalidad movil
+ * Tiendita ALOHA - Optimizacion Mobile
  */
 
-// Configuración móvil
+// Configuracion movil
 const MobileConfig = {
     breakpoint: 768,
     touchDelay: 300,
     scrollThreshold: 10
 };
 
-// Detección de dispositivo móvil
+// Deteccion de dispositivo movil
 const isMobile = () => {
     return window.innerWidth <= MobileConfig.breakpoint || 
            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
 
-// Gestión de navegación móvil
+// Gestion de navegacion movil
 class MobileNavigation {
     constructor() {
         this.mobileNav = document.querySelector('.mobile-nav');
@@ -34,7 +34,7 @@ class MobileNavigation {
         this.setupViewportHeight();
     }
 
-    // Comportamiento de scroll para ocultar/mostrar navegación
+    // Comportamiento de scroll para ocultar/mostrar navegacion
     setupScrollBehavior() {
         let ticking = false;
         
@@ -80,7 +80,7 @@ class MobileNavigation {
         this.isVisible = true;
     }
 
-    // Eventos táctiles para mejor UX
+    // Eventos tactiles para mejor UX
     setupTouchEvents() {
         const navLinks = this.mobileNav.querySelectorAll('a');
         
@@ -113,7 +113,7 @@ class MobileNavigation {
         });
     }
 
-    // Ajuste de altura de viewport para móviles
+    // Ajuste de altura de viewport para moviles
     setupViewportHeight() {
         const setViewportHeight = () => {
             const vh = window.innerHeight * 0.01;
@@ -128,7 +128,7 @@ class MobileNavigation {
     }
 }
 
-// Gestión de formularios móviles
+// Gestion de formularios moviles
 class MobileForms {
     constructor() {
         this.init();
@@ -140,7 +140,7 @@ class MobileForms {
         this.setupQuantityControls();
     }
 
-    // Mejora del focus en inputs móviles
+    // Mejora del focus en inputs moviles
     setupInputFocus() {
         const inputs = document.querySelectorAll('input, textarea, select');
         
@@ -171,7 +171,7 @@ class MobileForms {
         input.closest('.form-group')?.classList.remove('focused');
     }
 
-    // Validación de formularios mejorada
+    // Validacion de formularios mejorada
     setupFormValidation() {
         const forms = document.querySelectorAll('form');
         
@@ -188,7 +188,7 @@ class MobileForms {
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
             
-            // Restaurar después de 3 segundos como fallback
+            // Restaurar despues de 3 segundos como fallback
             setTimeout(() => {
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
@@ -222,7 +222,7 @@ class MobileForms {
     }
 }
 
-// Gestión de notificaciones móviles
+// Gestion de notificaciones moviles
 class MobileNotifications {
     constructor() {
         this.init();
@@ -237,7 +237,7 @@ class MobileNotifications {
         const flashMessages = document.querySelectorAll('.flash-message');
         
         flashMessages.forEach(message => {
-            // Auto-hide después de 5 segundos
+            // Auto-hide despues de 5 segundos
             setTimeout(() => {
                 message.style.opacity = '0';
                 setTimeout(() => {
@@ -318,7 +318,7 @@ class MobileNotifications {
     }
 }
 
-// Utilidades móviles
+// Utilidades moviles
 class MobileUtils {
     static preventZoom() {
         // Prevenir zoom en inputs
@@ -373,7 +373,7 @@ class MobileUtils {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Mostrar botón de instalación personalizado
+            // Mostrar boton de instalacion personalizado
             const installBtn = document.querySelector('.install-app-btn');
             if (installBtn) {
                 installBtn.style.display = 'block';
@@ -381,7 +381,7 @@ class MobileUtils {
                     deferredPrompt.prompt();
                     deferredPrompt.userChoice.then((choiceResult) => {
                         if (choiceResult.outcome === 'accepted') {
-                            console.log('Usuario aceptó instalar la app');
+                            console.log('Usuario acepto instalar la app');
                         }
                         deferredPrompt = null;
                     });
@@ -391,10 +391,10 @@ class MobileUtils {
     }
 }
 
-// Inicialización cuando el DOM esté listo
+// Inicializacion cuando el DOM este listo
 document.addEventListener('DOMContentLoaded', () => {
     if (isMobile()) {
-        // Inicializar componentes móviles
+        // Inicializar componentes moviles
         new MobileNavigation();
         new MobileForms();
         new MobileNotifications();
@@ -404,10 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
         MobileUtils.setupPullToRefresh();
         MobileUtils.addToHomeScreen();
         
-        // Agregar clase móvil al body
+        // Agregar clase movil al body
         document.body.classList.add('mobile-device');
         
-        console.log('Tiendita ALOHA: Optimización móvil activada');
+        console.log('Tiendita ALOHA: Optimizacion movil activada');
     }
 });
 

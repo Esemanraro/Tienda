@@ -1,38 +1,38 @@
-/* 📱 OPTIMIZACIÓN MÓVIL COMPLETA - TIENDITA ALOHA */
-/* Diseño Mobile-First con navegación inferior */
+/* 📱 OPTIMIZACION MOVIL COMPLETA - TIENDITA ALOHA */
+/* Diseno Mobile-First con navegacion inferior */
 
 /* ========================================
-   🎯 VARIABLES MÓVILES
+   🎯 VARIABLES MOVILES
 ======================================== */
 :root {
-    /* Tamaños touch-friendly */
+    /* Tamanos touch-friendly */
     --touch-target: 48px;
     --touch-target-large: 56px;
     --mobile-padding: 16px;
     --mobile-margin: 12px;
     
-    /* Tipografía móvil */
+    /* Tipografia movil */
     --mobile-font-base: 16px;
     --mobile-font-small: 14px;
     --mobile-font-large: 18px;
     --mobile-font-xl: 24px;
     
-    /* Espaciado móvil */
+    /* Espaciado movil */
     --mobile-gap: 12px;
     --mobile-gap-large: 20px;
     
-    /* Navegación inferior */
+    /* Navegacion inferior */
     --bottom-nav-height: 70px;
     --bottom-nav-bg: rgba(255, 255, 255, 0.95);
     --bottom-nav-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* ========================================
-   📱 LAYOUT MÓVIL PRINCIPAL
+   📱 LAYOUT MOVIL PRINCIPAL
 ======================================== */
 @media (max-width: 768px) {
     
-    /* Body optimizado para móvil */
+    /* Body optimizado para movil */
     body {
         font-size: var(--mobile-font-base);
         padding-bottom: var(--bottom-nav-height);
@@ -41,7 +41,7 @@
         -webkit-font-smoothing: antialiased;
     }
     
-    /* Header compacto en móvil */
+    /* Header compacto en movil */
     .site-header {
         padding: 8px var(--mobile-padding);
         min-height: 60px;
@@ -57,7 +57,7 @@
         padding: 0;
     }
     
-    /* Logo móvil optimizado */
+    /* Logo movil optimizado */
     .brand-link {
         gap: 8px;
     }
@@ -72,12 +72,12 @@
         font-weight: 600;
     }
     
-    /* Ocultar navegación desktop */
+    /* Ocultar navegacion desktop */
     .desktop-nav {
         display: none !important;
     }
     
-    /* Contenido principal con espaciado móvil */
+    /* Contenido principal con espaciado movil */
     .main-content {
         padding: var(--mobile-padding);
         min-height: calc(100vh - 130px);
@@ -85,7 +85,7 @@
 }
 
 /* ========================================
-   🧭 NAVEGACIÓN INFERIOR OPTIMIZADA
+   🧭 NAVEGACION INFERIOR OPTIMIZADA
 ======================================== */
 @media (max-width: 768px) {
     
@@ -143,7 +143,7 @@
         transform: scale(1.05);
     }
     
-    /* Indicador de página activa */
+    /* Indicador de pagina activa */
     .mobile-nav a.active {
         background: rgba(76, 175, 80, 0.2);
         color: var(--primary-color);
@@ -163,7 +163,7 @@
 }
 
 /* ========================================
-   🎴 CARDS Y PRODUCTOS MÓVIL
+   🎴 CARDS Y PRODUCTOS MOVIL
 ======================================== */
 @media (max-width: 768px) {
     
@@ -236,7 +236,7 @@
 }
 
 /* ========================================
-   📝 FORMULARIOS MÓVIL
+   📝 FORMULARIOS MOVIL
 ======================================== */
 @media (max-width: 768px) {
     
@@ -317,7 +317,7 @@
 }
 
 /* ========================================
-   🛒 CARRITO MÓVIL
+   🛒 CARRITO MOVIL
 ======================================== */
 @media (max-width: 768px) {
     
@@ -423,7 +423,7 @@
 }
 
 /* ========================================
-   🔍 BÚSQUEDA MÓVIL
+   🔍 BUSQUEDA MOVIL
 ======================================== */
 @media (max-width: 768px) {
     
@@ -477,7 +477,7 @@
         transform: translateY(-50%) scale(1.05);
     }
     
-    /* Filtros móviles */
+    /* Filtros moviles */
     .filters-mobile {
         display: flex;
         gap: 8px;
@@ -512,7 +512,7 @@
 }
 
 /* ========================================
-   💳 CHECKOUT MÓVIL
+   💳 CHECKOUT MOVIL
 ======================================== */
 @media (max-width: 768px) {
     
@@ -624,7 +624,7 @@
 ======================================== */
 @media (max-width: 768px) {
     
-    /* Animación de carga */
+    /* Animacion de carga */
     .loading-spinner {
         width: 40px;
         height: 40px;
@@ -640,7 +640,7 @@
         100% { transform: rotate(360deg); }
     }
     
-    /* Animación de aparición */
+    /* Animacion de aparicion */
     .fade-in {
         animation: fadeIn 0.3s ease-in;
     }
@@ -650,7 +650,7 @@
         to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Animación de deslizamiento */
+    /* Animacion de deslizamiento */
     .slide-up {
         animation: slideUp 0.3s ease-out;
     }
@@ -687,7 +687,7 @@
         animation: spin 1s linear infinite;
     }
     
-    /* Estado vacío */
+    /* Estado vacio */
     .empty-state {
         text-align: center;
         padding: var(--mobile-gap-large);
@@ -707,7 +707,7 @@
 }
 
 /* ========================================
-   🔧 UTILIDADES MÓVILES
+   🔧 UTILIDADES MOVILES
 ======================================== */
 @media (max-width: 768px) {
     
@@ -743,7 +743,7 @@
 }
 
 /* ========================================
-   🎯 OPTIMIZACIONES ESPECÍFICAS
+   🎯 OPTIMIZACIONES ESPECIFICAS
 ======================================== */
 
 /* Mejoras de rendimiento */
@@ -760,7 +760,7 @@
         user-select: text;
     }
     
-    /* Optimización de scroll */
+    /* Optimizacion de scroll */
     .main-content {
         -webkit-overflow-scrolling: touch;
         scroll-behavior: smooth;

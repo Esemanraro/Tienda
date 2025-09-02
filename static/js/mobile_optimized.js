@@ -1,10 +1,10 @@
 /**
- * JavaScript optimizado para funcionalidad móvil
- * Tiendita ALOHA - Optimización Mobile v2.0
+ * JavaScript optimizado para funcionalidad movil
+ * Tiendita ALOHA - Optimizacion Mobile v2.0
  * Mejoras: Performance, Memoria, Accesibilidad, Manejo de Errores
  */
 
-// Configuración móvil
+// Configuracion movil
 const MobileConfig = {
     breakpoint: 768,
     touchDelay: 300,
@@ -53,7 +53,7 @@ const PerfUtils = {
     }
 };
 
-// Detección de dispositivo móvil mejorada
+// Deteccion de dispositivo movil mejorada
 const DeviceDetection = {
     isMobile() {
         return window.innerWidth <= MobileConfig.breakpoint || 
@@ -73,7 +73,7 @@ const DeviceDetection = {
     }
 };
 
-// Gestión de navegación móvil optimizada
+// Gestion de navegacion movil optimizada
 class MobileNavigation {
     constructor() {
         this.mobileNav = document.querySelector('.mobile-nav');
@@ -88,7 +88,7 @@ class MobileNavigation {
 
     init() {
         if (!this.mobileNav) {
-            console.warn('MobileNavigation: No se encontró elemento .mobile-nav');
+            console.warn('MobileNavigation: No se encontro elemento .mobile-nav');
             return;
         }
         
@@ -143,7 +143,7 @@ class MobileNavigation {
         this.isVisible = true;
     }
 
-    // Eventos táctiles optimizados
+    // Eventos tactiles optimizados
     setupTouchEvents() {
         const navLinks = this.mobileNav.querySelectorAll('a, button');
         
@@ -163,7 +163,7 @@ class MobileNavigation {
         }, 150);
     }
 
-    // Estados activos con mejor lógica
+    // Estados activos con mejor logica
     setupActiveStates() {
         const currentPath = window.location.pathname;
         const navLinks = this.mobileNav.querySelectorAll('a');
@@ -177,7 +177,7 @@ class MobileNavigation {
         });
     }
 
-    // Navegación por teclado mejorada
+    // Navegacion por teclado mejorada
     setupKeyboardNavigation() {
         this.addEventListener(this.mobileNav, 'keydown', (e) => {
             if (e.key === 'Escape') {
@@ -205,7 +205,7 @@ class MobileNavigation {
         });
     }
 
-    // Gestión de event listeners para limpieza de memoria
+    // Gestion de event listeners para limpieza de memoria
     addEventListener(element, event, handler, options) {
         element.addEventListener(event, handler, options);
         
@@ -216,7 +216,7 @@ class MobileNavigation {
         this.eventListeners.get(element).push({ event, handler, options });
     }
 
-    // Método de limpieza
+    // Metodo de limpieza
     destroy() {
         this.eventListeners.forEach((listeners, element) => {
             listeners.forEach(({ event, handler, options }) => {
@@ -230,7 +230,7 @@ class MobileNavigation {
     }
 }
 
-// Gestión de formularios móviles mejorada
+// Gestion de formularios moviles mejorada
 class MobileForms {
     constructor() {
         this.activeInputs = new WeakSet(); // Para evitar memory leaks
@@ -271,7 +271,7 @@ class MobileForms {
             formGroup.setAttribute('data-focused', 'true');
         }
         
-        // Scroll suave mejorado con cancelación
+        // Scroll suave mejorado con cancelacion
         if (this.scrollTimer) clearTimeout(this.scrollTimer);
         
         this.scrollTimer = setTimeout(() => {
@@ -296,7 +296,7 @@ class MobileForms {
         }
     }
 
-    // Validación de formularios con mejor UX
+    // Validacion de formularios con mejor UX
     setupFormValidation() {
         const forms = document.querySelectorAll('form');
         
@@ -310,7 +310,7 @@ class MobileForms {
         const submitBtn = form.querySelector('button[type="submit"]');
         
         if (submitBtn && !submitBtn.disabled) {
-            // Prevenir doble envío
+            // Prevenir doble envio
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
             submitBtn.setAttribute('aria-busy', 'true');
@@ -334,7 +334,7 @@ class MobileForms {
         }
     }
 
-    // Controles de cantidad con validación
+    // Controles de cantidad con validacion
     setupQuantityControls() {
         const quantityControls = document.querySelectorAll('.quantity-control');
         
@@ -354,7 +354,7 @@ class MobileForms {
                     this.updateQuantity(input, 1);
                 });
                 
-                // Validación en tiempo real
+                // Validacion en tiempo real
                 input.addEventListener('input', () => {
                     this.validateQuantityInput(input);
                 });
@@ -415,7 +415,7 @@ class MobileForms {
     }
 }
 
-// Gestión de notificaciones optimizada
+// Gestion de notificaciones optimizada
 class MobileNotifications {
     constructor() {
         this.activeToasts = new Set();
@@ -440,7 +440,7 @@ class MobileNotifications {
             message.setAttribute('role', 'alert');
             message.setAttribute('aria-live', 'polite');
             
-            // Auto-hide con mejor animación
+            // Auto-hide con mejor animacion
             const hideTimer = setTimeout(() => {
                 this.dismissMessage(message);
             }, 5000);
@@ -448,7 +448,7 @@ class MobileNotifications {
             // Swipe to dismiss
             this.setupSwipeToDismiss(message, hideTimer);
             
-            // Botón de cerrar si no existe
+            // Boton de cerrar si no existe
             if (!message.querySelector('.close-btn')) {
                 const closeBtn = document.createElement('button');
                 closeBtn.className = 'close-btn';
@@ -507,7 +507,7 @@ class MobileNotifications {
             
             element.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
             
-            // Dismiss si swipe es suficientemente rápido o lejos
+            // Dismiss si swipe es suficientemente rapido o lejos
             if (Math.abs(deltaX) > 100 || velocity > 0.5) {
                 clearTimeout(timer);
                 element.style.transform = `translateX(${deltaX > 0 ? '100%' : '-100%'})`;
@@ -537,7 +537,7 @@ class MobileNotifications {
     }
 
     showToast(message, type = 'info', duration = MobileConfig.toastDuration) {
-        // Limitar número de toasts
+        // Limitar numero de toasts
         if (this.activeToasts.size >= this.maxToasts) {
             const oldestToast = this.activeToasts.values().next().value;
             this.removeToast(oldestToast);
@@ -553,7 +553,7 @@ class MobileNotifications {
         toast.innerHTML = `
             <div class="toast-content">
                 <span class="toast-message">${message}</span>
-                <button class="toast-close" aria-label="Cerrar notificación">×</button>
+                <button class="toast-close" aria-label="Cerrar notificacion">×</button>
             </div>
         `;
         
@@ -595,7 +595,7 @@ class MobileNotifications {
     }
 }
 
-// Utilidades móviles mejoradas
+// Utilidades moviles mejoradas
 class MobileUtils {
     static preventZoom() {
         if (!DeviceDetection.supportsTouch()) return;
@@ -717,7 +717,7 @@ class MobileUtils {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Mostrar botón personalizado si existe
+            // Mostrar boton personalizado si existe
             const installBtn = document.querySelector('.install-app-btn');
             if (installBtn) {
                 installBtn.style.display = 'block';
@@ -731,14 +731,14 @@ class MobileUtils {
                         const choiceResult = await deferredPrompt.userChoice;
                         
                         if (choiceResult.outcome === 'accepted') {
-                            console.log('Usuario aceptó instalar la app');
+                            console.log('Usuario acepto instalar la app');
                             // Opcional: Analytics o feedback
                         }
                         
                         deferredPrompt = null;
                         installBtn.style.display = 'none';
                     } catch (error) {
-                        console.error('Error en la instalación:', error);
+                        console.error('Error en la instalacion:', error);
                     }
                 };
                 
@@ -748,14 +748,14 @@ class MobileUtils {
         
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         
-        // Detectar cuando la app ya está instalada
+        // Detectar cuando la app ya esta instalada
         window.addEventListener('appinstalled', () => {
             console.log('App instalada exitosamente');
             deferredPrompt = null;
         });
     }
 
-    // Optimización de imágenes para móvil
+    // Optimizacion de imagenes para movil
     static optimizeImages() {
         const images = document.querySelectorAll('img[data-src]');
         
@@ -776,7 +776,7 @@ class MobileUtils {
         });
     }
 
-    // Detección de conexión
+    // Deteccion de conexion
     static setupConnectionMonitoring() {
         const updateConnectionStatus = () => {
             const isOnline = navigator.onLine;
@@ -784,7 +784,7 @@ class MobileUtils {
             
             if (!isOnline) {
                 const notification = new MobileNotifications();
-                notification.showToast('Sin conexión a internet', 'warning', 5000);
+                notification.showToast('Sin conexion a internet', 'warning', 5000);
             }
         };
         
@@ -794,7 +794,7 @@ class MobileUtils {
     }
 }
 
-// Gestión global de instancias para limpieza
+// Gestion global de instancias para limpieza
 class MobileManager {
     constructor() {
         this.instances = new Map();
@@ -832,7 +832,7 @@ class MobileManager {
             }
             
             this.isInitialized = true;
-            console.log('Tiendita ALOHA: Optimización móvil activada v2.0');
+            console.log('Tiendita ALOHA: Optimizacion movil activada v2.0');
             
         } catch (error) {
             console.error('Error inicializando MobileManager:', error);
@@ -857,14 +857,14 @@ class MobileManager {
 // Instancia global del manager
 const mobileManager = new MobileManager();
 
-// Inicialización optimizada
+// Inicializacion optimizada
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => mobileManager.init());
 } else {
     mobileManager.init();
 }
 
-// Limpieza al salir de la página
+// Limpieza al salir de la pagina
 window.addEventListener('beforeunload', () => {
     mobileManager.destroy();
 });

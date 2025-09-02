@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}👥 Usuarios Registrados - Panel de Administración{% endblock %}
+{% block title %}👥 Usuarios Registrados - Panel de Administracion{% endblock %}
 
 {% block content %}
 <div class="admin-container">
@@ -8,11 +8,11 @@
         <h1>👥 Usuarios Registrados</h1>
         <p>Gestiona y revisa todos los usuarios registrados en la plataforma.</p>
         <a href="{{ url_for('admin.dashboard') }}" class="back-link">
-            ← Volver al panel de administración
+            ← Volver al panel de administracion
         </a>
     </div>
 
-    <!-- Filtros y búsqueda -->
+    <!-- Filtros y busqueda -->
     <div class="admin-filters">
         <form method="GET" class="search-form">
             <div class="form-group">
@@ -33,7 +33,7 @@
         </form>
     </div>
 
-    <!-- Resumen de estadísticas -->
+    <!-- Resumen de estadisticas -->
     <div class="stats-summary">
         <div class="stat-card">
             <span class="stat-label">Total de Usuarios</span>
@@ -132,7 +132,7 @@
                 </table>
             </div>
             
-            <!-- Paginación -->
+            <!-- Paginacion -->
             {% if users.pages > 1 %}
                 <div class="pagination">
                     {% if users.has_prev %}
@@ -142,7 +142,7 @@
                     {% endif %}
                     
                     <span class="current-page">
-                        Página {{ users.page }} de {{ users.pages }}
+                        Pagina {{ users.page }} de {{ users.pages }}
                     </span>
                     
                     {% if users.has_next %}
@@ -155,7 +155,7 @@
             
         {% else %}
             <div class="no-results">
-                <p>No se encontraron usuarios que coincidan con los criterios de búsqueda.</p>
+                <p>No se encontraron usuarios que coincidan con los criterios de busqueda.</p>
                 <a href="{{ url_for('admin.all_users') }}" class="action-button">
                     Limpiar filtros
                 </a>
@@ -194,7 +194,7 @@
     text-decoration: underline;
 }
 
-/* Filtros y búsqueda */
+/* Filtros y busqueda */
 .admin-filters {
     background: var(--card-bg);
     padding: 1.5rem;
@@ -248,7 +248,7 @@
     cursor: pointer;
 }
 
-/* Estadísticas */
+/* Estadisticas */
 .stats-summary {
     display: flex;
     gap: 1rem;
@@ -460,7 +460,7 @@
     border-color: #bd2130;
 }
 
-/* Paginación */
+/* Paginacion */
 .pagination {
     display: flex;
     justify-content: center;

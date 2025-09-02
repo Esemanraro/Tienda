@@ -1,7 +1,7 @@
-"""
+﻿"""
 Blueprint para funcionalidades de la tienda.
 
-Incluye: index, búsqueda avanzada, carrito persistente, checkout, órdenes
+Incluye: index, bÃºsqueda avanzada, carrito persistente, checkout, Ã³rdenes
 """
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, make_response, current_app
 from flask_login import login_required, current_user
@@ -26,9 +26,9 @@ from pagination_helpers import PaginationHelper, paginate_query
 try:
     from advanced_search import AdvancedSearchEngine, create_search_interface_data
     from cache_system import ToyCache, CartCache
-    # Temporalmente desactivar sistemas avanzados para forzar uso de sesión
-    ADVANCED_SYSTEMS_AVAILABLE = False  # TODO: Revisar configuración de Redis
-except ImportError:
+    # Temporalmente desactivar sistemas avanzados para forzar uso de sesiÃ³n
+    ADVANCED_SYSTEMS_AVAILABLE = False  # TODO: Revisar configuraciÃ³n de Redis
+except Exception:
     ADVANCED_SYSTEMS_AVAILABLE = False
 
 # Crear el blueprint de la tienda
@@ -37,18 +37,30 @@ shop_bp = Blueprint('shop', __name__)
 @shop_bp.route('/')
 @shop_bp.route('/index')
 def index():
-    """Página principal con todos los juguetes activos - CON PAGINACIÓN"""
+    """PÃ¡gina principal con todos los juguetes activos - CON PAGINACIÃ“N"""
     page = PaginationHelper.get_page_number()
     per_page = PaginationHelper.get_per_page(default=12)
     
-    # Consulta optimizada con paginación
-    toys_pagination = Toy.query.filter_by(is_active=True).order_by(
+    # Consulta optimizada con paginaciÃ³n
+    toys_query = Toy.query.filter_by(is_active=True)
+    try:
+        if current_user.is_authenticated and not getattr(current_user, 'is_admin', False) and getattr(current_user, 'center', None):
+            toys_query = toys_query.filter(
+                db.or_(
+                    ~Toy.centers.any(),
+                    Toy.centers.any(center=current_user.center)
+                )
+            )
+    except Exception:
+        pass
+
+    toys_pagination = toys_query.order_by(
         Toy.created_at.desc()
     ).paginate(
         page=page, per_page=per_page, error_out=False
     )
     
-    # URLs de paginación
+    # URLs de paginaciÃ³n
     pagination_urls = PaginationHelper.build_pagination_urls(
         toys_pagination, 'shop.index'
     )
@@ -68,16 +80,16 @@ def index():
 
 @shop_bp.route('/search')
 def search():
-    """Búsqueda avanzada con filtros múltiples y cache"""
+    """BÃºsqueda avanzada con filtros mÃºltiples y cache"""
     if ADVANCED_SYSTEMS_AVAILABLE:
         return advanced_search()
     else:
         return basic_search()
 
 def advanced_search():
-    """Búsqueda avanzada con motor inteligente"""
+    """BÃºsqueda avanzada con motor inteligente"""
     try:
-        # Obtener parámetros de búsqueda
+        # Obtener parÃ¡metros de bÃºsqueda
         query = request.args.get('query', '').strip()
         sort_by = request.args.get('sort', 'relevance')
         page = int(request.args.get('page', 1))
@@ -85,8 +97,16 @@ def advanced_search():
         
         # Construir filtros
         filters = {}
-        if request.args.get('category'):
+        # Toy type (accept both toy_type and category)
+        if request.args.get('toy_type'):
+            filters['category'] = request.args.get('toy_type')
+        elif request.args.get('category'):
             filters['category'] = request.args.get('category')
+        # New filters
+        if request.args.get('age') or request.args.get('age_range'):
+            filters['age_range'] = request.args.get('age') or request.args.get('age_range')
+        if request.args.get('gender'):
+            filters['gender'] = request.args.get('gender')
         if request.args.get('price_min'):
             filters['price_min'] = float(request.args.get('price_min'))
         if request.args.get('price_max'):
@@ -96,7 +116,7 @@ def advanced_search():
         if request.args.get('on_sale') == 'true':
             filters['on_sale'] = True
         
-        # Ejecutar búsqueda
+        # Ejecutar bÃºsqueda
         search_engine = AdvancedSearchEngine()
         results = search_engine.search(
             query=query,
@@ -109,7 +129,7 @@ def advanced_search():
         # Obtener datos para la interfaz
         interface_data = create_search_interface_data()
         
-        # Si es una petición AJAX, devolver JSON
+        # Si es una peticiÃ³n AJAX, devolver JSON
         if request.headers.get('Content-Type') == 'application/json' or request.args.get('format') == 'json':
             return jsonify(results)
         
@@ -126,21 +146,35 @@ def advanced_search():
         )
         
     except Exception as e:
-        flash(f'Error en búsqueda avanzada: {str(e)}', 'error')
+        flash(f'Error en bÃºsqueda avanzada: {str(e)}', 'error')
         return basic_search()
 
 def basic_search():
-    """Búsqueda básica (fallback)"""
+    """BÃºsqueda bÃ¡sica (fallback)"""
     query = request.args.get('query', '').strip()
-    category = request.args.get('category', '')
+    toy_type = request.args.get('toy_type') or request.args.get('category', '')
+    # New filters
+    age = request.args.get('age') or request.args.get('age_range') or ''
+    gender = request.args.get('gender', '')
     sort = request.args.get('sort', 'name')
     page = PaginationHelper.get_page_number()
     per_page = PaginationHelper.get_per_page(default=12)
     
     # Construir consulta base
     toys_query = Toy.query.filter_by(is_active=True)
+    # Filtrar por centro si el usuario estÃ¡ autenticado
+    try:
+        if current_user.is_authenticated and not getattr(current_user, 'is_admin', False) and getattr(current_user, 'center', None):
+            toys_query = toys_query.filter(
+                db.or_(
+                    ~Toy.centers.any(),
+                    Toy.centers.any(center=current_user.center)
+                )
+            )
+    except Exception:
+        pass
     
-    # Aplicar filtros de búsqueda
+    # Aplicar filtros de bÃºsqueda
     if query:
         toys_query = toys_query.filter(
             db.or_(
@@ -150,8 +184,8 @@ def basic_search():
             )
         )
     
-    if category:
-        toys_query = toys_query.filter(Toy.category == category)
+    if toy_type:
+        toys_query = toys_query.filter(Toy.category == toy_type)
     
     # Aplicar ordenamiento
     if sort == 'name':
@@ -163,18 +197,18 @@ def basic_search():
     else:  # fallback
         toys_query = toys_query.order_by(Toy.created_at.desc())
     
-    # Paginación
+    # PaginaciÃ³n
     toys_pagination = toys_query.paginate(
         page=page, per_page=per_page, error_out=False
     )
     
-    # URLs de paginación
+    # URLs de paginaciÃ³n
     pagination_urls = PaginationHelper.build_pagination_urls(
         toys_pagination, 'shop.search', 
-        query=query, category=category, sort=sort
+        query=query, category=toy_type, toy_type=toy_type, age=age, gender=gender, sort=sort
     )
     
-    # Obtener categorías para filtros
+    # Obtener categorÃ­as para filtros
     categories = db.session.query(Toy.category).filter(
         Toy.is_active == True,
         Toy.category.isnot(None)
@@ -188,7 +222,10 @@ def basic_search():
         pagination=toys_pagination,
         pagination_urls=pagination_urls,
         query=query,
-        category=category,
+        category=toy_type,
+        toy_type=toy_type,
+        age=age,
+        gender=gender,
         sort=sort,
         categories=category_list
     )
@@ -225,10 +262,10 @@ def add_to_cart():
     
     toy = Toy.query.get_or_404(toy_id)
     
-    # Validación de stock antes de continuar
+    # ValidaciÃ³n de stock antes de continuar
     if toy.stock < quantity or toy.stock <= 0:
-        out_msg = f"❌ {toy.name} sin stock disponible"
-        # Si la petición es AJAX devolvemos JSON, si no redirigimos con flash
+        out_msg = f"âŒ {toy.name} sin stock disponible"
+        # Si la peticiÃ³n es AJAX devolvemos JSON, si no redirigimos con flash
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'success': False, 'message': out_msg}), 400
         flash(out_msg, 'error')
@@ -236,8 +273,8 @@ def add_to_cart():
     
     if not toy.is_active:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': False, 'message': 'Este juguete no está disponible'})
-        flash('Este juguete no está disponible', 'error')
+            return jsonify({'success': False, 'message': 'Este juguete no estÃ¡ disponible'})
+        flash('Este juguete no estÃ¡ disponible', 'error')
         return redirect(url_for('shop.index'))
     
     if toy.stock < quantity:
@@ -247,16 +284,16 @@ def add_to_cart():
         flash(message, 'error')
         return redirect(url_for('shop.index'))
     
-    # Usar cache del carrito si está disponible
+    # Usar cache del carrito si estÃ¡ disponible
     if ADVANCED_SYSTEMS_AVAILABLE:
         try:
             CartCache.add_item(current_user.id, toy_id, quantity)
             message = f'{toy.name} agregado al carrito'
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'success': True, 'message': message})
-            # No mostrar flash aquí para redirecciones, el usuario verá el item en el carrito.
+            # No mostrar flash aquÃ­ para redirecciones, el usuario verÃ¡ el item en el carrito.
         except Exception as e:
-            # Fallback a sesión
+            # Fallback a sesiÃ³n
             is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
             add_to_session_cart(toy_id, quantity, toy.name, show_flash_message=is_ajax)
             if is_ajax:
@@ -286,7 +323,7 @@ def add_to_cart():
     return redirect(url_for('shop.view_cart'))
 
 def add_to_session_cart(toy_id, quantity, toy_name, show_flash_message=True):
-    """Agregar al carrito usando sesión (fallback)"""
+    """Agregar al carrito usando sesiÃ³n (fallback)"""
     cart = session.get('cart', {})
     toy_id_str = str(toy_id)
     
@@ -302,9 +339,9 @@ def add_to_session_cart(toy_id, quantity, toy_name, show_flash_message=True):
     if toy_id_str in cart:
         current_qty = cart[toy_id_str]['quantity'] if isinstance(cart[toy_id_str], dict) else cart[toy_id_str]
     if current_qty + quantity > toy.stock:
-        # No agregar; opcionalmente ajustar al máximo
+        # No agregar; opcionalmente ajustar al mÃ¡ximo
         if show_flash_message:
-            flash(f"❌ Stock insuficiente para {toy_name}", 'error')
+            flash(f"âŒ Stock insuficiente para {toy_name}", 'error')
         return
     
     if toy_id_str in cart:
@@ -332,7 +369,7 @@ def add_to_session_cart(toy_id, quantity, toy_name, show_flash_message=True):
 @shop_bp.route('/cart')
 @login_required
 def view_cart():
-    """Ver carrito con datos del cache o sesión"""
+    """Ver carrito con datos del cache o sesiÃ³n"""
     cart_items = []
     total = 0
     
@@ -448,16 +485,16 @@ def update_cart(toy_id):
 @shop_bp.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    """Proceso de checkout idempotente y finalización de compra"""
-    # Si se recibe un POST pero el carrito ya está vacío porque la orden
-    # se procesó en un envío anterior, redirigir al último resumen de orden.
+    """Proceso de checkout idempotente y finalizaciÃ³n de compra"""
+    # Si se recibe un POST pero el carrito ya estÃ¡ vacÃ­o porque la orden
+    # se procesÃ³ en un envÃ­o anterior, redirigir al Ãºltimo resumen de orden.
     if request.method == 'POST' and ('cart' not in session or not session['cart']):
         last_order_id = session.pop('last_order_id', None)
         if last_order_id:
             return redirect(url_for('shop.order_summary', order_id=last_order_id))
-    """Proceso de checkout y finalización de compra"""
+    """Proceso de checkout y finalizaciÃ³n de compra"""
     if 'cart' not in session or not session['cart']:
-        flash('Tu carrito está vacío', 'error')
+        flash('Tu carrito estÃ¡ vacÃ­o', 'error')
         return redirect(url_for('shop.view_cart'))
     
     # Calcular total y obtener items del carrito
@@ -528,14 +565,14 @@ def checkout():
             # Guardar cambios
             db.session.commit()
 
-            # Guardar el último order_id en sesión para manejar reenvíos accidentales
+            # Guardar el Ãºltimo order_id en sesiÃ³n para manejar reenvÃ­os accidentales
             session['last_order_id'] = order.id
             
-            # Limpiar carrito después de confirmar que todo está bien
+            # Limpiar carrito despuÃ©s de confirmar que todo estÃ¡ bien
             session.pop('cart', None)
             
             # Redirigir al resumen de la orden sin mostrar mensaje flash adicional
-            # ya que ahora mostramos un modal en la página de resumen
+            # ya que ahora mostramos un modal en la pÃ¡gina de resumen
             return redirect(url_for('shop.order_summary', order_id=order.id))
             
         except Exception as e:
@@ -545,7 +582,7 @@ def checkout():
             flash(error_msg, 'error')
             return redirect(url_for('shop.view_cart'))
     
-    # Para GET, mostrar la página de checkout
+    # Para GET, mostrar la pÃ¡gina de checkout
     return render_template('checkout.html', 
                          cart_items=cart_items, 
                          total=total)
@@ -568,12 +605,12 @@ def generate_pdf(order):
     
     buffer = None
     try:
-        print(f"Iniciando generación de PDF para orden {order.id}")
+        print(f"Iniciando generaciÃ³n de PDF para orden {order.id}")
         
         # Crear buffer y documento
         buffer = io.BytesIO()
         
-        # Configurar el documento con márgenes más pequeños
+        # Configurar el documento con mÃ¡rgenes mÃ¡s pequeÃ±os
         doc = SimpleDocTemplate(
             buffer,
             pagesize=letter,
@@ -594,13 +631,13 @@ def generate_pdf(order):
             if os.path.exists(FUTURA_BOLD_PATH) and 'Futura-Bold' not in pdfmetrics.getRegisteredFontNames():
                 pdfmetrics.registerFont(TTFont('Futura-Bold', FUTURA_BOLD_PATH))
             
-            # Determinar las fuentes a usar (Futura si está disponible, sino Helvetica por defecto)
+            # Determinar las fuentes a usar (Futura si estÃ¡ disponible, sino Helvetica por defecto)
             font_name_normal = 'Futura' if 'Futura' in pdfmetrics.getRegisteredFontNames() else 'Helvetica'
             font_name_bold = 'Futura-Bold' if 'Futura-Bold' in pdfmetrics.getRegisteredFontNames() else 'Helvetica-Bold'
             print(f"Usando fuentes: Normal='{font_name_normal}', Bold='{font_name_bold}'")
 
         except Exception as e:
-            print(f"Error al registrar fuentes Futura: {e}. Se usarán fuentes por defecto.")
+            print(f"Error al registrar fuentes Futura: {e}. Se usarÃ¡n fuentes por defecto.")
             font_name_normal = 'Helvetica'
             font_name_bold = 'Helvetica-Bold'
 
@@ -610,7 +647,7 @@ def generate_pdf(order):
         # Definir y agregar estilos personalizados solo si no existen en la hoja de estilos.
         # Esto previene el error "Style '...' already defined in stylesheet".
         
-        # Parámetros para la creación de los estilos personalizados.
+        # ParÃ¡metros para la creaciÃ³n de los estilos personalizados.
         # El 'parent' se toma del stylesheet base (styles) para heredar propiedades.
         style_definitions_params = {
             'Title': {'parent': styles['Heading1'], 'fontName': font_name_bold, 'fontSize': 18, 'leading': 22, 'spaceAfter': 10, 'alignment': TA_CENTER, 'textColor': colors.HexColor('#00796B')},
@@ -626,11 +663,11 @@ def generate_pdf(order):
 
         for name, params in style_definitions_params.items():
             if name not in styles:
-                # Crear el objeto ParagraphStyle usando su nombre y los parámetros definidos.
+                # Crear el objeto ParagraphStyle usando su nombre y los parÃ¡metros definidos.
                 style_to_add = ParagraphStyle(name=name, **params)
                 styles.add(style_to_add)
             # Si el estilo ya existe (name in styles), no hacemos nada.
-            # Se utilizará la definición existente del estilo.
+            # Se utilizarÃ¡ la definiciÃ³n existente del estilo.
             # Esto evita el error por intentar redefinir un estilo ya presente.
     
         # Generar elementos del PDF
@@ -652,7 +689,7 @@ def generate_pdf(order):
         elements.append(Paragraph("Recibo de Compra", styles["Subtitle"]))
         elements.append(Spacer(1, 20))
         
-        # Información de la orden
+        # InformaciÃ³n de la orden
         elements.append(Paragraph(f"<b>Orden #:</b> {order.id}", styles["NormalBold"]))
         elements.append(Paragraph(f"<b>Fecha:</b> {order.order_date.strftime('%d/%m/%Y %H:%M')}", styles["Normal"]))
         elements.append(Paragraph(f"<b>Cliente:</b> {order.user.username}", styles["Normal"]))
@@ -675,7 +712,7 @@ def generate_pdf(order):
         table_style = [
             ('BACKGROUND', (0, 0), (-1, 0), styles['TableHeader'].background),
             ('TEXTCOLOR', (0, 0), (-1, 0), styles['TableHeader'].textColor),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'), # Alineación general
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'), # AlineaciÃ³n general
             ('FONTNAME', (0, 0), (-1, 0), styles['TableHeader'].fontName),
             ('FONTSIZE', (0, 0), (-1, 0), styles['TableHeader'].fontSize),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
@@ -701,8 +738,8 @@ def generate_pdf(order):
         elements.append(Spacer(1, 30))
         
         # Mensaje de agradecimiento
-        elements.append(Paragraph("¡Gracias por su compra en Tiendita ALOHA!", styles["Center"]))
-        elements.append(Paragraph("Para cualquier consulta, contáctenos en info@aloha.edu.gt o visite www.aloha.edu.gt", styles["Center"]))
+        elements.append(Paragraph("Â¡Gracias por su compra en Tiendita ALOHA!", styles["Center"]))
+        elements.append(Paragraph("Para cualquier consulta, contÃ¡ctenos en info@aloha.edu.gt o visite www.aloha.edu.gt", styles["Center"]))
         
         # Generar PDF
         print("Construyendo documento PDF...")
@@ -711,9 +748,9 @@ def generate_pdf(order):
         # Obtener el PDF generado
         pdf = buffer.getvalue()
         if not pdf:
-            raise ValueError("No se pudo generar el PDF: el buffer está vacío")
+            raise ValueError("No se pudo generar el PDF: el buffer estÃ¡ vacÃ­o")
             
-        print(f"PDF generado exitosamente, tamaño: {len(pdf)} bytes")
+        print(f"PDF generado exitosamente, tamaÃ±o: {len(pdf)} bytes")
         return pdf
         
     except Exception as e:
@@ -733,7 +770,7 @@ def generate_pdf(order):
 def download_receipt(order_id):
     """Descargar recibo en PDF"""
     try:
-        print(f"\n=== Inicio de generación de PDF para orden {order_id} ===")
+        print(f"\n=== Inicio de generaciÃ³n de PDF para orden {order_id} ===")
         print(f"Usuario actual: {current_user.id} (Admin: {current_user.is_admin})")
         
         # Obtener la orden
@@ -747,24 +784,24 @@ def download_receipt(order_id):
             return redirect(url_for('shop.index'))
         
         # Generar PDF
-        print("Iniciando generación de PDF...")
+        print("Iniciando generaciÃ³n de PDF...")
         try:
             # Verificar si la orden tiene items
             if not order.items:
                 raise ValueError("La orden no contiene items")
                 
-            # Verificar que los precios sean válidos
+            # Verificar que los precios sean vÃ¡lidos
             for item in order.items:
                 if item.price is None or item.quantity is None:
-                    raise ValueError(f"Item {item.id} tiene precio o cantidad inválidos")
+                    raise ValueError(f"Item {item.id} tiene precio o cantidad invÃ¡lidos")
             
             # Generar el PDF
             pdf = generate_pdf(order)
             
             if not pdf:
-                raise ValueError("El PDF generado está vacío")
+                raise ValueError("El PDF generado estÃ¡ vacÃ­o")
                 
-            print(f"PDF generado exitosamente, tamaño: {len(pdf)} bytes")
+            print(f"PDF generado exitosamente, tamaÃ±o: {len(pdf)} bytes")
             
             # Crear respuesta con buffer
             response = make_response(pdf)
@@ -779,7 +816,7 @@ def download_receipt(order_id):
             return response
             
         except Exception as e:
-            print(f"\n!!! Error durante la generación del PDF:")
+            print(f"\n!!! Error durante la generaciÃ³n del PDF:")
             print(f"Tipo de error: {type(e).__name__}")
             print(f"Mensaje: {str(e)}")
             print("\nTraceback completo:")
@@ -797,13 +834,13 @@ def download_receipt(order_id):
         import traceback
         traceback.print_exc()
         
-        flash('Error al procesar la solicitud. Por favor intente nuevamente más tarde.', 'error')
+        flash('Error al procesar la solicitud. Por favor intente nuevamente mÃ¡s tarde.', 'error')
         return redirect(url_for('shop.order_summary', order_id=order_id))
 
 @shop_bp.route('/order/<int:order_id>')
 @login_required
 def order_summary(order_id):
-    """Ver resumen de una orden específica"""
+    """Ver resumen de una orden especÃ­fica"""
     try:
         order = Order.query.get_or_404(order_id)
         
@@ -817,23 +854,23 @@ def order_summary(order_id):
             flash('La orden no contiene items', 'error')
             return redirect(url_for('shop.index'))
         
-        # Registrar visualización de la orden
+        # Registrar visualizaciÃ³n de la orden
         print(f"Visualizando orden #{order_id} por usuario {current_user.username}")
         
-        # Pasar la función format_currency al contexto de la plantilla
+        # Pasar la funciÃ³n format_currency al contexto de la plantilla
         return render_template('order_summary.html', 
                              order=order,
                              format_currency=format_currency)
     except Exception as e:
         print(f"Error al cargar la orden {order_id}: {str(e)}")
-        flash('Ocurrió un error al cargar la orden', 'error')
+        flash('OcurriÃ³ un error al cargar la orden', 'error')
         return redirect(url_for('shop.index'))
 
 
 @shop_bp.route('/api/debug/session')
 @login_required
 def debug_session():
-    """Endpoint temporal para debug de sesión"""
+    """Endpoint temporal para debug de sesiÃ³n"""
     import json
     from flask import jsonify
     

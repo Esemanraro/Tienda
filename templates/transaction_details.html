@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Detalles de la Transacción{% endblock %}
+{% block title %}Detalles de la Transaccion{% endblock %}
 
 {% block content %}
-    <h2>Detalles de la Transacción</h2>
+    <h2>Detalles de la Transaccion</h2>
     <p>Fecha: {{ transaction.order_date.strftime('%d/%m/%Y %H:%M') }}</p>
     <p>Tipo: Compra</p>
     <p>Monto Total: {{ format_currency(transaction.total_price) }}</p>
     
-    <h3>Artículos Comprados</h3>
+    <h3>Articulos Comprados</h3>
     <table>
         <thead>
             <tr>

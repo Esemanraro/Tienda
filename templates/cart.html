@@ -55,8 +55,8 @@
         <div class="empty-cart">
             <div class="empty-cart-content">
                 <span class="empty-cart-icon">🛒</span>
-                <h3>Tu carrito está vacío</h3>
-                <p>¡Agrega algunos juguetes increíbles!</p>
+                <h3>Tu carrito esta vacio</h3>
+                <p>¡Agrega algunos juguetes increibles!</p>
                 <a href="{{ url_for('shop.index') }}" class="continue-shopping">
                     🏪 Ir a Comprar
                 </a>
@@ -341,7 +341,7 @@
         justify-content: center;
     }
     
-    /* Reorganizar el orden en móvil: primero los items, luego el resumen */
+    /* Reorganizar el orden en movil: primero los items, luego el resumen */
     .cart-summary {
         order: 2;
         margin-top: 2rem;
@@ -351,7 +351,7 @@
         order: 1;
     }
     
-    /* FORZAR que la tarjeta de resumen NO sea sticky en móvil */
+    /* FORZAR que la tarjeta de resumen NO sea sticky en movil */
     .cart-summary .summary-card {
         position: relative !important;
         top: unset !important;
@@ -384,15 +384,15 @@ function removeFromCart(toyId) {
     .then(data => {
         console.log('Datos recibidos:', data);
         if (data.success) {
-            showToast('✅ Artículo eliminado del carrito', 'success');
+            showToast('✅ Articulo eliminado del carrito', 'success');
             const itemContainer = document.querySelector(`[data-toy-id="${toyId}"]`);
             itemContainer.remove();
             
-            // Si no quedan más items, mostrar mensaje vacío
+            // Si no quedan mas items, mostrar mensaje vacio
             if (data.cart_count === 0) {
                 document.querySelector('.cart-items').innerHTML = `
                     <div class="empty-cart">
-                        <p>Tu carrito está vacío</p>
+                        <p>Tu carrito esta vacio</p>
                         <a href="/" class="btn btn-primary">Ir a comprar</a>
                     </div>
                 `;
@@ -427,7 +427,7 @@ function updateQuantity(toyId, change) {
     const newQuantity = currentQuantity + change;
     
     if (newQuantity < 1) {
-        if (confirm('¿Deseas eliminar este artículo del carrito?')) {
+        if (confirm('¿Deseas eliminar este articulo del carrito?')) {
             removeFromCart(toyId);
         }
         return;
@@ -459,7 +459,7 @@ function updateQuantity(toyId, change) {
             }
             showToast('🛒 Carrito actualizado', 'success');
             
-            // Actualizar el subtotal del ítem y la cantidad mostrada
+            // Actualizar el subtotal del item y la cantidad mostrada
             const itemPriceElem = itemContainer.querySelector('.item-price');
             const unitPrice = parseFloat(itemPriceElem.dataset.unitPrice);
 
@@ -469,7 +469,7 @@ function updateQuantity(toyId, change) {
                 qtySpan.textContent = newQuantity;
             }
 
-            // Actualizar total por ítem
+            // Actualizar total por item
             const itemTotal = itemContainer.querySelector('.item-total');
             if (itemTotal) {
                 itemTotal.textContent = `Total: A$ ${(unitPrice * newQuantity).toFixed(2)}`;

@@ -27,12 +27,12 @@
             <div class="form-group">
                 <label for="category">
                     <span class="icon">🏷️</span>
-                    Categoría
+                    Categoria
                 </label>
                 <select id="category" name="category" required class="category-select">
-                    <option value="" disabled>Selecciona una categoría</option>
-                    <option value="Niña" {% if toy.category == 'Niña' %}selected{% endif %}>👧 Juguetes de Niña</option>
-                    <option value="Niño" {% if toy.category == 'Niño' %}selected{% endif %}>👦 Juguetes de Niño</option>
+                    <option value="" disabled>Selecciona una categoria</option>
+                    <option value="Nina" {% if toy.category == 'Nina' %}selected{% endif %}>👧 Juguetes de Nina</option>
+                    <option value="Nino" {% if toy.category == 'Nino' %}selected{% endif %}>👦 Juguetes de Nino</option>
                     <option value="Mixta" {% if toy.category == 'Mixta' %}selected{% endif %}>👧👦 Juguetes Mixtos</option>
                 </select>
             </div>
@@ -40,7 +40,7 @@
             <div class="form-group">
                 <label for="description">
                     <span class="icon">📄</span>
-                    Descripción
+                    Descripcion
                 </label>
                 <textarea id="description" 
                           name="description" 

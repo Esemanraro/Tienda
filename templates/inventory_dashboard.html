@@ -117,7 +117,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="h3 mb-0">📦 Dashboard de Inventario Inteligente</h1>
-                    <p class="text-muted">Gestión automática y predicción de stock</p>
+                    <p class="text-muted">Gestion automatica y prediccion de stock</p>
                 </div>
                 <div>
                     <button class="btn btn-send-alerts" onclick="sendAlerts()">
@@ -131,7 +131,7 @@
         </div>
     </div>
 
-    <!-- Estadísticas Generales -->
+    <!-- Estadisticas Generales -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="stat-box">
@@ -166,7 +166,7 @@
         <div class="col-md-4">
             <div class="stat-box alert-critical">
                 <div class="stat-number text-danger">{{ report.summary.critical_alerts }}</div>
-                <div class="stat-label">🔴 Alertas Críticas</div>
+                <div class="stat-label">🔴 Alertas Criticas</div>
             </div>
         </div>
         <div class="col-md-4">
@@ -194,16 +194,16 @@
                         <thead>
                             <tr>
                                 <th>Producto</th>
-                                <th>Categoría</th>
+                                <th>Categoria</th>
                                 <th>Stock Actual</th>
                                 <th>Precio</th>
                                 <th>Nivel de Alerta</th>
-                                <th>Última Actualización</th>
+                                <th>Ultima Actualizacion</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for alert in report.alerts %}
-                            <tr class="{% if alert.alert_level == 'CRÍTICO' %}table-danger{% else %}table-warning{% endif %}">
+                            <tr class="{% if alert.alert_level == 'CRITICO' %}table-danger{% else %}table-warning{% endif %}">
                                 <td>
                                     <strong>{{ alert.name }}</strong>
                                 </td>
@@ -217,8 +217,8 @@
                                 </td>
                                 <td>A${{ "%.2f"|format(alert.price) }}</td>
                                 <td>
-                                    {% if alert.alert_level == 'CRÍTICO' %}
-                                        <span class="badge badge-danger">🔴 CRÍTICO</span>
+                                    {% if alert.alert_level == 'CRITICO' %}
+                                        <span class="badge badge-danger">🔴 CRITICO</span>
                                     {% else %}
                                         <span class="badge badge-warning">🟡 BAJO</span>
                                     {% endif %}
@@ -242,7 +242,7 @@
         <div class="col-12">
             <div class="inventory-card prediction-card">
                 <h4 class="mb-3">🔮 Predicciones de Reabastecimiento</h4>
-                <p class="text-muted mb-3">Basado en ventas de los últimos 30 días</p>
+                <p class="text-muted mb-3">Basado en ventas de los ultimos 30 dias</p>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -250,7 +250,7 @@
                                 <th>Producto</th>
                                 <th>Stock Actual</th>
                                 <th>Ventas Diarias (Promedio)</th>
-                                <th>Demanda Predicha (30 días)</th>
+                                <th>Demanda Predicha (30 dias)</th>
                                 <th>Cantidad Sugerida</th>
                                 <th>Urgencia</th>
                             </tr>
@@ -287,12 +287,12 @@
     </div>
     {% endif %}
 
-    <!-- Categorías con Stock Bajo -->
+    <!-- Categorias con Stock Bajo -->
     {% if report.stats.categories_with_low_stock %}
     <div class="row">
         <div class="col-12">
             <div class="inventory-card">
-                <h4 class="mb-3">📊 Categorías Afectadas</h4>
+                <h4 class="mb-3">📊 Categorias Afectadas</h4>
                 <div class="row">
                     {% for category, count in report.stats.categories_with_low_stock.items() %}
                     <div class="col-md-4 mb-3">
@@ -320,7 +320,7 @@
                 <div class="py-5">
                     <h3 class="text-success">✅ ¡Inventario en Excelente Estado!</h3>
                     <p class="text-muted">No hay alertas de stock bajo ni recomendaciones de reabastecimiento.</p>
-                    <p class="small text-muted">Última actualización: {{ timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    <p class="small text-muted">Ultima actualizacion: {{ timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                 </div>
             </div>
         </div>
@@ -328,12 +328,12 @@
     {% endif %}
 </div>
 
-<!-- Botón de Refresh -->
+<!-- Boton de Refresh -->
 <button class="refresh-button" onclick="location.reload()" title="Actualizar datos">
     🔄
 </button>
 
-<!-- Modal de Envío de Alertas -->
+<!-- Modal de Envio de Alertas -->
 <div class="modal fade" id="alertModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -351,9 +351,9 @@
                                value="{{ current_user.email }}" required>
                     </div>
                     <div class="alert alert-info">
-                        <strong>Se enviarán:</strong>
+                        <strong>Se enviaran:</strong>
                         <ul class="mb-0">
-                            <li>{{ report.summary.critical_alerts }} alertas críticas</li>
+                            <li>{{ report.summary.critical_alerts }} alertas criticas</li>
                             <li>{{ report.summary.total_alerts - report.summary.critical_alerts }} alertas de stock bajo</li>
                         </ul>
                     </div>
@@ -383,7 +383,7 @@ function sendAlerts() {
 function confirmSendAlerts() {
     const email = document.getElementById('adminEmail').value;
     if (!email) {
-        alert('Por favor ingresa un email válido.');
+        alert('Por favor ingresa un email valido.');
         return;
     }
     

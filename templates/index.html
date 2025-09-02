@@ -6,7 +6,7 @@
 <div class="toys-container">
     <h2>🎮 Juguetes Disponibles</h2>
     
-    <!-- Información de resultados -->
+    <!-- Informacion de resultados -->
     {% if pagination %}
     <div class="results-info text-center mb-3">
         <p class="text-muted">
@@ -32,7 +32,7 @@
                         </button>
                     {% else %}
                         <a href="{{ url_for('auth.login') }}" class="login-to-buy">
-                            🔑 Inicia sesión para comprar
+                            🔑 Inicia sesion para comprar
                         </a>
                     {% endif %}
                 </div>
@@ -48,7 +48,7 @@
         {% endfor %}
     </div>
     
-    <!-- Incluir paginación -->
+    <!-- Incluir paginacion -->
     {% include 'pagination.html' with context %}
 </div>
 
@@ -163,7 +163,7 @@ function addToCart(toyId) {
     })
     .then(response => {
         if (response.redirected) {
-            // Si hay redirección, probablemente fue exitoso
+            // Si hay redireccion, probablemente fue exitoso
             showToast('✨ ¡Producto agregado al carrito!', 'success');
             return { success: true };
         }

@@ -25,7 +25,7 @@
             
             <div class="filter-group">
                 <select name="category" class="filter-select">
-                    <option value="">Todas las categorías</option>
+                    <option value="">Todas las categorias</option>
                     {% for cat in categories %}
                         <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
                     {% endfor %}
@@ -59,7 +59,7 @@
                                 </button>
                             {% else %}
                                 <a href="{{ url_for('auth.login') }}" class="login-to-buy">
-                                    🔑 Inicia sesión para comprar
+                                    🔑 Inicia sesion para comprar
                                 </a>
                             {% endif %}
                         </div>
@@ -72,9 +72,9 @@
             <div class="no-results-content">
                 <span class="no-results-icon">🔍</span>
                 <h3>No se encontraron resultados</h3>
-                <p>Intenta con otros términos de búsqueda</p>
+                <p>Intenta con otros terminos de busqueda</p>
                 <a href="{{ url_for('shop.search') }}" class="reset-search">
-                    🔄 Reiniciar Búsqueda
+                    🔄 Reiniciar Busqueda
                 </a>
             </div>
         </div>

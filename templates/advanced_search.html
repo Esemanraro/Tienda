@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Búsqueda Avanzada - Tiendita ALOHA{% endblock %}
+{% block title %}Busqueda Avanzada - Tiendita ALOHA{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -286,13 +286,13 @@
 {% endblock %}
 
 {% block content %}
-<!-- Header de Búsqueda -->
+<!-- Header de Busqueda -->
 <div class="search-container">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="search-box">
-                    <h2 class="text-center mb-4 text-dark">🔍 Búsqueda Avanzada de Juguetes</h2>
+                    <h2 class="text-center mb-4 text-dark">🔍 Busqueda Avanzada de Juguetes</h2>
                     <form id="searchForm" method="GET">
                         <div class="input-group position-relative">
                             <input type="text" 
@@ -300,7 +300,7 @@
                                    name="query" 
                                    id="searchInput"
                                    value="{{ current_query }}" 
-                                   placeholder="Buscar juguetes por nombre, categoría o descripción..."
+                                   placeholder="Buscar juguetes por nombre, categoria o descripcion..."
                                    autocomplete="off">
                             <div class="input-group-append">
                                 <button class="btn btn-primary search-btn" type="submit">
@@ -310,10 +310,10 @@
                             <div id="suggestions" class="suggestions-dropdown"></div>
                         </div>
                         
-                        <!-- Búsquedas Populares -->
+                        <!-- Busquedas Populares -->
                         {% if interface_data.popular_searches %}
                         <div class="popular-searches">
-                            <small class="text-muted">Búsquedas populares:</small><br>
+                            <small class="text-muted">Busquedas populares:</small><br>
                             {% for search in interface_data.popular_searches[:5] %}
                                 <a href="?query={{ search.query }}" class="popular-tag">
                                     {{ search.label }}
@@ -342,10 +342,10 @@
                     {% endif %}
                 </div>
                 
-                <!-- Filtro por Categoría -->
+                <!-- Filtro por Categoria -->
                 {% if facets.categories %}
                 <div class="filter-section">
-                    <div class="filter-title">Categorías</div>
+                    <div class="filter-title">Categorias</div>
                     {% for category in facets.categories %}
                     <div class="facet-item {% if category.active %}active{% endif %}" 
                          onclick="toggleFilter('category', '{{ category.value }}')">
@@ -378,7 +378,7 @@
                             <input type="number" 
                                    class="form-control form-control-sm" 
                                    name="price_min" 
-                                   placeholder="Mín"
+                                   placeholder="Min"
                                    value="{{ current_filters.price_min or '' }}"
                                    onchange="applyPriceFilter()">
                         </div>
@@ -386,7 +386,7 @@
                             <input type="number" 
                                    class="form-control form-control-sm" 
                                    name="price_max" 
-                                   placeholder="Máx"
+                                   placeholder="Max"
                                    value="{{ current_filters.price_max or '' }}"
                                    onchange="applyPriceFilter()">
                         </div>
@@ -429,7 +429,7 @@
             </div>
         </div>
         
-        <!-- Área de Resultados -->
+        <!-- Area de Resultados -->
         <div class="col-lg-9">
             <!-- Controles de Ordenamiento -->
             <div class="sort-controls">
@@ -511,7 +511,7 @@
                             </div>
                             {% endif %}
                             
-                            <!-- Botón Agregar al Carrito -->
+                            <!-- Boton Agregar al Carrito -->
                             {% if toy.stock > 0 %}
                             <form method="POST" action="{{ url_for('shop.add_to_cart') }}" class="mt-3">
                                 <input type="hidden" name="toy_id" value="{{ toy.id }}">
@@ -526,9 +526,9 @@
                 {% endfor %}
             </div>
             
-            <!-- Paginación -->
+            <!-- Paginacion -->
             {% if pagination.total_pages > 1 %}
-            <nav aria-label="Paginación de resultados" class="mt-4">
+            <nav aria-label="Paginacion de resultados" class="mt-4">
                 <ul class="pagination justify-content-center">
                     {% if pagination.has_prev %}
                     <li class="page-item">
@@ -576,15 +576,15 @@
                 {% endif %}
                 <p>Intenta con:</p>
                 <ul class="list-unstyled">
-                    <li>• Términos de búsqueda más generales</li>
-                    <li>• Verificar la ortografía</li>
+                    <li>• Terminos de busqueda mas generales</li>
+                    <li>• Verificar la ortografia</li>
                     <li>• Usar menos filtros</li>
-                    <li>• Explorar diferentes categorías</li>
+                    <li>• Explorar diferentes categorias</li>
                 </ul>
                 
                 {% if interface_data.popular_searches %}
                 <div class="mt-4">
-                    <h5>Búsquedas populares:</h5>
+                    <h5>Busquedas populares:</h5>
                     {% for search in interface_data.popular_searches[:8] %}
                         <a href="?query={{ search.query }}" class="popular-tag">
                             {{ search.label }}
@@ -675,7 +675,7 @@ function toggleFilter(filterType, value) {
         url.searchParams.set(filterType, value);
     }
     
-    url.searchParams.set('page', '1'); // Reset a primera página
+    url.searchParams.set('page', '1'); // Reset a primera pagina
     window.location.href = url.toString();
 }
 
@@ -725,14 +725,14 @@ function applyFilters() {
     const formData = new FormData(form);
     const url = new URL(window.location);
     
-    // Limpiar parámetros existentes excepto query
+    // Limpiar parametros existentes excepto query
     const query = url.searchParams.get('query');
     url.search = '';
     if (query) {
         url.searchParams.set('query', query);
     }
     
-    // Agregar nuevos parámetros
+    // Agregar nuevos parametros
     for (let [key, value] of formData.entries()) {
         if (value) {
             url.searchParams.set(key, value);
@@ -760,7 +760,7 @@ function clearAllFilters() {
     const url = new URL(window.location);
     const query = url.searchParams.get('query');
     
-    // Mantener solo la query de búsqueda
+    // Mantener solo la query de busqueda
     url.search = '';
     if (query) {
         url.searchParams.set('query', query);

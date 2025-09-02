@@ -1,7 +1,7 @@
 // Cache para el contenedor de toasts
 let toastContainer = null;
 
-// Función global para mostrar notificaciones toast optimizada
+// Funcion global para mostrar notificaciones toast optimizada
 function showToast(message, type = 'info', duration = 1500) {
     // Usar requestAnimationFrame para mejor rendimiento
     requestAnimationFrame(() => {
@@ -12,11 +12,11 @@ function showToast(message, type = 'info', duration = 1500) {
             Object.assign(toastContainer.style, {
                 position: 'fixed',
                 top: '20px', // Volvemos arriba pero del lado izquierdo
-                left: '20px', // Cambio a lado izquierdo para evitar superposición
-                zIndex: '1050', // Z-index más bajo para no interferir con modales
+                left: '20px', // Cambio a lado izquierdo para evitar superposicion
+                zIndex: '1050', // Z-index mas bajo para no interferir con modales
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'flex-start', // Alineación a la izquierda
+                alignItems: 'flex-start', // Alineacion a la izquierda
                 pointerEvents: 'none',
                 maxWidth: '320px'
             });
@@ -41,7 +41,7 @@ function showToast(message, type = 'info', duration = 1500) {
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             border: '1px solid rgba(255,255,255,0.1)',
             opacity: '0',
-            transform: 'translateX(-120%)', // Animación desde la izquierda
+            transform: 'translateX(-120%)', // Animacion desde la izquierda
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             maxWidth: '280px',
             wordWrap: 'break-word',
@@ -70,7 +70,7 @@ function showToast(message, type = 'info', duration = 1500) {
         // Agregar al DOM
         toastContainer.appendChild(toast);
         
-        // Forzar reflow para activar la transición
+        // Forzar reflow para activar la transicion
         void toast.offsetWidth;
         
         // Animar entrada
@@ -79,12 +79,12 @@ function showToast(message, type = 'info', duration = 1500) {
             toast.style.transform = 'translateX(0)';
         });
         
-        // Configurar eliminación
+        // Configurar eliminacion
         let removeTimeout = setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(120%)';
             
-            // Eliminar después de la animación
+            // Eliminar despues de la animacion
             toast.addEventListener('transitionend', function handler() {
                 toast.removeEventListener('transitionend', handler);
                 if (toast.parentNode === toastContainer) {
@@ -109,7 +109,7 @@ function showToast(message, type = 'info', duration = 1500) {
     });
 }
 
-// Función para actualizar el badge del carrito
+// Funcion para actualizar el badge del carrito
 function updateCartBadge(count) {
     // Actualizar badge desktop
     const desktopBadge = document.querySelector('.cart-badge');
@@ -130,7 +130,7 @@ function updateCartBadge(count) {
         }
     }
     
-    // Actualizar badge móvil
+    // Actualizar badge movil
     const mobileBadge = document.querySelector('.cart-badge-mobile');
     const mobileLink = document.querySelector('.cart-link-mobile');
     
@@ -172,7 +172,7 @@ function addToCart(toyId) {
     .then(response => {
         console.log('Respuesta recibida:', response.status);
         if (response.redirected) {
-            // Si hay redirección, probablemente fue exitoso
+            // Si hay redireccion, probablemente fue exitoso
             showToast('✨ ¡Producto agregado al carrito!', 'success');
             return { success: true };
         }

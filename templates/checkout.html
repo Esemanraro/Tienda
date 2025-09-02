@@ -298,7 +298,7 @@
         text-align: center;
     }
 
-    /* Hacer que el resumen no sea sticky en pantallas pequeñas */
+    /* Hacer que el resumen no sea sticky en pantallas pequenas */
     .summary-card {
         position: static;
         margin-top: 2rem;
@@ -307,17 +307,17 @@
 </style>
 
 <script>
-// Evitar doble envío del formulario de checkout
+// Evitar doble envio del formulario de checkout
 function handleCheckoutSubmit(event) {
     const submitBtn = document.getElementById('confirmPurchaseBtn');
     if (submitBtn.disabled) {
-        // Ya se envió el formulario
+        // Ya se envio el formulario
         return false;
     }
-    // Deshabilitar el botón y mostrar texto de procesamiento
+    // Deshabilitar el boton y mostrar texto de procesamiento
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="icon">⏳</span> Procesando...';
-    return true; // Permitir envío
+    return true; // Permitir envio
 }
 </script>
 {% endblock %}

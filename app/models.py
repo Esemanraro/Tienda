@@ -44,7 +44,12 @@ class Toy(db.Model):
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
     image_url = db.Column(db.String(200))
+    # Categoria de Juguete (tipo)
     category = db.Column(db.String(50), index=True)
+    # Categoria de Edad (rango)
+    age_range = db.Column(db.String(20), index=True)
+    # Categoria de Genero
+    gender_category = db.Column(db.String(20), index=True)
     stock = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now)
@@ -55,6 +60,13 @@ class Toy(db.Model):
     
     # Relaciones
     order_items = db.relationship('OrderItem', backref='toy', lazy=True)
+    # Centros en los que el juguete está disponible (many-to-many simplificado)
+    centers = db.relationship(
+        'ToyCenterAvailability',
+        backref='toy',
+        lazy='select',
+        cascade='all, delete-orphan'
+    )
 
 class Order(db.Model):
     __tablename__ = 'order'
@@ -85,3 +97,21 @@ class OrderItem(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     
     __table_args__ = (CheckConstraint('quantity > 0'),)
+
+
+class ToyCenterAvailability(db.Model):
+    __tablename__ = 'toy_center_availability'
+
+    id = db.Column(db.Integer, primary_key=True)
+    toy_id = db.Column(
+        db.Integer,
+        db.ForeignKey('toy.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
+    )
+    # Mantener centros como texto para alinear con User.center
+    center = db.Column(db.String(64), nullable=False, index=True)
+
+    __table_args__ = (
+        db.UniqueConstraint('toy_id', 'center', name='uq_toy_center'),
+    )

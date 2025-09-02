@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}🔑 Iniciar Sesión{% endblock %}
+{% block title %}🔑 Iniciar Sesion{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h2>🔑 Iniciar Sesión</h2>
+            <h2>🔑 Iniciar Sesion</h2>
             <p class="auth-subtitle">¡Bienvenido de nuevo!</p>
         </div>
 
@@ -36,18 +36,18 @@
             <div class="form-group">
                 <label for="password">
                     <span class="icon">🔒</span>
-                    Contraseña
+                    Contrasena
                 </label>
-                {{ form.password(class="auth-input", placeholder="Tu contraseña") }}
+                {{ form.password(class="auth-input", placeholder="Tu contrasena") }}
             </div>
 
             <button type="submit" class="auth-button primary">
-                ✨ Iniciar Sesión
+                ✨ Iniciar Sesion
             </button>
         </form>
 
         <div class="auth-links">
-            <p>¿No tienes una cuenta? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a></p>
+            <p>¿No tienes una cuenta? <a href="{{ url_for('auth.register') }}">Registrate aqui</a></p>
         </div>
     </div>
 </div>

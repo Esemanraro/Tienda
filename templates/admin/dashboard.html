@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Panel de Administración{% endblock %}
+{% block title %}Panel de Administracion{% endblock %}
 
 {% block content %}
 <div class="admin-container">
     <div class="admin-header">
-        <h1>Panel de Administración</h1>
+        <h1>Panel de Administracion</h1>
     </div>
 
     <div class="admin-grid">
-        <!-- Resumen Rápido -->
+        <!-- Resumen Rapido -->
         <div class="admin-card summary-card">
-            <h2>Resumen Rápido</h2>
+            <h2>Resumen Rapido</h2>
             <div class="summary-stats">
                 <div class="stat-item">
                     <span class="stat-value">{{ total_users }}</span>
@@ -28,13 +28,13 @@
             </div>
         </div>
 
-        <!-- Menú de Navegación Rápida -->
+        <!-- Menu de Navegacion Rapida -->
         <div class="admin-card quick-nav">
-            <h2>Acceso Rápido</h2>
+            <h2>Acceso Rapido</h2>
             <div class="quick-nav-buttons">
                 <a href="{{ url_for('admin.users') }}" class="quick-nav-btn">
                     <i class="fas fa-users"></i>
-                    Gestión de Usuarios
+                    Gestion de Usuarios
                 </a>
                 <a href="{{ url_for('admin.inventory') }}" class="quick-nav-btn">
                     <i class="fas fa-box"></i>
@@ -51,9 +51,9 @@
             </div>
         </div>
 
-        <!-- Últimas Ventas -->
+        <!-- Ultimas Ventas -->
         <div class="admin-card recent-sales">
-            <h2>Últimas Ventas</h2>
+            <h2>Ultimas Ventas</h2>
             <div class="table-responsive">
                 <table class="admin-table">
                     <thead>
@@ -78,9 +78,9 @@
             </div>
         </div>
 
-        <!-- Estadísticas -->
+        <!-- Estadisticas -->
         <div class="admin-card stats-card">
-            <h2>Estadísticas</h2>
+            <h2>Estadisticas</h2>
             <canvas id="salesChart"></canvas>
         </div>
     </div>
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: {{ dates|safe }},
             datasets: [{
-                label: 'Ventas por Día',
+                label: 'Ventas por Dia',
                 data: {{ sales_data|safe }},
                 borderColor: '#4CAF50',
                 tension: 0.1

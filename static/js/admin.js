@@ -1,4 +1,4 @@
-// Funciones para el panel de administración
+// Funciones para el panel de administracion
 // -------------------------
 // Utils: Loading Overlay
 // -------------------------
@@ -25,7 +25,7 @@ function getCsrfToken() {
 }
 
 function initAdminPanel() {
-    // Toggle para la sección de gestión de juguetes
+    // Toggle para la seccion de gestion de juguetes
     const toyToggleBtn = document.getElementById('toyToggleBtn');
     const toyManagement = document.getElementById('toyManagement');
     const toyToggleIcon = document.getElementById('toyToggleIcon');
@@ -101,15 +101,15 @@ function initAdminPanel() {
             const toyId = this.getAttribute('data-toy-id');
             const toyName = this.getAttribute('data-toy-name');
 
-            // SweetAlert2 confirmación
+            // SweetAlert2 confirmacion
             Swal.fire({
                 title: `¿Eliminar "${toyName}"?`,
-                text: 'Esta acción no se puede deshacer.',
+                text: 'Esta accion no se puede deshacer.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
+                confirmButtonText: 'Si, eliminar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -117,7 +117,7 @@ function initAdminPanel() {
                     const deleteData = new URLSearchParams();
                     deleteData.append('csrf_token', csrfToken);
 
-            // Enviar solicitud de eliminación
+            // Enviar solicitud de eliminacion
     fetch(`/admin/toys/${toyId}/delete`, {
                         method: 'POST',
                         headers: {
@@ -150,7 +150,7 @@ function initAdminPanel() {
         cancelDelete.addEventListener('click', closeDeleteModalFunc);
     }
 
-    // Cerrar modal de eliminación al hacer clic fuera
+    // Cerrar modal de eliminacion al hacer clic fuera
     if (deleteModal) {
         deleteModal.addEventListener('click', function(e) {
             if (e.target === deleteModal) {
@@ -159,7 +159,7 @@ function initAdminPanel() {
         });
     }
 
-    // Manejar envío del formulario de edición
+    // Manejar envio del formulario de edicion
     if (editForm) {
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -178,7 +178,7 @@ function initAdminPanel() {
             .then(response => {
                 if (response.ok) {
                     hideLoading();
-                    location.reload(); // Recargar la página para mostrar los cambios
+                    location.reload(); // Recargar la pagina para mostrar los cambios
                 } else {
                     hideLoading();
                     Swal.fire('Error', 'No se pudo actualizar el juguete.', 'error');
@@ -192,7 +192,7 @@ function initAdminPanel() {
         });
     }
 
-    // Manejar envío del formulario de eliminación
+    // Manejar envio del formulario de eliminacion
     if (deleteForm) {
         deleteForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -210,7 +210,7 @@ function initAdminPanel() {
                 body: deleteData.toString()
             }).then(response => {
                 if (response.ok) {
-                    location.reload(); // Recargar la página para mostrar los cambios
+                    location.reload(); // Recargar la pagina para mostrar los cambios
                 } else {
                     hideLoading();
                 alert('Error al eliminar el juguete');
@@ -223,11 +223,11 @@ function initAdminPanel() {
         });
     }
 
-    // Función para abrir el modal de edición
+    // Funcion para abrir el modal de edicion
     function openEditModal(toyId) {
         const editModal = document.getElementById('editToyModal');
         if (!editModal) {
-            console.error('Error: No se encontró el modal de edición');
+            console.error('Error: No se encontro el modal de edicion');
             return;
         }
         
@@ -267,21 +267,21 @@ function initAdminPanel() {
             });
     }
 
-    // Función para cerrar el modal de edición
+    // Funcion para cerrar el modal de edicion
     function closeEditModalFunc() {
         editModal.style.display = 'none';
         editForm.reset();
         document.getElementById('currentImagePreview').innerHTML = '';
     }
 
-    // Función para abrir el modal de eliminación
+    // Funcion para abrir el modal de eliminacion
     function openDeleteModal(toyId, toyName) {
         document.getElementById('deleteToyId').value = toyId;
         document.getElementById('deleteToyName').textContent = toyName;
         deleteModal.style.display = 'flex';
     }
 
-    // Función para cerrar el modal de eliminación
+    // Funcion para cerrar el modal de eliminacion
     function closeDeleteModalFunc() {
         deleteModal.style.display = 'none';
     }
@@ -294,7 +294,7 @@ function initAdminPanel() {
         }
     });
 
-    // --- Filtro y búsqueda en actividad de usuarios ---
+    // --- Filtro y busqueda en actividad de usuarios ---
     const userSearch = document.getElementById('userSearch');
     const statusFilter = document.getElementById('statusFilter');
     const userCards = document.querySelectorAll('#usersList .user-card');
@@ -320,7 +320,7 @@ function initAdminPanel() {
     }
 }
 
-// Función para editar juguete
+// Funcion para editar juguete
 function editToy(toyId) {
     showLoading();
     
@@ -334,7 +334,7 @@ function editToy(toyId) {
     .then(data => {
         hideLoading();
         
-        // Llenar el formulario de edición
+        // Llenar el formulario de edicion
         document.getElementById('editToyId').value = data.id;
         document.getElementById('editToyName').value = data.name;
         document.getElementById('editToyDescription').value = data.description;
@@ -358,9 +358,9 @@ function editToy(toyId) {
     });
 }
 
-// Función para eliminar juguete
+// Funcion para eliminar juguete
 function deleteToy(toyId, toyName) {
-    if (confirm(`¿Estás seguro de que deseas eliminar "${toyName}"?`)) {
+    if (confirm(`¿Estas seguro de que deseas eliminar "${toyName}"?`)) {
         showLoading();
         
         fetch(`/admin/delete_toy/${toyId}`, {
@@ -375,7 +375,7 @@ function deleteToy(toyId, toyName) {
             hideLoading();
             if (data.success) {
                 showToast('Juguete eliminado exitosamente', 'success');
-                // Recargar la página o actualizar la lista
+                // Recargar la pagina o actualizar la lista
                 location.reload();
             } else {
                 showToast(data.message || 'Error al eliminar juguete', 'error');
@@ -389,7 +389,7 @@ function deleteToy(toyId, toyName) {
     }
 }
 
-// Función para guardar cambios de edición
+// Funcion para guardar cambios de edicion
 function saveToyEdit() {
     const form = document.getElementById('editToyForm');
     const formData = new FormData(form);
@@ -425,12 +425,12 @@ function saveToyEdit() {
     });
 }
 
-// Función para cerrar modal
+// Funcion para cerrar modal
 function closeEditModal() {
     document.getElementById('editToyModal').style.display = 'none';
 }
 
-// Función para mostrar notificaciones
+// Funcion para mostrar notificaciones
 function showToast(message, type = 'info') {
     // Crear elemento toast si no existe
     let toastContainer = document.getElementById('toast-container');
@@ -466,9 +466,9 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// Inicializar eventos cuando el DOM esté listo
+// Inicializar eventos cuando el DOM este listo
 document.addEventListener('DOMContentLoaded', function() {
-    // Event listeners para botones de edición
+    // Event listeners para botones de edicion
     document.querySelectorAll('.edit-toy-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const toyId = this.getAttribute('data-toy-id');
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Event listeners para botones de eliminación
+    // Event listeners para botones de eliminacion
     document.querySelectorAll('.delete-toy-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const toyId = this.getAttribute('data-toy-id');
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Event listeners para el modal de edición
+    // Event listeners para el modal de edicion
     const editModal = document.getElementById('editToyModal');
     if (editModal) {
         document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
@@ -501,13 +501,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Función auxiliar para obtener token CSRF
+// Funcion auxiliar para obtener token CSRF
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content') || 
            document.querySelector('input[name="csrf_token"]').value;
 }
 
-// Función auxiliar para mostrar loading
+// Funcion auxiliar para mostrar loading
 function showLoading() {
     const loading = document.createElement('div');
     loading.id = 'loading-overlay';
@@ -520,9 +520,9 @@ function hideLoading() {
     if (loading) loading.remove();
 }
 
-// ===== FUNCIÓN SIMPLE PARA BORRAR JUGUETES =====
+// ===== FUNCION SIMPLE PARA BORRAR JUGUETES =====
 function deleteToySimple(button) {
-    console.log('🗑️ Iniciando eliminación simple de juguete');
+    console.log('🗑️ Iniciando eliminacion simple de juguete');
     
     const toyId = button.getAttribute('data-toy-id');
     const toyName = button.getAttribute('data-toy-name');
@@ -530,24 +530,24 @@ function deleteToySimple(button) {
     console.log(`🎯 Eliminando juguete ID: ${toyId}, Nombre: ${toyName}`);
     
     if (!toyId) {
-        console.error('❌ No se encontró el ID del juguete');
+        console.error('❌ No se encontro el ID del juguete');
         alert('Error: No se pudo identificar el juguete');
         return;
     }
     
-    // Confirmar eliminación
+    // Confirmar eliminacion
     const confirmMessage = `Estas seguro de que quieres eliminar el juguete "${toyName}"?\n\nEsta accion no se puede deshacer.`;
     if (!confirm(confirmMessage)) {
-        console.log('🚫 Eliminación cancelada por el usuario');
+        console.log('🚫 Eliminacion cancelada por el usuario');
         return;
     }
     
-    console.log('📡 Enviando request de eliminación...');
+    console.log('📡 Enviando request de eliminacion...');
     
     // Obtener CSRF token
     const csrfToken = document.querySelector('meta[name=csrf-token]')?.getAttribute('content');
     if (!csrfToken) {
-        console.error('❌ No se encontró el token CSRF');
+        console.error('❌ No se encontro el token CSRF');
         alert('Error: Token de seguridad no encontrado');
         return;
     }
@@ -565,7 +565,7 @@ function deleteToySimple(button) {
         body: formData
     })
     .then(response => {
-        console.log(`📊 Respuesta de eliminación: ${response.status}`);
+        console.log(`📊 Respuesta de eliminacion: ${response.status}`);
         return response.json();
     })
     .then(data => {
@@ -575,15 +575,15 @@ function deleteToySimple(button) {
             console.log('✅ Juguete eliminado exitosamente');
             alert('Juguete eliminado exitosamente');
             
-            // Recargar la página para actualizar la lista
+            // Recargar la pagina para actualizar la lista
             window.location.reload();
         } else {
-            console.error('❌ Error en eliminación:', data.message);
+            console.error('❌ Error en eliminacion:', data.message);
             alert(`Error: ${data.message || 'No se pudo eliminar el juguete'}`);
         }
     })
     .catch(error => {
         console.error('❌ Error en fetch:', error);
-        alert('Error de conexión. Por favor, intenta nuevamente.');
+        alert('Error de conexion. Por favor, intenta nuevamente.');
     });
 }

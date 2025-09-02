@@ -122,7 +122,7 @@ def create_app(config_class=None):
             return
 
         # rutas públicas
-        public_routes = ['auth.login', 'auth.register', 'shop.index', 'static']
+        public_routes = ['auth.login', 'auth.register', 'shop.index', 'shop.search', 'static']
 
         # permitir rutas públicas
         if request.endpoint and request.endpoint in public_routes:

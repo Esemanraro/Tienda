@@ -7,7 +7,7 @@
     <div class="auth-card">
         <div class="auth-header">
             <h2>📝 Registro</h2>
-            <p class="auth-subtitle">¡Únete a la comunidad ALOHA!</p>
+            <p class="auth-subtitle">¡Unete a la comunidad ALOHA!</p>
         </div>
 
         <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
@@ -23,17 +23,17 @@
             <div class="form-group">
                 <label for="email">
                     <span class="icon">📧</span>
-                    Correo electrónico (requerido)
+                    Correo electronico (requerido)
                 </label>
-                {{ form.email(class="auth-input", placeholder="Tu correo electrónico") }}
+                {{ form.email(class="auth-input", placeholder="Tu correo electronico") }}
             </div>
 
             <div class="form-group">
                 <label for="password">
                     <span class="icon">🔒</span>
-                    Contraseña
+                    Contrasena
                 </label>
-                {{ form.password(class="auth-input", placeholder="Elige una contraseña segura") }}
+                {{ form.password(class="auth-input", placeholder="Elige una contrasena segura") }}
             </div>
 
             <div class="form-group">
@@ -43,12 +43,16 @@
                 </label>
                 <select name="center" id="center" class="auth-input" required>
                     <option value="" disabled selected>Selecciona tu centro</option>
-                    <option value="Aguadulce">Aguadulce</option>
-                    <option value="Anclas Mall">Anclas Mall</option>
-                    <option value="Brisas del Golf">Brisas del Golf</option>
-                    <option value="Calle 50">Calle 50</option>
-                    <option value="Costa del Este">Costa del Este</option>
-                    <option value="David">David</option>
+                    <option value="aguadulce">Aguadulce</option>
+                    <option value="anclas mall">Anclas Mall</option>
+                    <option value="brisas del golf">Brisas del Golf</option>
+                    <option value="calle 50">Calle 50</option>
+                    <option value="costa del este">Costa del Este</option>
+                    <option value="david">David</option>
+                    <option value="chitre">Chitre</option>
+                    <option value="santiago">Santiago</option>
+                    <option value="condado del rey">Condado Del Rey</option>
+                    <option value="centro autorizado arraijan">Centro Autorizado Arraijan</option>
                 </select>
             </div>
 
@@ -58,7 +62,7 @@
         </form>
 
         <div class="auth-links">
-            <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión aquí</a></p>
+            <p>¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesion aqui</a></p>
         </div>
     </div>
 </div>

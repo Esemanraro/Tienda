@@ -7,16 +7,16 @@
     <div class="profile-header">
         <h1>¡Hola {{ current_user.username }}! 👋</h1>
         <div class="balance-box">
-            <span class="balance-label">Mis ALOHA Dólares:</span>
+            <span class="balance-label">Mis ALOHA Dolares:</span>
             <span class="balance-amount">{{ current_user.balance|format_currency }}</span>
             <a href="#" onclick="showAddBalanceModal()" class="add-balance-button">
-                ➕ Agregar ALOHA Dólares
+                ➕ Agregar ALOHA Dolares
             </a>
         </div>
     </div>
 
     <div class="profile-content">
-        <!-- Sección de Cuenta -->
+        <!-- Seccion de Cuenta -->
         <div class="profile-section">
             <h2>👤 Mi Cuenta</h2>
             <div class="account-details">
@@ -34,22 +34,22 @@
             </div>
         </div>
 
-        <!-- Sección de Personalización -->
+        <!-- Seccion de Personalizacion -->
         <div class="profile-section">
-            <h2>🎨 Personalización</h2>
+            <h2>🎨 Personalizacion</h2>
             <div class="themes-grid">
                 <button onclick="changeTheme('aloha-light')" class="theme-btn aloha-light">ALOHA Claro 🌞</button>
                 <button onclick="changeTheme('aloha-dark')" class="theme-btn aloha-dark">ALOHA Oscuro 🌙</button>
                 <button onclick="changeTheme('cherry-blossom')" class="theme-btn cherry-blossom">Cherry Blossom 🌸</button>
                 <button onclick="changeTheme('underwater')" class="theme-btn underwater">Bajo el Agua 🌊</button>
                 <button onclick="changeTheme('halloween')" class="theme-btn halloween">Halloween 🎃</button>
-                <button onclick="changeTheme('patriotic')" class="theme-btn patriotic">Patriótico 🇲🇽</button>
+                <button onclick="changeTheme('patriotic')" class="theme-btn patriotic">Patriotico 🇲🇽</button>
             </div>
         </div>
 
-        <!-- Sección de Mis Órdenes -->
+        <!-- Seccion de Mis Ordenes -->
         <div class="profile-section">
-            <h2>📦 Mis Órdenes ({{ orders|length }})</h2>
+            <h2>📦 Mis Ordenes ({{ orders|length }})</h2>
             {% if orders %}
                 <div class="orders-list">
                     {% for order in orders %}
@@ -71,43 +71,43 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <p>No has realizado ninguna compra aún.</p>
+                <p>No has realizado ninguna compra aun.</p>
                 <a href="{{ url_for('shop.index') }}" class="action-button">
                     🛍️ Ir de compras
                 </a>
             {% endif %}
         </div>
 
-        <!-- Sección de Seguridad -->
+        <!-- Seccion de Seguridad -->
         <div class="profile-section">
             <h2>🔐 Seguridad</h2>
             <div class="security-actions">
                 <button onclick="showChangePasswordModal()" class="action-button">
-                    🔑 Cambiar Contraseña
+                    🔑 Cambiar Contrasena
                 </button>
                 <a href="{{ url_for('auth.logout') }}" class="logout-button">
-                    🚪 Cerrar Sesión
+                    🚪 Cerrar Sesion
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para cambiar contraseña -->
+<!-- Modal para cambiar contrasena -->
 <div id="changePasswordModal" class="modal">
     <div class="modal-content">
-        <h2>🔑 Cambiar Contraseña</h2>
+        <h2>🔑 Cambiar Contrasena</h2>
         <form id="changePasswordForm" action="{{ url_for('user.change_password') }}" method="POST">
             <div class="form-group">
-                <label for="currentPassword">Contraseña Actual:</label>
+                <label for="currentPassword">Contrasena Actual:</label>
                 <input type="password" id="currentPassword" name="current_password" required>
             </div>
             <div class="form-group">
-                <label for="newPassword">Nueva Contraseña:</label>
+                <label for="newPassword">Nueva Contrasena:</label>
                 <input type="password" id="newPassword" name="new_password" required>
             </div>
             <div class="form-group">
-                <label for="confirmPassword">Confirmar Nueva Contraseña:</label>
+                <label for="confirmPassword">Confirmar Nueva Contrasena:</label>
                 <input type="password" id="confirmPassword" name="confirm_password" required>
             </div>
             <div class="form-actions">
@@ -121,7 +121,7 @@
 <!-- Modal para agregar balance -->
 <div id="addBalanceModal" class="modal">
     <div class="modal-content">
-        <h2>💰 Agregar ALOHA Dólares</h2>
+        <h2>💰 Agregar ALOHA Dolares</h2>
         <form action="{{ url_for('user.add_balance') }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
@@ -216,7 +216,7 @@
 .logout-button {
     display: inline-block;
     padding: 1rem 2rem;
-    background: #dc3545;  /* Color rojo para cerrar sesión */
+    background: #dc3545;  /* Color rojo para cerrar sesion */
     color: white;
     text-decoration: none;
     border-radius: var(--border-radius);
@@ -346,7 +346,7 @@
     color: var(--text-color);
 }
 
-/* Estilos para la sección de Mis Órdenes */
+/* Estilos para la seccion de Mis Ordenes */
 .orders-list {
     margin-top: 1.5rem;
 }

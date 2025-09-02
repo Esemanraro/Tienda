@@ -1,6 +1,6 @@
 :root {
     /* Colores principales */
-    --primary-color: #2E7D32; /* Verde más oscuro para mejor contraste */
+    --primary-color: #2E7D32; /* Verde mas oscuro para mejor contraste */
     --primary-light: #4CAF50;
     --primary-dark: #1B5E20;
     --secondary-color: #0288D1; /* Azul para acciones secundarias */
@@ -47,7 +47,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Header y navegación */
+/* Header y navegacion */
 .site-header {
     background: rgba(255, 255, 255, 0.95);
     padding: 0.8rem 2rem;
@@ -205,7 +205,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Botón visible cuando el usuario no ha iniciado sesión */
+/* Boton visible cuando el usuario no ha iniciado sesion */
 .login-to-buy {
     width: 100%;
     padding: 0.8rem;
@@ -230,7 +230,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Navegación móvil actualizada */
+/* Navegacion movil actualizada */
 .mobile-nav {
     display: none;
     position: fixed;
@@ -514,7 +514,7 @@ body {
     box-shadow: 0 4px 8px rgba(220,53,69,0.2);
 }
 
-/* Tamaños de botones */
+/* Tamanos de botones */
 .admin-button.small {
     padding: 0.35rem 0.8rem;
     font-size: 0.8rem;

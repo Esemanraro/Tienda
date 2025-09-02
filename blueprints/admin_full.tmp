@@ -1,6 +1,6 @@
-"""
-Blueprint para funcionalidades de administración
-Incluye: dashboard, gestión de juguetes (CRUD), inventario inteligente
+﻿"""
+Blueprint para funcionalidades de administraciÃ³n
+Incluye: dashboard, gestiÃ³n de juguetes (CRUD), inventario inteligente
 """
 
 import os
@@ -13,12 +13,12 @@ from sqlalchemy import desc, or_
 from decimal import Decimal, InvalidOperation
 
 # Importaciones absolutas
-from app.models import User, Toy, Order, OrderItem, ToyCenterAvailability
+from app.models import User, Toy, Order, OrderItem
 from app.extensions import db
 from app.forms import ToyForm, AddUserForm, EditUserForm
 from pagination_helpers import PaginationHelper, paginate_query
 
-# 💾 Importar Sistema de Backup Simplificado
+# ðŸ’¾ Importar Sistema de Backup Simplificado
 try:
     from utils.backup_system_simple import backup_manager
     BACKUP_SYSTEM_AVAILABLE = True
@@ -34,12 +34,12 @@ try:
 except ImportError:
     ADVANCED_SYSTEMS_AVAILABLE = False
 
-# 🔐 Importar Rate Limiter
+# ðŸ” Importar Rate Limiter
 try:
     from utils.rate_limiter import moderate_rate_limit, strict_rate_limit, relaxed_rate_limit
     RATE_LIMITING_AVAILABLE = True
 except ImportError:
-    # Fallback si no está disponible
+    # Fallback si no estÃ¡ disponible
     def moderate_rate_limit(message=None):
         def decorator(f):
             return f
@@ -54,15 +54,15 @@ except ImportError:
         return decorator
     RATE_LIMITING_AVAILABLE = False
 
-# ✅ Sistema de backup simplificado ya importado arriba
+# âœ… Sistema de backup simplificado ya importado arriba
 
-# Crear el blueprint de administración
+# Crear el blueprint de administraciÃ³n
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
-    """Panel de administración principal - OPTIMIZADO CON INVENTARIO INTELIGENTE"""
+    """Panel de administraciÃ³n principal - OPTIMIZADO CON INVENTARIO INTELIGENTE"""
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
         return redirect(url_for('shop.index'))
@@ -71,7 +71,7 @@ def dashboard():
     page = PaginationHelper.get_page_number()
     per_page = PaginationHelper.get_per_page(default=20)
     
-    # Obtener estadísticas optimizadas con cache
+    # Obtener estadÃ­sticas optimizadas con cache
     sales_stats = get_dashboard_stats_optimized()
 
     # Resumen de usuarios
@@ -101,32 +101,32 @@ def dashboard():
                 # Cachear por 5 minutos
                 DashboardCache.set_stats(inventory_data, ttl=300)
         except Exception as e:
-            print(f"⚠️ Error en sistema de inventario: {str(e)}")
+            print(f"âš ï¸ Error en sistema de inventario: {str(e)}")
             inventory_data = {'error': 'Sistema de inventario no disponible'}
     
-    # Obtener órdenes recientes (usa índice idx_order_active_date)
+    # Obtener Ã³rdenes recientes (usa Ã­ndice idx_order_active_date)
     recent_orders = Order.query.filter_by(
         is_active=True
     ).order_by(Order.order_date.desc()).limit(5).all()
     
-    # Obtener usuarios recientes (usa índice idx_user_active_created)
+    # Obtener usuarios recientes (usa Ã­ndice idx_user_active_created)
     recent_users = User.query.filter_by(
         is_active=True
     ).order_by(User.created_at.desc()).limit(5).all()
     
-    # Obtener juguetes con paginación (usa índice idx_toy_active_created)
+    # Obtener juguetes con paginaciÃ³n (usa Ã­ndice idx_toy_active_created)
     toys_pagination = Toy.query.filter_by(is_active=True).order_by(
         Toy.created_at.desc()
     ).paginate(
         page=page, per_page=per_page, error_out=False
     )
     
-    # URLs de paginación para juguetes
+    # URLs de paginaciÃ³n para juguetes
     pagination_urls = PaginationHelper.build_pagination_urls(
         toys_pagination, 'admin.dashboard'
     )
     
-    # Datos para el gráfico de ventas (últimos 7 días)
+    # Datos para el grÃ¡fico de ventas (Ãºltimos 7 dÃ­as)
     chart_data = get_sales_chart_data()
     
     return render_template('admin_dashboard.html',
@@ -146,7 +146,7 @@ def dashboard():
                          inactive_count=inactive_count)
 
 def get_dashboard_stats_optimized():
-    """Obtener estadísticas con caché manual (5 min)"""
+    """Obtener estadÃ­sticas con cachÃ© manual (5 min)"""
     from flask import current_app
     cache = current_app.extensions.get('cache')
 
@@ -164,7 +164,7 @@ def get_dashboard_stats_optimized():
     }
     
     try:
-        # Estadísticas principales con una sola consulta (usa índices optimizados)
+        # EstadÃ­sticas principales con una sola consulta (usa Ã­ndices optimizados)
         main_stats = db.session.query(
             db.func.sum(Order.total_price).label('total_sales'),
             db.func.count(Order.id).label('total_orders'),
@@ -175,10 +175,10 @@ def get_dashboard_stats_optimized():
         sales_stats['total_orders'] = main_stats.total_orders or 0
         sales_stats['avg_order_value'] = main_stats.avg_order_value or 0
         
-        # Total de usuarios activos (usa índice idx_user_active_created)
+        # Total de usuarios activos (usa Ã­ndice idx_user_active_created)
         sales_stats['total_users'] = User.query.filter_by(is_active=True).count()
         
-        # Ventas por categoría optimizada (usa índices idx_orderitem_toy_active)
+        # Ventas por categorÃ­a optimizada (usa Ã­ndices idx_orderitem_toy_active)
         sales_by_category = db.session.query(
             Toy.category,
             db.func.sum(OrderItem.quantity).label('quantity'),
@@ -200,10 +200,10 @@ def get_dashboard_stats_optimized():
         ]
         
     except Exception as e:
-        print(f"Error al obtener estadísticas: {str(e)}")
-        flash('Error al cargar estadísticas', 'error')
+        print(f"Error al obtener estadÃ­sticas: {str(e)}")
+        flash('Error al cargar estadÃ­sticas', 'error')
     
-    # Guardar en caché durante 5 min (si el backend lo permite)
+    # Guardar en cachÃ© durante 5 min (si el backend lo permite)
     if cache:
         if hasattr(cache, 'set'):
             cache.set('dashboard_stats', sales_stats, timeout=300)
@@ -213,12 +213,12 @@ def get_dashboard_stats_optimized():
     return sales_stats
 
 def get_sales_chart_data():
-    """Obtener datos para el gráfico de ventas de los últimos 7 días"""
+    """Obtener datos para el grÃ¡fico de ventas de los Ãºltimos 7 dÃ­as"""
     dates = []
     sales_data = []
     
     try:
-        # Ventas de los últimos 7 días (usa índice idx_order_active_date)
+        # Ventas de los Ãºltimos 7 dÃ­as (usa Ã­ndice idx_order_active_date)
         for i in range(7):
             date = datetime.now() - timedelta(days=i)
             dates.append(date.strftime('%Y-%m-%d'))
@@ -232,12 +232,12 @@ def get_sales_chart_data():
             
             sales_data.append(float(daily_sales))
         
-        # Invertir las listas para mostrar en orden cronológico
+        # Invertir las listas para mostrar en orden cronolÃ³gico
         dates.reverse()
         sales_data.reverse()
         
     except Exception as e:
-        print(f"Error al obtener datos del gráfico: {str(e)}")
+        print(f"Error al obtener datos del grÃ¡fico: {str(e)}")
         dates = ['Sin datos'] * 7
         sales_data = [0] * 7
     
@@ -247,7 +247,7 @@ def get_sales_chart_data():
 @admin_bp.route('/users')
 @login_required
 def all_users():
-    """Página para administrar usuarios con paginación."""
+    """PÃ¡gina para administrar usuarios con paginaciÃ³n."""
     if not current_user.is_admin:
         flash('Acceso denegado. No tienes permisos de administrador.', 'danger')
         return redirect(url_for('shop.index'))
@@ -358,17 +358,17 @@ def toggle_user(user_id):
     user_to_toggle.is_active = not user_to_toggle.is_active
     try:
         db.session.commit()
-        flash(f'Estado de activación para {user_to_toggle.username} actualizado.', 'success')
+        flash(f'Estado de activaciÃ³n para {user_to_toggle.username} actualizado.', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'Error al actualizar estado de activación: {str(e)}', 'danger')
+        flash(f'Error al actualizar estado de activaciÃ³n: {str(e)}', 'danger')
     return redirect(url_for('admin.all_users'))
 
 
 @admin_bp.route('/toys/add', methods=['POST'])
 @admin_bp.route('/add_toy', methods=['GET', 'POST'])
 @login_required
-@moderate_rate_limit(message="⚠️ Demasiados intentos de agregar juguetes. Espera un momento.")
+@moderate_rate_limit(message="âš ï¸ Demasiados intentos de agregar juguetes. Espera un momento.")
 def add_toy():
     """Agregar un nuevo juguete"""
     if not current_user.is_admin:
@@ -378,16 +378,16 @@ def add_toy():
     toy_form = ToyForm()
     if toy_form.validate_on_submit():
         try:
-            # Manejar la imagen si se subió una
+            # Manejar la imagen si se subiÃ³ una
             image_filename = None
             if toy_form.image.data:
                 image_file = toy_form.image.data
                 if image_file.filename != '':
-                    # Crear directorio de imágenes si no existe
+                    # Crear directorio de imÃ¡genes si no existe
                     upload_folder = os.path.join(current_app.static_folder, 'images', 'toys')
                     os.makedirs(upload_folder, exist_ok=True)
                     
-                    # Generar nombre único para la imagen
+                    # Generar nombre Ãºnico para la imagen
                     filename = secure_filename(image_file.filename)
                     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
                     image_filename = timestamp + filename
@@ -398,36 +398,20 @@ def add_toy():
                     
                     # Guardar la ruta relativa en la base de datos
                     image_filename = f'images/toys/{image_filename}'
-
-            # Validar centros seleccionados (mínimo uno)
-            selected_centers = request.form.getlist('centers') or []
             
-            # Crear nuevo juguete con categorias separadas
+            # Crear nuevo juguete optimizando la imagen primero
             new_toy = Toy(
                 name=toy_form.name.data,
                 description=toy_form.description.data,
                 price=toy_form.price.data,
-                category=toy_form.toy_type.data,
-                age_range=toy_form.age_range.data,
-                gender_category=toy_form.gender.data,
+                category=toy_form.category.data,
                 stock=toy_form.stock.data,
                 image_url=image_filename
             )
             
             db.session.add(new_toy)
-            db.session.flush()
-
-            # Asociar centros seleccionados al juguete
-            if selected_centers:
-                seen = set()
-                for center in selected_centers:
-                    if center in seen:
-                        continue
-                    seen.add(center)
-                    db.session.add(ToyCenterAvailability(toy_id=new_toy.id, center=center))
-
             db.session.commit()
-            flash('¡Juguete agregado exitosamente!', 'success')
+            flash('Â¡Juguete agregado exitosamente!', 'success')
             
         except Exception as e:
             db.session.rollback()
@@ -452,11 +436,11 @@ def edit_toy(toy_id):
     
     if request.method == 'POST' and toy_form.validate_on_submit():
         try:
-            # Manejar la imagen si se subió una nueva y optimizar
+            # Manejar la imagen si se subiÃ³ una nueva y optimizar
             if toy_form.image.data and toy_form.image.data.filename != '':
                 image_file = toy_form.image.data
                 
-                # Crear directorio de imágenes si no existe
+                # Crear directorio de imÃ¡genes si no existe
                 upload_folder = os.path.join(current_app.static_folder, 'images', 'toys')
                 os.makedirs(upload_folder, exist_ok=True)
                 
@@ -466,7 +450,7 @@ def edit_toy(toy_id):
                     if os.path.exists(old_image_path):
                         os.remove(old_image_path)
                 
-                # Generar nombre único para la nueva imagen
+                # Generar nombre Ãºnico para la nueva imagen
                 filename = secure_filename(image_file.filename)
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
                 image_filename = timestamp + filename
@@ -487,7 +471,7 @@ def edit_toy(toy_id):
             toy.updated_at = datetime.now()
             
             db.session.commit()
-            flash('¡Juguete actualizado exitosamente!', 'success')
+            flash('Â¡Juguete actualizado exitosamente!', 'success')
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'success': True})
@@ -523,7 +507,7 @@ def edit_toy(toy_id):
 
 @admin_bp.route('/delete_toy/<int:toy_id>', methods=['POST'])
 @login_required
-@moderate_rate_limit(message="⚠️ Demasiados intentos de eliminación. Espera un momento.")
+@moderate_rate_limit(message="âš ï¸ Demasiados intentos de eliminaciÃ³n. Espera un momento.")
 def delete_toy(toy_id):
     """Eliminar un juguete (soft delete) - CORREGIDO PARA AJAX"""
     if not current_user.is_admin:
@@ -543,7 +527,7 @@ def delete_toy(toy_id):
                 os.remove(image_path)
                 current_app.logger.info(f"Imagen eliminada: {image_path}")
         
-        # Soft delete: marcar como eliminado en lugar de eliminar físicamente
+        # Soft delete: marcar como eliminado en lugar de eliminar fÃ­sicamente
         toy.deleted_at = datetime.now()
         toy.is_active = False
         
@@ -554,11 +538,11 @@ def delete_toy(toy_id):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({
                 'success': True,
-                'message': '¡Juguete eliminado exitosamente!',
+                'message': 'Â¡Juguete eliminado exitosamente!',
                 'toy_id': toy_id
             })
         else:
-            flash('¡Juguete eliminado exitosamente!', 'success')
+            flash('Â¡Juguete eliminado exitosamente!', 'success')
             return redirect(url_for('admin.toys_page'))
 
     except Exception as e:
@@ -592,11 +576,11 @@ def update_toy_stock(toy_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# NUEVA RUTA: Gestión dedicada de juguetes
+# NUEVA RUTA: GestiÃ³n dedicada de juguetes
 @admin_bp.route('/toys')
 @login_required
 def toys_page():
-    """Página independiente para gestionar juguetes"""
+    """PÃ¡gina independiente para gestionar juguetes"""
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
         return redirect(url_for('shop.index'))
@@ -606,12 +590,12 @@ def toys_page():
 
     return render_template('admin/inventory.html', toy_form=toy_form, toys=toys)
 
-# NUEVA IMPLEMENTACIÓN: Edición de juguetes simple y robusta
+# NUEVA IMPLEMENTACIÃ“N: EdiciÃ³n de juguetes simple y robusta
 @admin_bp.route('/toy_edit_new/<int:toy_id>', methods=['POST'])
 @login_required
-@moderate_rate_limit(message="⚠️ Demasiados intentos de edición. Espera un momento.")
+@moderate_rate_limit(message="âš ï¸ Demasiados intentos de ediciÃ³n. Espera un momento.")
 def toy_edit_new(toy_id):
-    """Nueva implementación simple para editar juguetes"""
+    """Nueva implementaciÃ³n simple para editar juguetes"""
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
         return redirect(url_for('shop.index'))
@@ -638,7 +622,7 @@ def toy_edit_new(toy_id):
             # Log para debugging
             current_app.logger.info(f"Editando juguete {toy_id} - Datos recibidos: {request.form}")
             
-            # Actualizar datos básicos
+            # Actualizar datos bÃ¡sicos
             toy.name = request.form.get('name', toy.name)
             toy.description = request.form.get('description', toy.description)
             toy.price = float(request.form.get('price', toy.price))
@@ -729,7 +713,7 @@ def inventory_alerts():
 @admin_bp.route('/orders')
 @login_required
 def all_orders():
-    """Mostrar todas las órdenes con paginación"""
+    """Mostrar todas las Ã³rdenes con paginaciÃ³n"""
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
         return redirect(url_for('shop.index'))
@@ -737,7 +721,7 @@ def all_orders():
     page = request.args.get('page', 1, type=int)
     per_page = 20
     
-    # Obtener parámetros de búsqueda y filtrado
+    # Obtener parÃ¡metros de bÃºsqueda y filtrado
     search_query = request.args.get('search', '').strip()
     status_filter = request.args.get('status', 'all')
     
@@ -758,7 +742,7 @@ def all_orders():
     if status_filter != 'all':
         query = query.filter_by(status=status_filter)
     
-    # Ordenar por fecha más reciente primero
+    # Ordenar por fecha mÃ¡s reciente primero
     orders = query.order_by(desc(Order.order_date)).paginate(page=page, per_page=per_page, error_out=False)
     
     # Calcular totales
@@ -786,19 +770,19 @@ def send_inventory_alerts():
         report = inventory_manager.generate_inventory_report()
         alerts = report['alerts']
         
-        # Filtrar solo alertas críticas y de advertencia
+        # Filtrar solo alertas crÃ­ticas y de advertencia
         critical_alerts = [a for a in alerts if a['level'] in ['critical', 'warning']]
         
         if not critical_alerts:
-            return jsonify({'message': 'No hay alertas críticas para enviar'})
+            return jsonify({'message': 'No hay alertas crÃ­ticas para enviar'})
             
-        # Aquí iría la lógica para enviar el correo electrónico
-        # Por ahora solo simulamos el envío
-        email_sent = True  # Simulamos que el correo se envió correctamente
+        # AquÃ­ irÃ­a la lÃ³gica para enviar el correo electrÃ³nico
+        # Por ahora solo simulamos el envÃ­o
+        email_sent = True  # Simulamos que el correo se enviÃ³ correctamente
         
         if email_sent:
             return jsonify({
-                'message': f'Se enviaron {len(critical_alerts)} alertas por correo electrónico',
+                'message': f'Se enviaron {len(critical_alerts)} alertas por correo electrÃ³nico',
                 'alerts': critical_alerts
             })
         else:
@@ -822,10 +806,10 @@ def add_user():
         
         error = False
         if existing_user_username:
-            form.username.errors.append('Este nombre de usuario ya está en uso.')
+            form.username.errors.append('Este nombre de usuario ya estÃ¡ en uso.')
             error = True
         if existing_user_email:
-            form.email.errors.append('Este correo electrónico ya está en uso.')
+            form.email.errors.append('Este correo electrÃ³nico ya estÃ¡ en uso.')
             error = True
         
         if error:
@@ -867,12 +851,12 @@ def edit_user(user_id):
         error = False
         if form.username.data != user_to_edit.username:
             if User.query.filter(User.username == form.username.data, User.id != user_id).first():
-                form.username.errors.append('Este nombre de usuario ya está en uso por otro usuario.')
+                form.username.errors.append('Este nombre de usuario ya estÃ¡ en uso por otro usuario.')
                 error = True
         
         if form.email.data != user_to_edit.email:
             if User.query.filter(User.email == form.email.data, User.id != user_id).first():
-                form.email.errors.append('Este correo electrónico ya está en uso por otro usuario.')
+                form.email.errors.append('Este correo electrÃ³nico ya estÃ¡ en uso por otro usuario.')
                 error = True
             
         if error:
@@ -902,7 +886,7 @@ def edit_user(user_id):
 @admin_bp.route('/view_user/<int:user_id>')
 @login_required
 def view_user(user_id):
-    """Muestra los detalles de un usuario específico para administradores."""
+    """Muestra los detalles de un usuario especÃ­fico para administradores."""
     if not current_user.is_admin:
         flash('Acceso denegado.', 'danger')
         return redirect(url_for('admin.all_users'))
@@ -923,18 +907,18 @@ def bulk_users_action():
     user_ids = request.form.getlist('user_ids')
 
     if not user_ids:
-        flash('No se seleccionó ningún usuario.', 'warning')
+        flash('No se seleccionÃ³ ningÃºn usuario.', 'warning')
         return redirect(url_for('admin.all_users'))
 
     valid_actions = {'activate', 'deactivate', 'delete'}
     if action not in valid_actions:
-        flash('Acción no válida.', 'danger')
+        flash('AcciÃ³n no vÃ¡lida.', 'danger')
         return redirect(url_for('admin.all_users'))
 
     users_query = User.query.filter(User.id.in_(user_ids))
     affected = 0
     for user in users_query:
-        # Prevenir que el admin actual se borre o se desactive a sí mismo
+        # Prevenir que el admin actual se borre o se desactive a sÃ­ mismo
         if user.id == current_user.id and action in {'deactivate', 'delete'}:
             flash('No puedes desactivar o eliminar tu propia cuenta.', 'warning')
             continue
@@ -985,7 +969,7 @@ def _generate_csv_response(csv_content: str, filename: str) -> Response:
 @admin_bp.route('/export_orders')
 @login_required
 def export_orders():
-    """Exportar todas las órdenes en CSV."""
+    """Exportar todas las Ã³rdenes en CSV."""
     if not current_user.is_admin:
         flash('Acceso denegado.', 'danger')
         return redirect(url_for('shop.index'))
@@ -1024,7 +1008,7 @@ def export_inventory():
     output = io.StringIO()
     writer = csv.writer(output)
 
-    writer.writerow(['ID', 'Nombre', 'Categoría', 'Precio', 'Stock', 'Activo'])
+    writer.writerow(['ID', 'Nombre', 'CategorÃ­a', 'Precio', 'Stock', 'Activo'])
 
     toys = Toy.query.filter_by(deleted_at=None).order_by(Toy.name.asc()).all()
     for toy in toys:
@@ -1034,13 +1018,13 @@ def export_inventory():
             toy.category,
             f"{toy.price:.2f}",
             toy.stock,
-            'Sí' if toy.is_active else 'No'
+            'SÃ­' if toy.is_active else 'No'
         ])
 
     return _generate_csv_response(output.getvalue(), 'inventario.csv')
 
 # ------------------------------
-# Ajustar saldo de usuario (Aloha Dólares)
+# Ajustar saldo de usuario (Aloha DÃ³lares)
 # ------------------------------
 @admin_bp.route('/adjust_balance/<int:user_id>', methods=['POST'])
 @login_required
@@ -1055,7 +1039,7 @@ def adjust_balance(user_id):
         amount = Decimal(str(data.get('amount', '0')))
         reason = data.get('reason', '')
     except (InvalidOperation, TypeError):
-        return jsonify({'error': 'Cantidad inválida'}), 400
+        return jsonify({'error': 'Cantidad invÃ¡lida'}), 400
 
     new_balance = user.balance + float(amount)
     if new_balance < 0:
@@ -1073,18 +1057,18 @@ def adjust_balance(user_id):
 
 
 # ===============================
-# 💾 SISTEMA DE BACKUP INTEGRADO
+# ðŸ’¾ SISTEMA DE BACKUP INTEGRADO
 # ===============================
 
 @admin_bp.route('/backup')
 @login_required
 def backup_dashboard():
-    """Dashboard de gestión de backups (solo superuser)"""
+    """Dashboard de gestiÃ³n de backups (solo superuser)"""
     if not current_user.is_admin:
         abort(403)
     
     if not BACKUP_SYSTEM_AVAILABLE:
-        flash('⚠️ Sistema de backup no disponible', 'warning')
+        flash('âš ï¸ Sistema de backup no disponible', 'warning')
         return redirect(url_for('admin.dashboard'))
     
     # Obtener lista de backups existentes
@@ -1094,13 +1078,13 @@ def backup_dashboard():
     except Exception as e:
         current_app.logger.error(f"Error listing backups: {e}")
         backups = []
-        flash('⚠️ Error al listar backups', 'warning')
+        flash('âš ï¸ Error al listar backups', 'warning')
     
     return render_template('admin_backup.html', backups=backups)
 
 @admin_bp.route('/backup/create', methods=['POST'])
 @login_required
-@strict_rate_limit(message="⚠️ Solo se permite un backup cada 5 minutos.")
+@strict_rate_limit(message="âš ï¸ Solo se permite un backup cada 5 minutos.")
 def create_backup():
     """Crear un nuevo backup (solo superuser)"""
     if not current_user.is_admin:
@@ -1116,19 +1100,19 @@ def create_backup():
         result = backup_manager.create_backup(backup_type)
         
         if result:
-            current_app.logger.info(f"✅ Backup created by {current_user.username}: {result}")
+            current_app.logger.info(f"âœ… Backup created by {current_user.username}: {result}")
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({
                     'success': True,
-                    'message': f'✅ Backup {backup_type} creado exitosamente',
+                    'message': f'âœ… Backup {backup_type} creado exitosamente',
                     'backup_path': result
                 })
             else:
-                flash(f'✅ Backup {backup_type} creado exitosamente', 'success')
+                flash(f'âœ… Backup {backup_type} creado exitosamente', 'success')
                 return redirect(url_for('admin.backup_dashboard'))
         else:
-            error_msg = f'❌ Error al crear backup {backup_type}'
+            error_msg = f'âŒ Error al crear backup {backup_type}'
             current_app.logger.error(error_msg)
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1138,7 +1122,7 @@ def create_backup():
                 return redirect(url_for('admin.backup_dashboard'))
                 
     except Exception as e:
-        error_msg = f'❌ Error inesperado al crear backup: {str(e)}'
+        error_msg = f'âŒ Error inesperado al crear backup: {str(e)}'
         current_app.logger.error(error_msg)
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1164,7 +1148,7 @@ def download_backup(filename):
         if not backup_path.exists() or not backup_path.name.startswith('tiendita_backup_'):
             abort(404)
         
-        current_app.logger.info(f"📥 Backup downloaded by {current_user.username}: {filename}")
+        current_app.logger.info(f"ðŸ“¥ Backup downloaded by {current_user.username}: {filename}")
         
         from flask import send_file
         return send_file(
@@ -1180,7 +1164,7 @@ def download_backup(filename):
 
 @admin_bp.route('/backup/delete/<filename>', methods=['POST'])
 @login_required
-@moderate_rate_limit(message="⚠️ Demasiados intentos de eliminación de backup.")
+@moderate_rate_limit(message="âš ï¸ Demasiados intentos de eliminaciÃ³n de backup.")
 def delete_backup(filename):
     """Eliminar un archivo de backup (solo superuser)"""
     if not current_user.is_admin:
@@ -1197,19 +1181,19 @@ def delete_backup(filename):
             return jsonify({'error': 'Backup no encontrado'}), 404
         
         backup_path.unlink()
-        current_app.logger.info(f"🗑️ Backup deleted by {current_user.username}: {filename}")
+        current_app.logger.info(f"ðŸ—‘ï¸ Backup deleted by {current_user.username}: {filename}")
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({
                 'success': True,
-                'message': f'✅ Backup {filename} eliminado exitosamente'
+                'message': f'âœ… Backup {filename} eliminado exitosamente'
             })
         else:
-            flash(f'✅ Backup {filename} eliminado exitosamente', 'success')
+            flash(f'âœ… Backup {filename} eliminado exitosamente', 'success')
             return redirect(url_for('admin.backup_dashboard'))
             
     except Exception as e:
-        error_msg = f'❌ Error al eliminar backup: {str(e)}'
+        error_msg = f'âŒ Error al eliminar backup: {str(e)}'
         current_app.logger.error(error_msg)
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1217,3 +1201,4 @@ def delete_backup(filename):
         else:
             flash(error_msg, 'danger')
             return redirect(url_for('admin.backup_dashboard'))
+

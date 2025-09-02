@@ -24,7 +24,7 @@
                 <img src="{{ url_for('static', filename='images/ALOHALogo12.png') }}" alt="ALOHA Logo" class="brand-logo">
             </a>
 
-            <!-- Navegación desktop -->
+            <!-- Navegacion desktop -->
             <nav class="desktop-nav">
                 <ul>
                     <li><a href="{{ url_for('shop.index') }}" class="{% if request.endpoint == 'shop.index' %}active{% endif %}">🏠 Inicio</a></li>
@@ -67,7 +67,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Navegación móvil inferior optimizada -->
+    <!-- Navegacion movil inferior optimizada -->
     <nav class="mobile-nav">
         <ul>
             <li>
@@ -133,12 +133,12 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
     
-    <!-- Script de depuración simplificado -->
+    <!-- Script de depuracion simplificado -->
     <script>
-        console.log('Script de depuración cargado');
+        console.log('Script de depuracion cargado');
         console.log('cart_count:', {{ cart_count|tojson|safe }});
         
-        // Función para actualizar el badge del carrito
+        // Funcion para actualizar el badge del carrito
         function updateCartBadge(count) {
             console.log('Actualizando badge a:', count);
             // Actualizar badge desktop
@@ -160,7 +160,7 @@
                 }
             }
             
-            // Actualizar badge móvil
+            // Actualizar badge movil
             const mobileBadge = document.querySelector('.cart-badge-mobile');
             const mobileLink = document.querySelector('.cart-link-mobile');
             
@@ -180,7 +180,7 @@
             }
         }
         
-        // Actualizar el badge al cargar la página
+        // Actualizar el badge al cargar la pagina
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM completamente cargado');
             updateCartBadge({{ cart_count|tojson|safe }});
@@ -231,7 +231,7 @@
     color: var(--primary-color);
 }
 
-/* Navegación desktop */
+/* Navegacion desktop */
 .desktop-nav {
     flex: 1;
     display: flex;
@@ -283,7 +283,7 @@
     text-align: center;
 }
 
-/* Navegación móvil */
+/* Navegacion movil */
 .mobile-nav {
     display: none;
     position: fixed;
