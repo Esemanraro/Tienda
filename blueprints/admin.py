@@ -456,6 +456,7 @@ def bulk_upload_toys():
             return redirect(url_for('admin.bulk_upload_toys'))
 
         import csv
+        import re
         from io import StringIO
 
         csv_stream = StringIO(csv_file.stream.read().decode('utf-8-sig'))
@@ -505,14 +506,17 @@ def bulk_upload_toys():
             db.session.add(toy)
             db.session.commit()
 
-            center = data.get('center')
-            if center:
-                db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
-                db.session.commit()
+            centers_str = data.get('center')
+            if centers_str:
+                centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
+                if 'all' not in centers:
+                    for center in centers:
+                        db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                    db.session.commit()
             created += 1
 
         flash(f'{created} juguetes cargados exitosamente.', 'success')
-        return redirect(url_for('admin.dashboard'))
+        return redirect(url_for('admin.toys_page'))
 
     return render_template('bulk_upload_toys.html')
 
