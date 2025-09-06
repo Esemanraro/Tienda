@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Carga masiva de juguetes{% endblock %}
+
+{% block content %}
+<h1>Carga masiva de juguetes</h1>
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div>
+        <label for="csv_file">Archivo CSV</label>
+        <input type="file" name="csv_file" accept=".csv" required>
+        <p style="font-size:0.9rem">Incluye las columnas: name, description, stock, price, age range, gender category, category y center. Usa "ALL" en center para todos los centros o separa múltiples centros con comas.</p>
+    </div>
+    <div>
+        <label for="images">Imágenes de juguetes</label>
+        <input type="file" name="images" accept="image/*" multiple>
+        <p>Los nombres de archivo deben coincidir con el nombre del juguete en el CSV.</p>
+    </div>
+    <button type="submit">Subir juguetes</button>
+    <div style="margin-top:1rem">
+        <progress id="upload-progress" value="0" max="100" style="display:none;width:100%"></progress>
+        <p id="progress-text"></p>
+    </div>
+</form>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const form = e.target;
+    const progress = document.getElementById('upload-progress');
+    const progressText = document.getElementById('progress-text');
+    const data = new FormData(form);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action || window.location.href);
+    xhr.upload.addEventListener('loadstart', function(){
+        progress.style.display = 'block';
+        progress.value = 0;
+        progressText.textContent = 'Subiendo...';
+    });
+    xhr.upload.addEventListener('progress', function(e){
+        if(e.lengthComputable){
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progress.value = percent;
+            progressText.textContent = `Subiendo ${percent}%`;
+        }
+    });
+    xhr.onload = function(){
+        if (xhr.status >= 200 && xhr.status < 300){
+            progressText.textContent = 'Procesando en el servidor...';
+            window.location.href = xhr.responseURL || '{{ url_for("admin.toys_page") }}';
+        } else {
+            progressText.textContent = 'Error del servidor';
+        }
+    };
+    xhr.onerror = function(){
+        progressText.textContent = 'Error de conexión';
+    };
+    xhr.send(data);
+});
+</script>
+{% endblock %}
