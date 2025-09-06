@@ -604,22 +604,27 @@ def edit_toy(toy_id):
                     flash(f'Error en {field}: {error}', 'error')
             return redirect(url_for('admin.dashboard'))
 
-    # Para GET request, devolver datos del juguete como JSON
+    # GET: devolver JSON para solicitudes AJAX o plantilla HTML para acceso directo
     if request.method == 'GET':
-        toy_data = {
-            'id': toy.id,
-            'name': toy.name,
-            'description': toy.description,
-            'price': float(toy.price),
-            'category': toy.category,
-            'stock': toy.stock,
-            'image_url': (
-                url_for('static', filename=toy.image_url)
-                if toy.image_url
-                else url_for('static', filename='images/toys/default_toy.png')
-            )
-        }
-        return jsonify(toy_data)
+        # Si es una solicitud AJAX, responder con JSON para poblar el modal
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            toy_data = {
+                'id': toy.id,
+                'name': toy.name,
+                'description': toy.description,
+                'price': float(toy.price),
+                'category': toy.category,
+                'stock': toy.stock,
+                'image_url': (
+                    url_for('static', filename=toy.image_url)
+                    if toy.image_url
+                    else url_for('static', filename='images/toys/default_toy.png')
+                )
+            }
+            return jsonify(toy_data)
+
+        # Para accesos directos, renderizar la plantilla de edición completa
+        return render_template('edit_toy.html', toy=toy, form=toy_form)
 
 @admin_bp.route('/delete_toy/<int:toy_id>', methods=['POST'])
 @login_required
