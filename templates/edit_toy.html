@@ -77,7 +77,7 @@
 
             <div class="current-image">
                 <p><strong>Imagen Actual:</strong></p>
-                <img src="{{ url_for('static', filename=toy.image_url) }}"
+                <img src="{{ url_for('static', filename=toy.image_url if toy.image_url else 'images/toys/default_toy.png') }}"
                      alt="{{ toy.name }}"
                      class="preview-image">
             </div>

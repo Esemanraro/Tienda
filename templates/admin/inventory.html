@@ -10,6 +10,9 @@
             <button class="admin-btn" onclick="showAddToyModal()">
                 <i class="fas fa-plus"></i> Agregar Juguete
             </button>
+            <a class="admin-btn" href="{{ url_for('admin.bulk_upload_toys') }}">
+                <i class="fas fa-upload"></i> Carga masiva
+            </a>
         </div>
     </div>
 
@@ -29,7 +32,7 @@
         {% for toy in toys %}
         <div class="toy-card" id="toy-{{ toy.id }}">
             <div class="toy-image">
-                <img src="{{ url_for('static', filename=toy.image_url) }}" alt="{{ toy.name }}">
+                <img src="{{ url_for('static', filename=toy.image_url if toy.image_url else 'images/toys/default_toy.png') }}" alt="{{ toy.name }}">
                 <div class="stock-controls">
                     <button class="stock-btn" onclick="adjustStock({{ toy.id }}, -1)">-</button>
                     <span class="stock-count" id="stock-{{ toy.id }}">{{ toy.stock }}</span>
