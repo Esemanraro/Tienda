@@ -477,7 +477,7 @@
                 {% for toy in results %}
                 <div class="col-md-6 col-lg-4">
                     <div class="toy-card">
-                        <img src="{{ url_for('static', filename=toy.image_url) if toy.image_url else url_for('static', filename='images/placeholder-toy.jpg') }}"
+                        <img src="{{ url_for('static', filename=toy.image_url if toy.image_url else 'images/toys/default_toy.png') }}"
                              alt="{{ toy.name }}"
                              class="toy-image">
                         <div class="toy-info">
