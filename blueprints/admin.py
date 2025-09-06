@@ -442,7 +442,7 @@ def add_toy():
 @admin_bp.route('/bulk_upload_toys', methods=['GET', 'POST'])
 @login_required
 def bulk_upload_toys():
-    """Paso 1: cargar y validar el CSV de juguetes"""
+    """Cargar juguetes desde un CSV (sin imágenes)."""
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
         return redirect(url_for('shop.index'))
@@ -454,108 +454,72 @@ def bulk_upload_toys():
             return redirect(url_for('admin.bulk_upload_toys'))
 
         import csv
+
+        import re
         from io import StringIO
 
         csv_stream = StringIO(csv_file.stream.read().decode('utf-8-sig'))
         reader = list(csv.DictReader(csv_stream))
-        toys = []
-        for row in reader:
+        print(f'Iniciando carga masiva desde CSV: {len(reader)} filas', flush=True)
+
+        created = 0
+        errors = []
+        for idx, row in enumerate(reader, start=1):
             data = {k.strip().lower(): (v or '').strip() for k, v in row.items() if k}
-            if data.get('name'):
-                toys.append(data)
+            name = data.get('name')
+            if not name:
+                error_msg = f'❌ Fila {idx} sin nombre, omitida'
+                print(error_msg, flush=True)
+                errors.append(error_msg)
+                continue
+            print(f'[{idx}/{len(reader)}] Procesando: {name}', flush=True)
+            try:
+                try:
+                    price = float(data.get('price', 0) or 0)
+                except ValueError:
+                    price = 0.0
+                try:
+                    stock = int(data.get('stock', 0) or 0)
+                except ValueError:
+                    stock = 0
 
-        if not toys:
-            flash('El CSV no contiene juguetes válidos', 'error')
-            return redirect(url_for('admin.bulk_upload_toys'))
+                toy = Toy(
+                    name=name,
+                    description=data.get('description', ''),
+                    price=price,
+                    stock=stock,
+                    age_range=data.get('age range') or data.get('age_range'),
+                    gender_category=data.get('gender category') or data.get('gender_category'),
+                    category=data.get('category')
+                )
 
-        session['bulk_toys'] = toys
-        print(f'CSV cargado con {len(toys)} juguetes, esperando imágenes...', flush=True)
-        return render_template('bulk_upload_preview.html', toys=toys)
+                db.session.add(toy)
+                db.session.commit()
+
+                centers_str = data.get('center')
+                if centers_str:
+                    centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
+                    if 'all' not in centers:
+                        for center in centers:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        db.session.commit()
+
+                created += 1
+                print(f'✔️ Fila {idx} procesada: {name}', flush=True)
+            except Exception as e:
+                db.session.rollback()
+                error_msg = f'❌ Error en fila {idx} ({name}): {e}'
+                print(error_msg, flush=True)
+                errors.append(error_msg)
+
+        for err in errors:
+            flash(err, 'error')
+        flash(f'{created} juguetes cargados exitosamente. {len(errors)} errores.',
+              'success' if not errors else 'warning')
+        print(f'Carga masiva completada: {created} éxitos, {len(errors)} errores', flush=True)
+        return redirect(url_for('admin.toys_page'))
 
     return render_template('bulk_upload_toys.html')
-
-
-@admin_bp.route('/bulk_upload_toys/confirm', methods=['POST'])
-@login_required
-def bulk_upload_toys_confirm():
-    """Paso 2: recibir imágenes y crear juguetes"""
-    if not current_user.is_admin:
-        flash('Acceso denegado', 'error')
-        return redirect(url_for('shop.index'))
-
-    toys = session.get('bulk_toys')
-    if not toys:
-        flash('No hay datos para cargar', 'error')
-        return redirect(url_for('admin.bulk_upload_toys'))
-
-    import re
-
-
-    print(f"Iniciando carga de imágenes: {len(toys)} juguetes, {len(request.files)} archivos, tamaño total {request.content_length} bytes", flush=True)
-
-    created = 0
-    errors = []
-    for idx, data in enumerate(toys, start=1):
-        name = data.get('name')
-        print(f'[{idx}/{len(toys)}] Procesando: {name}', flush=True)
-        try:
-            try:
-                price = float(data.get('price', 0) or 0)
-            except ValueError:
-                price = 0.0
-            try:
-                stock = int(data.get('stock', 0) or 0)
-            except ValueError:
-                stock = 0
-
-            toy = Toy(
-                name=name,
-                description=data.get('description', ''),
-                price=price,
-                stock=stock,
-                age_range=data.get('age range') or data.get('age_range'),
-                gender_category=data.get('gender category') or data.get('gender_category'),
-                category=data.get('category')
-            )
-
-            img = request.files.get(f'image_{idx}')
-            if img and img.filename:
-                print(f"   Recibida imagen para {name}: {img.filename} ({getattr(img, 'content_length', 'desconocido')} bytes)", flush=True)
-                filename = secure_filename(img.filename)
-                upload_folder = os.path.join(current_app.static_folder, 'images', 'toys')
-                os.makedirs(upload_folder, exist_ok=True)
-                img.save(os.path.join(upload_folder, filename))
-                print(f"   Guardada imagen en {upload_folder}/{filename}", flush=True)
-                toy.image_url = f'images/toys/{filename}'
-            else:
-                print(f"   Sin imagen para {name}", flush=True)
-            db.session.add(toy)
-            db.session.commit()
-
-            centers_str = data.get('center')
-            if centers_str:
-                centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
-                if 'all' not in centers:
-                    for center in centers:
-                        db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
-                    db.session.commit()
-
-            created += 1
-            print(f'✔️ Fila {idx} procesada: {name}', flush=True)
-        except Exception as e:
-            db.session.rollback()
-            error_msg = f'❌ Error en fila {idx} ({name}): {e}'
-            print(error_msg, flush=True)
-            errors.append(error_msg)
-
-    session.pop('bulk_toys', None)
-    for err in errors:
-        flash(err, 'error')
-    flash(f'{created} juguetes cargados exitosamente. {len(errors)} errores.',
-          'success' if not errors else 'warning')
-    print(f'Carga masiva completada: {created} éxitos, {len(errors)} errores', flush=True)
-    return redirect(url_for('admin.toys_page'))
-
 @admin_bp.route('/edit_toy/<int:toy_id>', methods=['GET', 'POST'])
 @login_required
 def edit_toy(toy_id):
