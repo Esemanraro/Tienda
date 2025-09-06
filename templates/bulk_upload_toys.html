@@ -4,11 +4,13 @@
 
 {% block content %}
 <h1>Carga masiva de juguetes</h1>
+
 <form method="post" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div>
         <label for="csv_file">Archivo CSV</label>
         <input type="file" name="csv_file" accept=".csv" required>
+
         <p style="font-size:0.9rem">Incluye las columnas: name, description, stock, price, age range, gender category, category y center. Usa "ALL" en center para todos los centros o separa múltiples centros con comas. Las imágenes pueden añadirse luego al editar cada juguete.</p>
     </div>
     <button type="submit">Cargar CSV</button>
