@@ -56,7 +56,8 @@
                         <span class="center-chip center-all">Todos los centros</span>
                     {% endif %}
                 </div>
-                <div style="margin-top:.5rem">
+                <div style="margin-top:.5rem; display:flex; gap:.5rem;">
+                    <a class="admin-btn" style="padding:.4rem .6rem;font-size:.85rem" href="{{ url_for('admin.edit_toy', toy_id=toy.id) }}">Editar</a>
                     <button class="admin-btn" style="padding:.4rem .6rem;font-size:.85rem" onclick="openCentersModal({{ toy.id }}, '{{ toy.name|e }}')">Editar Centros</button>
                 </div>
             </div>
