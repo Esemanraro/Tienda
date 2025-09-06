@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Revisión de juguetes{% endblock %}
+
+{% block content %}
+<h1>Revisión de juguetes - Paso 2</h1>
+<form id="confirm-form" method="post" action="{{ url_for('admin.bulk_upload_toys_confirm') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="toy-preview-grid">
+        {% for toy in toys %}
+        <div class="toy-preview-card">
+            <h3>{{ toy.name }}</h3>
+            <p>{{ toy.description }}</p>
+            <p><strong>Precio:</strong> {{ toy.price }} | <strong>Stock:</strong> {{ toy.stock }}</p>
+            <p><strong>Centros:</strong> {{ toy.center }}</p>
+            <label>Imagen</label>
+            <input type="file" name="image_{{ loop.index }}" accept="image/*" required>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="submit">Confirmar carga</button>
+</form>
+
+<div id="progress-container" style="display:none;margin-top:1rem;">
+    <progress id="upload-progress" value="0" max="100" style="width:100%;"></progress>
+    <span id="progress-text">0%</span>
+</div>
+
+<script>
+document.getElementById('confirm-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            console.log('Preparing file', key, value.name, value.size + ' bytes');
+        }
+    }
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action);
+    xhr.upload.addEventListener('progress', function(evt) {
+        if (evt.lengthComputable) {
+            const percent = Math.round((evt.loaded / evt.total) * 100);
+            document.getElementById('upload-progress').value = percent;
+            document.getElementById('progress-text').textContent = percent + '%';
+            console.log('Upload progress:', evt.loaded, '/', evt.total, '(' + percent + '%)');
+        }
+    });
+    xhr.addEventListener('load', function() {
+        console.log('Upload complete with status', xhr.status);
+        if (xhr.status >= 200 && xhr.status < 300) {
+            window.location.href = xhr.responseURL;
+        } else {
+            console.error('Upload failed:', xhr.status, xhr.response);
+            alert('Error al subir los juguetes');
+        }
+    });
+    xhr.addEventListener('error', function() {
+        console.error('XHR error during upload');
+        alert('Error de red durante la carga');
+    });
+    document.getElementById('progress-container').style.display = 'block';
+    xhr.send(formData);
+});
+</script>
+
+<style>
+.toy-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.toy-preview-card {
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 6px;
+    background: var(--card-bg);
+}
+</style>
+{% endblock %}
+
