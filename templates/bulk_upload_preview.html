@@ -4,6 +4,7 @@
 
 {% block content %}
 <h1>Revisión de juguetes - Paso 2</h1>
+
 <form id="confirm-form" method="post" action="{{ url_for('admin.bulk_upload_toys_confirm') }}" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="toy-preview-grid">
@@ -20,6 +21,7 @@
     </div>
     <button type="submit">Confirmar carga</button>
 </form>
+
 
 <div id="progress-container" style="display:none;margin-top:1rem;">
     <progress id="upload-progress" value="0" max="100" style="width:100%;"></progress>

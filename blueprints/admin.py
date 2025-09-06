@@ -426,7 +426,6 @@ def add_toy():
                         continue
                     seen.add(center)
                     db.session.add(ToyCenterAvailability(toy_id=new_toy.id, center=center))
-
             db.session.commit()
             flash('¡Juguete agregado exitosamente!', 'success')
             
@@ -491,6 +490,7 @@ def bulk_upload_toys_confirm():
 
     import re
 
+
     print(f"Iniciando carga de imágenes: {len(toys)} juguetes, {len(request.files)} archivos, tamaño total {request.content_length} bytes", flush=True)
 
     created = 0
@@ -529,7 +529,6 @@ def bulk_upload_toys_confirm():
                 toy.image_url = f'images/toys/{filename}'
             else:
                 print(f"   Sin imagen para {name}", flush=True)
-
             db.session.add(toy)
             db.session.commit()
 
