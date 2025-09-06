@@ -30,7 +30,13 @@ class ToyForm(FlaskForm):
         ('7-9', '7-9 aÃ±os'),
         ('10+', '10+ aÃ±os')
     ]
-    category = SelectField('CategorÃ­a', choices=CATEGORIES, validators=[Optional()])
+    # Allow categories not present in the predefined list and make optional for edits
+    category = SelectField(
+        'CategorÃ­a',
+        choices=CATEGORIES,
+        validators=[Optional()],
+        validate_choice=False
+    )
     # Campos separados para categorias
     TOY_TYPE_CHOICES = [
         ('Figuras', 'Figuras'),
@@ -58,10 +64,26 @@ class ToyForm(FlaskForm):
         ('7-9', '7-9 anos'),
         ('10+', '10+ anos'),
     ]
-    toy_type = SelectField('Categoria de Juguete', choices=TOY_TYPE_CHOICES, validators=[DataRequired()])
-    gender = SelectField('Categoria de Genero', choices=GENDER_CHOICES, validators=[DataRequired()])
-    age_range = SelectField('Categoria de Edad', choices=AGE_CHOICES, validators=[DataRequired()])
-    stock = IntegerField('Cantidad en Stock', validators=[DataRequired(), NumberRange(min=0)])
+    # Make category fields optional during edit operations
+    toy_type = SelectField(
+        'Categoria de Juguete',
+        choices=TOY_TYPE_CHOICES,
+        validators=[Optional()],
+        validate_choice=False
+    )
+    gender = SelectField(
+        'Categoria de Genero',
+        choices=GENDER_CHOICES,
+        validators=[Optional()],
+        validate_choice=False
+    )
+    age_range = SelectField(
+        'Categoria de Edad',
+        choices=AGE_CHOICES,
+        validators=[Optional()],
+        validate_choice=False
+    )
+    stock = IntegerField('Cantidad en Stock', validators=[Optional(), NumberRange(min=0)])
     image = FileField('Imagen del Juguete', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Â¡Solo imÃ¡genes!')])
     submit = SubmitField('Guardar Juguete')
 
