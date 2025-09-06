@@ -378,6 +378,22 @@ def add_toy():
     
     toy_form = ToyForm()
     if toy_form.validate_on_submit():
+        # Ensure category fields are provided since form validators are optional
+        missing = []
+        if not toy_form.toy_type.data:
+            missing.append('Categoria de Juguete')
+        if not toy_form.gender.data:
+            missing.append('Categoria de Genero')
+        if not toy_form.age_range.data:
+            missing.append('Categoria de Edad')
+        if toy_form.stock.data is None:
+            missing.append('Cantidad en Stock')
+
+        if missing:
+            for field in missing:
+                flash(f'Error en {field}: campo requerido', 'error')
+            return redirect(url_for('admin.toys_page'))
+
         try:
             # Manejar la imagen si se subió una
             image_filename = None
@@ -545,7 +561,7 @@ def edit_toy(toy_id):
     
     toy = Toy.query.get_or_404(toy_id)
     toy_form = ToyForm(obj=toy)
-    
+
     if request.method == 'POST' and toy_form.validate_on_submit():
         try:
             # Manejar la imagen si se subió una nueva y optimizar
@@ -574,12 +590,21 @@ def edit_toy(toy_id):
                 # Actualizar la ruta en el objeto
                 toy.image_url = f'images/toys/{image_filename}'
             
-            # Actualizar los datos del juguete
-            toy.name = toy_form.name.data
-            toy.description = toy_form.description.data
-            toy.price = toy_form.price.data
-            toy.category = toy_form.category.data
-            toy.stock = toy_form.stock.data
+            # Actualizar los datos del juguete solo si se proporcionan
+            if toy_form.name.data:
+                toy.name = toy_form.name.data
+            if toy_form.description.data:
+                toy.description = toy_form.description.data
+            if toy_form.price.data is not None:
+                toy.price = toy_form.price.data
+            if toy_form.category.data:
+                toy.category = toy_form.category.data
+            if toy_form.age_range.data:
+                toy.age_range = toy_form.age_range.data
+            if toy_form.gender.data:
+                toy.gender_category = toy_form.gender.data
+            if toy_form.stock.data is not None:
+                toy.stock = toy_form.stock.data
             toy.updated_at = datetime.now()
             
             db.session.commit()
