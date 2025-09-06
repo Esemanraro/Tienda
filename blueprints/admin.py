@@ -454,12 +454,22 @@ def bulk_upload_toys():
             return redirect(url_for('admin.bulk_upload_toys'))
 
         import csv
-
         import re
         from io import StringIO
 
-        csv_stream = StringIO(csv_file.stream.read().decode('utf-8-sig'))
-        reader = list(csv.DictReader(csv_stream))
+        try:
+            raw = csv_file.stream.read()
+            try:
+                text = raw.decode('utf-8-sig')
+            except UnicodeDecodeError:
+                text = raw.decode('latin-1')
+            csv_stream = StringIO(text)
+            reader = list(csv.DictReader(csv_stream))
+        except Exception as e:
+            flash(f'Error al procesar el CSV: {e}', 'error')
+            print(f'❌ Error procesando CSV: {e}', flush=True)
+            return redirect(url_for('admin.bulk_upload_toys'))
+
         print(f'Iniciando carga masiva desde CSV: {len(reader)} filas', flush=True)
 
         created = 0
@@ -499,7 +509,11 @@ def bulk_upload_toys():
                 centers_str = data.get('center')
                 if centers_str:
                     centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
-                    if 'all' not in centers:
+                    if 'all' in centers:
+                        for center, _ in AddUserForm.CENTERS:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        db.session.commit()
+                    else:
                         for center in centers:
                             db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
                         db.session.commit()
