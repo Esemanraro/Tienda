@@ -440,6 +440,82 @@ def add_toy():
     
     return redirect(url_for('admin.toys_page'))
 
+@admin_bp.route('/bulk_upload_toys', methods=['GET', 'POST'])
+@login_required
+def bulk_upload_toys():
+    if not current_user.is_admin:
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('shop.index'))
+
+    if request.method == 'POST':
+        csv_file = request.files.get('csv_file')
+        image_files = request.files.getlist('images')
+
+        if not csv_file:
+            flash('Se requiere un archivo CSV', 'error')
+            return redirect(url_for('admin.bulk_upload_toys'))
+
+        import csv
+        from io import StringIO
+
+        csv_stream = StringIO(csv_file.stream.read().decode('utf-8-sig'))
+        reader = csv.DictReader(csv_stream)
+
+        image_map = {}
+        for img in image_files:
+            if img and img.filename:
+                filename = secure_filename(img.filename)
+                base = os.path.splitext(filename)[0].strip().lower().replace(' ', '_')
+                image_map[base] = (img, filename)
+
+        created = 0
+        for row in reader:
+            data = {k.strip().lower(): v.strip() for k, v in row.items() if k}
+            name = data.get('name')
+            if not name:
+                continue
+
+            try:
+                price = float(data.get('price', 0))
+            except ValueError:
+                price = 0.0
+            try:
+                stock = int(data.get('stock', 0))
+            except ValueError:
+                stock = 0
+
+            toy = Toy(
+                name=name,
+                description=data.get('description', ''),
+                price=price,
+                stock=stock,
+                age_range=data.get('age range') or data.get('age_range'),
+                gender_category=data.get('gender category') or data.get('gender_category'),
+                category=data.get('category')
+            )
+
+            base_name = os.path.splitext(secure_filename(name))[0].lower().replace(' ', '_')
+            if base_name in image_map:
+                img, filename = image_map[base_name]
+                upload_folder = os.path.join(current_app.static_folder, 'images', 'toys')
+                os.makedirs(upload_folder, exist_ok=True)
+                img.save(os.path.join(upload_folder, filename))
+                toy.image_url = f'images/toys/{filename}'
+
+            db.session.add(toy)
+            db.session.commit()
+
+            center = data.get('center')
+            if center:
+                db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                db.session.commit()
+            created += 1
+
+        flash(f'{created} juguetes cargados exitosamente.', 'success')
+        return redirect(url_for('admin.dashboard'))
+
+    return render_template('bulk_upload_toys.html')
+
 @admin_bp.route('/edit_toy/<int:toy_id>', methods=['GET', 'POST'])
 @login_required
 def edit_toy(toy_id):
