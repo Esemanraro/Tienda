@@ -426,7 +426,6 @@ def add_toy():
                         continue
                     seen.add(center)
                     db.session.add(ToyCenterAvailability(toy_id=new_toy.id, center=center))
-
             db.session.commit()
             flash('¡Juguete agregado exitosamente!', 'success')
             
@@ -468,7 +467,6 @@ def bulk_upload_toys():
                 filename = secure_filename(img.filename)
                 base = os.path.splitext(filename)[0].strip().lower().replace(' ', '_')
                 image_map[base] = (img, filename)
-
         current_app.logger.info('Iniciando carga masiva de juguetes')
         created = 0
         errors = []
@@ -533,6 +531,7 @@ def bulk_upload_toys():
         flash(f'{created} juguetes cargados exitosamente. {len(errors)} errores.',
               'success' if not errors else 'warning')
         current_app.logger.info(f'Carga masiva completada: {created} éxitos, {len(errors)} errores')
+
         return redirect(url_for('admin.toys_page'))
 
     return render_template('bulk_upload_toys.html')
