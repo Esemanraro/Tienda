@@ -426,7 +426,6 @@ def add_toy():
                         continue
                     seen.add(center)
                     db.session.add(ToyCenterAvailability(toy_id=new_toy.id, center=center))
-
             db.session.commit()
             flash('¡Juguete agregado exitosamente!', 'success')
             
@@ -465,14 +464,12 @@ def bulk_upload_toys():
         reader = list(csv.DictReader(csv_stream))
         total_rows = len(reader)
         print(f'Se encontraron {total_rows} filas en el CSV', flush=True)
-
         image_map = {}
         for img in image_files:
             if img and img.filename:
                 filename = secure_filename(img.filename)
                 base = os.path.splitext(filename)[0].strip().lower().replace(' ', '_')
                 image_map[base] = (img, filename)
-
         print('Iniciando carga masiva de juguetes...', flush=True)
         created = 0
         errors = []
@@ -531,6 +528,7 @@ def bulk_upload_toys():
                 db.session.rollback()
                 error_msg = f'❌ Error en fila {idx} ({name}): {e}'
                 print(error_msg, flush=True)
+
                 errors.append(error_msg)
 
         for err in errors:
