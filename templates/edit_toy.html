@@ -11,6 +11,7 @@
         </div>
 
         <form action="{{ url_for('admin.edit_toy', toy_id=toy.id) }}" method="POST" enctype="multipart/form-data">
+            {{ form.csrf_token }}
             <div class="form-group">
                 <label for="name">
                     <span class="icon">📝</span>
@@ -77,7 +78,7 @@
 
             <div class="current-image">
                 <p><strong>Imagen Actual:</strong></p>
-                <img src="{{ url_for('static', filename=toy.image_url) }}"
+                <img src="{{ url_for('static', filename=toy.image_url if toy.image_url else 'images/toys/default_toy.png') }}"
                      alt="{{ toy.name }}"
                      class="preview-image">
             </div>

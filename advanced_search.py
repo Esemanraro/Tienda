@@ -175,7 +175,11 @@ class AdvancedSearchEngine:
                         Toy.description.ilike(f"%{term}%"),
                         Toy.category.ilike(f"%{term}%")
                     ]
-                    text_conditions.append(or_(*term_conditions))
+                    'image_url': (
+                        url_for('static', filename=toy.image_url)
+                        if toy.image_url
+                        else url_for('static', filename='images/toys/default_toy.png')
+                    ),
                 
                 if text_conditions:
                     query_obj = query_obj.filter(and_(*text_conditions))

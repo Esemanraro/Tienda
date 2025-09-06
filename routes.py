@@ -317,7 +317,11 @@ def edit_toy(toy_id):
             'price': float(toy.price),
             'category': toy.category,
             'stock': toy.stock,
-            'image_url': url_for('static', filename=toy.image_url)
+            'image_url': (
+                url_for('static', filename=toy.image_url)
+                if toy.image_url
+                else url_for('static', filename='images/toys/default_toy.png')
+            )
         }
         return jsonify(toy_data)
 
