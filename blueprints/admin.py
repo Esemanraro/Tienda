@@ -426,7 +426,6 @@ def add_toy():
                         continue
                     seen.add(center)
                     db.session.add(ToyCenterAvailability(toy_id=new_toy.id, center=center))
-
             db.session.commit()
             flash('¡Juguete agregado exitosamente!', 'success')
             
@@ -468,54 +467,71 @@ def bulk_upload_toys():
                 filename = secure_filename(img.filename)
                 base = os.path.splitext(filename)[0].strip().lower().replace(' ', '_')
                 image_map[base] = (img, filename)
-
+        current_app.logger.info('Iniciando carga masiva de juguetes')
         created = 0
-        for row in reader:
+        errors = []
+        for idx, row in enumerate(reader, start=1):
             data = {k.strip().lower(): v.strip() for k, v in row.items() if k}
             name = data.get('name')
             if not name:
+                current_app.logger.warning(f'Fila {idx} sin nombre, se omite')
                 continue
 
+            current_app.logger.info(f'Procesando fila {idx}: {name}')
+
             try:
-                price = float(data.get('price', 0))
-            except ValueError:
-                price = 0.0
-            try:
-                stock = int(data.get('stock', 0))
-            except ValueError:
-                stock = 0
+                try:
+                    price = float(data.get('price', 0))
+                except ValueError:
+                    price = 0.0
+                try:
+                    stock = int(data.get('stock', 0))
+                except ValueError:
+                    stock = 0
 
-            toy = Toy(
-                name=name,
-                description=data.get('description', ''),
-                price=price,
-                stock=stock,
-                age_range=data.get('age range') or data.get('age_range'),
-                gender_category=data.get('gender category') or data.get('gender_category'),
-                category=data.get('category')
-            )
+                toy = Toy(
+                    name=name,
+                    description=data.get('description', ''),
+                    price=price,
+                    stock=stock,
+                    age_range=data.get('age range') or data.get('age_range'),
+                    gender_category=data.get('gender category') or data.get('gender_category'),
+                    category=data.get('category')
+                )
 
-            base_name = os.path.splitext(secure_filename(name))[0].lower().replace(' ', '_')
-            if base_name in image_map:
-                img, filename = image_map[base_name]
-                upload_folder = os.path.join(current_app.static_folder, 'images', 'toys')
-                os.makedirs(upload_folder, exist_ok=True)
-                img.save(os.path.join(upload_folder, filename))
-                toy.image_url = f'images/toys/{filename}'
+                base_name = os.path.splitext(secure_filename(name))[0].lower().replace(' ', '_')
+                if base_name in image_map:
+                    img, filename = image_map[base_name]
+                    upload_folder = os.path.join(current_app.static_folder, 'images', 'toys')
+                    os.makedirs(upload_folder, exist_ok=True)
+                    img.save(os.path.join(upload_folder, filename))
+                    toy.image_url = f'images/toys/{filename}'
 
-            db.session.add(toy)
-            db.session.commit()
+                db.session.add(toy)
+                db.session.commit()
 
-            centers_str = data.get('center')
-            if centers_str:
-                centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
-                if 'all' not in centers:
-                    for center in centers:
-                        db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
-                    db.session.commit()
-            created += 1
+                centers_str = data.get('center')
+                if centers_str:
+                    centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
+                    if 'all' not in centers:
+                        for center in centers:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        db.session.commit()
 
-        flash(f'{created} juguetes cargados exitosamente.', 'success')
+                created += 1
+                current_app.logger.info(f'✔️ Fila {idx} procesada: {name}')
+            except Exception as e:
+                db.session.rollback()
+                error_msg = f'❌ Error en fila {idx} ({name}): {e}'
+                current_app.logger.error(error_msg)
+                errors.append(error_msg)
+
+        for err in errors:
+            flash(err, 'error')
+        flash(f'{created} juguetes cargados exitosamente. {len(errors)} errores.',
+              'success' if not errors else 'warning')
+        current_app.logger.info(f'Carga masiva completada: {created} éxitos, {len(errors)} errores')
+
         return redirect(url_for('admin.toys_page'))
 
     return render_template('bulk_upload_toys.html')
