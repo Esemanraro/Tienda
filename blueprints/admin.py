@@ -440,6 +440,101 @@ def add_toy():
     
     return redirect(url_for('admin.toys_page'))
 
+@admin_bp.route('/bulk_upload_toys', methods=['GET', 'POST'])
+@login_required
+def bulk_upload_toys():
+    """Cargar juguetes desde un CSV (sin imágenes)."""
+    if not current_user.is_admin:
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('shop.index'))
+
+    if request.method == 'POST':
+        csv_file = request.files.get('csv_file')
+        if not csv_file:
+            flash('Se requiere un archivo CSV', 'error')
+            return redirect(url_for('admin.bulk_upload_toys'))
+
+        import csv
+        import re
+        from io import StringIO
+
+        try:
+            raw = csv_file.stream.read()
+            try:
+                text = raw.decode('utf-8-sig')
+            except UnicodeDecodeError:
+                text = raw.decode('latin-1')
+            csv_stream = StringIO(text)
+            reader = list(csv.DictReader(csv_stream))
+        except Exception as e:
+            flash(f'Error al procesar el CSV: {e}', 'error')
+            print(f'❌ Error procesando CSV: {e}', flush=True)
+            return redirect(url_for('admin.bulk_upload_toys'))
+        print(f'Iniciando carga masiva desde CSV: {len(reader)} filas', flush=True)
+
+        created = 0
+        errors = []
+        for idx, row in enumerate(reader, start=1):
+            data = {k.strip().lower(): (v or '').strip() for k, v in row.items() if k}
+            name = data.get('name')
+            if not name:
+                error_msg = f'❌ Fila {idx} sin nombre, omitida'
+                print(error_msg, flush=True)
+                errors.append(error_msg)
+                continue
+            print(f'[{idx}/{len(reader)}] Procesando: {name}', flush=True)
+            try:
+                try:
+                    price = float(data.get('price', 0) or 0)
+                except ValueError:
+                    price = 0.0
+                try:
+                    stock = int(data.get('stock', 0) or 0)
+                except ValueError:
+                    stock = 0
+
+                toy = Toy(
+                    name=name,
+                    description=data.get('description', ''),
+                    price=price,
+                    stock=stock,
+                    age_range=data.get('age range') or data.get('age_range'),
+                    gender_category=data.get('gender category') or data.get('gender_category'),
+                    category=data.get('category')
+                )
+
+                db.session.add(toy)
+                db.session.commit()
+
+                centers_str = data.get('center')
+                if centers_str:
+                    centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
+                    if 'all' in centers:
+                        for center, _ in AddUserForm.CENTERS:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        db.session.commit()
+                    else:
+                        for center in centers:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        db.session.commit()
+
+                created += 1
+                print(f'✔️ Fila {idx} procesada: {name}', flush=True)
+            except Exception as e:
+                db.session.rollback()
+                error_msg = f'❌ Error en fila {idx} ({name}): {e}'
+                print(error_msg, flush=True)
+                errors.append(error_msg)
+
+        for err in errors:
+            flash(err, 'error')
+        flash(f'{created} juguetes cargados exitosamente. {len(errors)} errores.',
+              'success' if not errors else 'warning')
+        print(f'Carga masiva completada: {created} éxitos, {len(errors)} errores', flush=True)
+        return redirect(url_for('admin.toys_page'))
+
+    return render_template('bulk_upload_toys.html')
+
 @admin_bp.route('/edit_toy/<int:toy_id>', methods=['GET', 'POST'])
 @login_required
 def edit_toy(toy_id):
