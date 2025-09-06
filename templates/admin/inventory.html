@@ -10,6 +10,9 @@
             <button class="admin-btn" onclick="showAddToyModal()">
                 <i class="fas fa-plus"></i> Agregar Juguete
             </button>
+            <a class="admin-btn" href="{{ url_for('admin.bulk_upload_toys') }}">
+                <i class="fas fa-upload"></i> Carga masiva
+            </a>
         </div>
     </div>
 
