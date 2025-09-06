@@ -6,7 +6,7 @@ Incluye: dashboard, gestión de juguetes (CRUD), inventario inteligente
 import os
 import logging
 from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, abort, Response
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, abort, Response, session
 from flask_login import login_required, current_user, login_user, logout_user
 from datetime import datetime, timedelta
 from sqlalchemy import desc, or_
@@ -426,7 +426,6 @@ def add_toy():
                         continue
                     seen.add(center)
                     db.session.add(ToyCenterAvailability(toy_id=new_toy.id, center=center))
-
             db.session.commit()
             flash('¡Juguete agregado exitosamente!', 'success')
             
@@ -536,7 +535,6 @@ def bulk_upload_toys():
         return redirect(url_for('admin.toys_page'))
 
     return render_template('bulk_upload_toys.html')
-
 @admin_bp.route('/edit_toy/<int:toy_id>', methods=['GET', 'POST'])
 @login_required
 def edit_toy(toy_id):
