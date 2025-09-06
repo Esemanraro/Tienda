@@ -458,26 +458,30 @@ def bulk_upload_toys():
         import re
         from io import StringIO
 
-        csv_stream = StringIO(csv_file.stream.read().decode('utf-8-sig'))
-        reader = csv.DictReader(csv_stream)
+        print('📤 Recibido archivo CSV, preparando procesamiento...', flush=True)
 
+        csv_stream = StringIO(csv_file.stream.read().decode('utf-8-sig'))
+        reader = list(csv.DictReader(csv_stream))
+        total_rows = len(reader)
+        print(f'Se encontraron {total_rows} filas en el CSV', flush=True)
         image_map = {}
         for img in image_files:
             if img and img.filename:
                 filename = secure_filename(img.filename)
                 base = os.path.splitext(filename)[0].strip().lower().replace(' ', '_')
                 image_map[base] = (img, filename)
-        current_app.logger.info('Iniciando carga masiva de juguetes')
+        print('Iniciando carga masiva de juguetes...', flush=True)
         created = 0
         errors = []
         for idx, row in enumerate(reader, start=1):
             data = {k.strip().lower(): v.strip() for k, v in row.items() if k}
             name = data.get('name')
             if not name:
-                current_app.logger.warning(f'Fila {idx} sin nombre, se omite')
+                msg = f'Fila {idx} sin nombre, se omite'
+                print(msg, flush=True)
                 continue
 
-            current_app.logger.info(f'Procesando fila {idx}: {name}')
+            print(f'[{idx}/{total_rows}] Procesando: {name}', flush=True)
 
             try:
                 try:
@@ -519,19 +523,19 @@ def bulk_upload_toys():
                         db.session.commit()
 
                 created += 1
-                current_app.logger.info(f'✔️ Fila {idx} procesada: {name}')
+                print(f'✔️ Fila {idx} procesada: {name}', flush=True)
             except Exception as e:
                 db.session.rollback()
                 error_msg = f'❌ Error en fila {idx} ({name}): {e}'
-                current_app.logger.error(error_msg)
+                print(error_msg, flush=True)
+
                 errors.append(error_msg)
 
         for err in errors:
             flash(err, 'error')
         flash(f'{created} juguetes cargados exitosamente. {len(errors)} errores.',
               'success' if not errors else 'warning')
-        current_app.logger.info(f'Carga masiva completada: {created} éxitos, {len(errors)} errores')
-
+        print(f'Carga masiva completada: {created} éxitos, {len(errors)} errores', flush=True)
         return redirect(url_for('admin.toys_page'))
 
     return render_template('bulk_upload_toys.html')

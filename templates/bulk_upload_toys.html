@@ -17,5 +17,45 @@
         <p>Los nombres de archivo deben coincidir con el nombre del juguete en el CSV.</p>
     </div>
     <button type="submit">Subir juguetes</button>
+    <div style="margin-top:1rem">
+        <progress id="upload-progress" value="0" max="100" style="display:none;width:100%"></progress>
+        <p id="progress-text"></p>
+    </div>
 </form>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const form = e.target;
+    const progress = document.getElementById('upload-progress');
+    const progressText = document.getElementById('progress-text');
+    const data = new FormData(form);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action || window.location.href);
+    xhr.upload.addEventListener('loadstart', function(){
+        progress.style.display = 'block';
+        progress.value = 0;
+        progressText.textContent = 'Subiendo...';
+    });
+    xhr.upload.addEventListener('progress', function(e){
+        if(e.lengthComputable){
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progress.value = percent;
+            progressText.textContent = `Subiendo ${percent}%`;
+        }
+    });
+    xhr.onload = function(){
+        if (xhr.status >= 200 && xhr.status < 300){
+            progressText.textContent = 'Procesando en el servidor...';
+            window.location.href = xhr.responseURL || '{{ url_for("admin.toys_page") }}';
+        } else {
+            progressText.textContent = 'Error del servidor';
+        }
+    };
+    xhr.onerror = function(){
+        progressText.textContent = 'Error de conexión';
+    };
+    xhr.send(data);
+});
+</script>
 {% endblock %}
