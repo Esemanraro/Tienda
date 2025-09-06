@@ -442,7 +442,6 @@ def add_toy():
 @admin_bp.route('/bulk_upload_toys', methods=['GET', 'POST'])
 @login_required
 def bulk_upload_toys():
-
     """Paso 1: cargar y validar el CSV de juguetes"""
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
@@ -491,6 +490,9 @@ def bulk_upload_toys_confirm():
 
     import re
 
+
+    print(f"Iniciando carga de imágenes: {len(toys)} juguetes, {len(request.files)} archivos, tamaño total {request.content_length} bytes", flush=True)
+
     created = 0
     errors = []
     for idx, data in enumerate(toys, start=1):
@@ -518,12 +520,15 @@ def bulk_upload_toys_confirm():
 
             img = request.files.get(f'image_{idx}')
             if img and img.filename:
+                print(f"   Recibida imagen para {name}: {img.filename} ({getattr(img, 'content_length', 'desconocido')} bytes)", flush=True)
                 filename = secure_filename(img.filename)
                 upload_folder = os.path.join(current_app.static_folder, 'images', 'toys')
                 os.makedirs(upload_folder, exist_ok=True)
                 img.save(os.path.join(upload_folder, filename))
+                print(f"   Guardada imagen en {upload_folder}/{filename}", flush=True)
                 toy.image_url = f'images/toys/{filename}'
-
+            else:
+                print(f"   Sin imagen para {name}", flush=True)
             db.session.add(toy)
             db.session.commit()
 
