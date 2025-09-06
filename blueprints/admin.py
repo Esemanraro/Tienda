@@ -426,7 +426,6 @@ def add_toy():
                         continue
                     seen.add(center)
                     db.session.add(ToyCenterAvailability(toy_id=new_toy.id, center=center))
-
             db.session.commit()
             flash('¡Juguete agregado exitosamente!', 'success')
             
@@ -443,6 +442,7 @@ def add_toy():
 @admin_bp.route('/bulk_upload_toys', methods=['GET', 'POST'])
 @login_required
 def bulk_upload_toys():
+
     """Paso 1: cargar y validar el CSV de juguetes"""
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
