@@ -15,7 +15,7 @@
             {% for item in cart_items %}
                 <div class="checkout-item-card">
                     <div class="item-image">
-                        <img src="{{ url_for('static', filename=item.toy.image_url) }}" alt="{{ item.toy.name }}">
+                        <img src="{{ url_for('static', filename=item.toy.image_url if item.toy.image_url else 'images/toys/default_toy.png') }}" alt="{{ item.toy.name }}">
                     </div>
                     <div class="item-details">
                         <h3>{{ item.toy.name }}</h3>

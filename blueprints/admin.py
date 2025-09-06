@@ -469,7 +469,6 @@ def bulk_upload_toys():
             flash(f'Error al procesar el CSV: {e}', 'error')
             print(f'❌ Error procesando CSV: {e}', flush=True)
             return redirect(url_for('admin.bulk_upload_toys'))
-
         print(f'Iniciando carga masiva desde CSV: {len(reader)} filas', flush=True)
 
         created = 0
@@ -500,7 +499,9 @@ def bulk_upload_toys():
                     stock=stock,
                     age_range=data.get('age range') or data.get('age_range'),
                     gender_category=data.get('gender category') or data.get('gender_category'),
-                    category=data.get('category')
+                    category=data.get('category'),
+                    image_url=None,
+                    updated_at=datetime.now()
                 )
 
                 db.session.add(toy)
@@ -612,7 +613,11 @@ def edit_toy(toy_id):
             'price': float(toy.price),
             'category': toy.category,
             'stock': toy.stock,
-            'image_url': url_for('static', filename=toy.image_url)
+            'image_url': (
+                url_for('static', filename=toy.image_url)
+                if toy.image_url
+                else url_for('static', filename='images/toys/default_toy.png')
+            )
         }
         return jsonify(toy_data)
 
@@ -775,7 +780,11 @@ def toy_edit_new(toy_id):
                 'price': float(toy.price),
                 'category': toy.category,
                 'stock': toy.stock,
-                'image_url': url_for('static', filename=toy.image_url)
+                'image_url': (
+                    url_for('static', filename=toy.image_url)
+                    if toy.image_url
+                    else url_for('static', filename='images/toys/default_toy.png')
+                )
             }
         })
     
