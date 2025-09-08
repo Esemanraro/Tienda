@@ -151,6 +151,22 @@ def create_app(config_class=None):
             response.headers[k] = v
         return response
 
+    # Enforce cambio de contraseña en primer inicio de sesión
+    @app.before_request
+    def _require_password_change():
+        try:
+            # Omitir archivos estáticos y rutas públicas
+            if (request.endpoint and 'static' in request.endpoint):
+                return
+            public_routes = {'auth.login', 'auth.register', 'auth.force_password_change'}
+            if request.endpoint in public_routes:
+                return
+            if current_user.is_authenticated and getattr(current_user, 'must_change_password', False):
+                return redirect(url_for('auth.force_password_change'))
+        except Exception:
+            # No bloquear si algo falla aquí
+            return
+
     # -------- Blueprints --------
     # Nota: import absoluto de paquetes hermanos; ejecutar siempre desde el root del proyecto
     from blueprints.auth import auth_bp
@@ -238,6 +254,17 @@ def create_app(config_class=None):
     # Crear tablas si no existen (desarrollo)
     with app.app_context():
         db.create_all()
+        # Asegurar columna para forzar cambio de contraseña en usuarios existente
+        try:
+            from sqlalchemy import inspect, text
+            insp = inspect(db.engine)
+            cols = [c['name'] for c in insp.get_columns('user')]
+            if 'must_change_password' not in cols:
+                with db.engine.begin() as conn:
+                    conn.execute(text("ALTER TABLE `user` ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT 0"))
+        except Exception:
+            # Ignorar si no aplica (primera creación o SQLite limitado)
+            pass
 
     # Debug: ver a qué DB apunta
     try:

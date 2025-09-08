@@ -123,6 +123,7 @@
                                                     {{ 'Desactivar' if user.is_active else 'Activar' }}
                                                 </button>
                                             </form>
+                                            <button type="button" class="action-button secondary" onclick="editBalance({{ user.id }}, '{{ '%.2f'|format(user.balance or 0.0) }}')">Editar Saldo</button>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -570,5 +571,103 @@
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 const todayStart = Math.floor(today.getTime() / 1000);
+
+// ---------- Agregar Usuario (Modal) ----------
+function openAddUserModal(){
+  document.getElementById('addUserModal').style.display='flex';
+}
+function closeAddUserModal(){
+  document.getElementById('addUserModal').style.display='none';
+}
+async function submitAddUser(){
+  const form = document.getElementById('addUserForm');
+  const formData = new FormData(form);
+  try{
+    const resp = await fetch(`{{ url_for('admin.add_user') }}`,{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest'},body:formData});
+    if(!resp.ok){
+      const data = await resp.json().catch(()=>({message:'Error'}));
+      alert(data.message || 'Error al agregar usuario');
+      return;
+    }
+    closeAddUserModal();
+    location.reload();
+  }catch(e){ alert('Error de red'); }
+}
+
+// ---------- Editar Saldo inline ----------
+function getCsrf(){ const m=document.querySelector('meta[name="csrf-token"]'); return m?m.getAttribute('content'):'' }
+async function editBalance(userId, currentFormatted){
+  const val = prompt('Nuevo saldo (A$):', (currentFormatted||'').replace(/[^0-9.,-]/g,'').replace(',','.'));
+  if(val===null) return;
+  const amount = parseFloat(val);
+  if(isNaN(amount) || amount<0){ alert('Cantidad inválida'); return; }
+  try{
+    const resp = await fetch(`/admin/users/${userId}/balance`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},
+      body: JSON.stringify({balance: amount})
+    });
+    const data = await resp.json();
+    if(data && data.success){ location.reload(); }
+    else{ alert((data&&data.message)||'Error al actualizar saldo'); }
+  }catch(e){ alert('Error de red'); }
+}
 </script>
+<!-- Floating action button -->
+<button type="button" onclick="openAddUserModal()" style="position:fixed;right:18px;bottom:18px;background:var(--primary-color);color:#fff;border:none;border-radius:50%;width:56px;height:56px;box-shadow:var(--box-shadow);font-size:28px;line-height:0;cursor:pointer;z-index:1000">+</button>
+
+<!-- Modal Agregar Usuario -->
+<div id="addUserModal" class="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem;z-index:1000">
+  <div class="modal-content" style="background:var(--card-bg);color:var(--text-color);width:100%;max-width:560px;border-radius:12px;box-shadow:var(--box-shadow);padding:1rem;max-height:90vh;overflow:auto;">
+    <h2 style="margin-top:0;color:var(--primary-color)">Agregar Usuario</h2>
+    <form id="addUserForm" onsubmit="event.preventDefault(); submitAddUser();" style="display:flex;flex-direction:column;gap:.8rem;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <label>Nombre de Usuario
+        <input class="text-input" type="text" name="username" required />
+      </label>
+      <label>Correo Electrónico
+        <input class="text-input" type="email" name="email" required />
+      </label>
+      <label>Centro/Sucursal
+        <select class="text-input" name="center" required>
+          <option value="aguadulce">Aguadulce</option>
+          <option value="anclas mall">Anclas Mall</option>
+          <option value="brisas del golf">Brisas del Golf</option>
+          <option value="calle 50">Calle 50</option>
+          <option value="costa del este">Costa del Este</option>
+          <option value="david">David</option>
+          <option value="chitre">Chitre</option>
+          <option value="santiago">Santiago</option>
+          <option value="condado del rey">Condado Del Rey</option>
+          <option value="centro autorizado arraijan">Centro Autorizado Arraijan</option>
+          <option value="escuela bet yacoov">Escuela Bet Yacoov</option>
+          <option value="escuela de la salle">Escuela De La Salle</option>
+        </select>
+      </label>
+      <label>Saldo Inicial (A$)
+        <input class="text-input" type="number" step="0.01" min="0" name="balance" value="0" />
+      </label>
+      <label>Contraseña Temporal
+        <input class="text-input" type="password" name="password" required minlength="6" />
+      </label>
+      <label>Confirmar Contraseña
+        <input class="text-input" type="password" name="confirm_password" required minlength="6" />
+      </label>
+      <label style="display:flex;align-items:center;gap:.5rem;">
+        <input type="checkbox" name="require_password_change" checked /> Requerir cambio de contraseña al primer ingreso
+      </label>
+      <label style="display:flex;align-items:center;gap:.5rem;">
+        <input type="checkbox" name="is_admin" /> Es Administrador
+      </label>
+      <label style="display:flex;align-items:center;gap:.5rem;">
+        <input type="checkbox" name="is_active" checked /> Está Activo
+      </label>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem;">
+        <button type="button" class="action-button" onclick="submitAddUser()">Guardar</button>
+        <button type="button" class="action-button danger" onclick="closeAddUserModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
+

@@ -131,3 +131,34 @@ def register():
 
     return render_template('register.html', form=form)
 
+
+@auth_bp.route('/force_password_change', methods=['GET', 'POST'])
+@login_required
+def force_password_change():
+    """Solicitar cambio de contraseña al primer inicio de sesión."""
+    if request.method == 'POST':
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        if not new_password or len(new_password) < 8:
+            flash('La nueva contraseña debe tener al menos 8 caracteres.', 'error')
+            return render_template('force_password_change.html')
+        if new_password != confirm_password:
+            flash('Las contraseñas no coinciden.', 'error')
+            return render_template('force_password_change.html')
+        try:
+            current_user.set_password(new_password)
+            # Desactivar la bandera de cambio obligatorio si existe
+            try:
+                current_user.must_change_password = False
+            except Exception:
+                pass
+            db.session.commit()
+            flash('Contraseña actualizada correctamente.', 'success')
+            return redirect(url_for('shop.index'))
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error al actualizar contraseña obligatoria: {e}")
+            flash('No se pudo actualizar la contraseña. Intenta de nuevo.', 'error')
+            return render_template('force_password_change.html')
+
+    return render_template('force_password_change.html')

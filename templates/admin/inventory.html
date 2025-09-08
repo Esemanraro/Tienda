@@ -57,7 +57,7 @@
                     {% endif %}
                 </div>
                 <div style="margin-top:.5rem; display:flex; gap:.5rem;">
-                    <a class="admin-btn" style="padding:.4rem .6rem;font-size:.85rem" href="{{ url_for('admin.edit_toy', toy_id=toy.id) }}">Editar</a>
+                    <button class="admin-btn" style="padding:.4rem .6rem;font-size:.85rem" onclick="showEditToyModal({{ toy.id }})">Editar</button>
                     <button class="admin-btn" style="padding:.4rem .6rem;font-size:.85rem" onclick="openCentersModal({{ toy.id }}, '{{ toy.name|e }}')">Editar Centros</button>
                 </div>
             </div>
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Modal Agregar Juguete -->
-    <div id="addToyModal" class="modal">
+    <div id="addToyModal" class="modal" style="display:none;">
         <div class="modal-content">
             <h2>Agregar Juguete</h2>
             <form id="addToyForm" enctype="multipart/form-data">
@@ -129,6 +129,36 @@
     </div>
 </div>
 
+<!-- Modal Editar Juguete -->
+<div id="editToyModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Editar Juguete</h2>
+        <form id="editToyForm">
+            <input type="hidden" id="editToyId" name="toy_id" />
+            <div class="form-group">
+                <label for="editToyName">Nombre</label>
+                <input type="text" id="editToyName" name="name" required />
+            </div>
+            <div class="form-group">
+                <label for="editToyDescription">Descripción</label>
+                <textarea id="editToyDescription" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="editToyPrice">Precio (ALOHA Dólares)</label>
+                <input type="number" step="0.01" id="editToyPrice" name="price" required />
+            </div>
+            <div class="form-group">
+                <label for="editToyStock">Stock</label>
+                <input type="number" min="0" id="editToyStock" name="stock" required />
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('editToyModal')">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Modal Editar Centros -->
 <div id="editCentersModal" class="modal" style="display:none;">
     <div class="modal-content">
@@ -159,6 +189,49 @@
 </div>
 
 <style>
+/* Modales responsivos */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1000;
+}
+.modal-content {
+    background: var(--card-bg);
+    color: var(--text-color);
+    width: 100%;
+    max-width: 520px;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    padding: 1rem 1.2rem;
+    max-height: 90vh;
+    overflow: auto;
+}
+.form-actions { display:flex; gap:.5rem; justify-content:flex-end; }
+.btn-primary {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-secondary {
+    background: #e0e0e0;
+    color: #222;
+    border: none;
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+@media (max-width: 480px) {
+    .modal-content { max-width: 100%; padding: 1rem; }
+}
+
 .admin-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -294,11 +367,13 @@
 
 <script>
 function showAddToyModal() {
-    document.getElementById('addToyModal').style.display = 'block';
+    const m = document.getElementById('addToyModal');
+    if (m) m.style.display = 'flex';
 }
 
 function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
+    const m = document.getElementById(modalId);
+    if (m) m.style.display = 'none';
 }
 
 // Manejo del formulario de agregar juguete
@@ -323,6 +398,55 @@ document.getElementById('addToyForm').onsubmit = async function(e) {
         alert('Error al guardar el juguete');
     }
 };
+
+// Modal Editar Juguete
+async function showEditToyModal(toyId) {
+    try {
+        const resp = await fetch(`/admin/edit_toy/${toyId}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        if (!resp.ok) throw new Error('No se pudo cargar el juguete');
+        const toy = await resp.json();
+        // Poblar campos
+        document.getElementById('editToyId').value = toy.id;
+        document.getElementById('editToyName').value = toy.name || '';
+        document.getElementById('editToyDescription').value = toy.description || '';
+        document.getElementById('editToyPrice').value = toy.price != null ? toy.price : '';
+        document.getElementById('editToyStock').value = toy.stock != null ? toy.stock : '';
+        document.getElementById('editToyModal').style.display = 'flex';
+    } catch (e) {
+        alert(e.message || 'Error cargando juguete');
+    }
+}
+
+document.getElementById('editToyForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const toyId = document.getElementById('editToyId').value;
+    const form = new FormData(this);
+    form.set('csrf_token', getCsrfToken());
+    try {
+        const resp = await fetch(`/admin/edit_toy/${toyId}`, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: form
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.success === false) throw new Error((data && data.message) || 'Error al actualizar');
+        // Actualizar tarjeta en UI
+        const card = document.getElementById(`toy-${toyId}`);
+        if (card) {
+            const nameEl = card.querySelector('h3');
+            const descEl = card.querySelector('.toy-description');
+            const priceEl = card.querySelector('.toy-price');
+            const stockEl = card.querySelector(`#stock-${toyId}`);
+            if (nameEl) nameEl.textContent = form.get('name');
+            if (descEl) descEl.textContent = form.get('description');
+            if (priceEl) priceEl.textContent = `${parseFloat(form.get('price')||0).toFixed(2)} ALOHA Dolares`;
+            if (stockEl) stockEl.textContent = form.get('stock');
+        }
+        closeModal('editToyModal');
+    } catch (err) {
+        alert(err.message || 'Error al guardar cambios');
+    }
+}
 
 // Busqueda y filtrado
 document.getElementById('toySearch').oninput = function(e) {
@@ -414,14 +538,18 @@ function openCentersModal(toyId, toyName) {
     .then(data => {
         if (data.success && Array.isArray(data.centers)) {
             const set = new Set(data.centers.map(c => (c || '').toLowerCase()));
-            document.querySelectorAll('#editCentersForm input[name="centers"]').forEach(cb => {
-                if (set.has(cb.value.toLowerCase())) cb.checked = true;
-            });
+            const boxes = document.querySelectorAll('#editCentersForm input[name="centers"]');
+            if (set.size === 0) {
+                // Interpretar como "todos los centros": marcar todos
+                boxes.forEach(cb => cb.checked = true);
+            } else {
+                boxes.forEach(cb => { cb.checked = set.has(cb.value.toLowerCase()); });
+            }
         }
-        document.getElementById('editCentersModal').style.display = 'block';
+        document.getElementById('editCentersModal').style.display = 'flex';
     })
     .catch(() => {
-        document.getElementById('editCentersModal').style.display = 'block';
+        document.getElementById('editCentersModal').style.display = 'flex';
     });
 }
 

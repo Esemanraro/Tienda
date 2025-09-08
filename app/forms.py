@@ -1,16 +1,16 @@
-﻿from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, FloatField, IntegerField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, NumberRange, Length, Email, EqualTo, Optional, ValidationError # Added Email, EqualTo, Optional, ValidationError
 from flask_wtf.file import FileField, FileAllowed
 
 class ToyForm(FlaskForm):
     name = StringField('Nombre del Juguete', validators=[DataRequired(), Length(min=3, max=100)])
-    description = TextAreaField('DescripciÃ³n')
+    description = TextAreaField('Descripción')
     price = FloatField('Precio (A$)', validators=[DataRequired(), NumberRange(min=0.01)])
-    # CategorÃ­as pregrabadas (incluye las categorÃ­as existentes en la base de datos)
+    # Categorías pregrabadas (incluye las categorías existentes en la base de datos)
     CATEGORIES = [
-        ('NiÃ±a', 'NiÃ±a'),
-        ('NiÃ±o', 'NiÃ±o'),
+        ('Niña', 'Niña'),
+        ('Niño', 'Niño'),
         ('Mixto', 'Mixto'),
         ('Figuras', 'Figuras'),
         ('Peluches', 'Peluches'),
@@ -19,20 +19,20 @@ class ToyForm(FlaskForm):
         ('Juego', 'Juego'),
         ('Accesorio', 'Accesorio'),
         ('Bloques', 'Bloques'),
-        ('VehÃ­culos', 'VehÃ­culos'),
+        ('Vehículos', 'Vehículos'),
         ('Outdoor', 'Outdoor'),
         ('Electronicos', 'Electronicos'),
         ('Educativo', 'Educativo'),
-        ('MuÃ±ecas', 'MuÃ±ecas'),
+        ('Muñecas', 'Muñecas'),
         ('Otro', 'Otro'),
-        ('0-3', '0-3 aÃ±os'),
-        ('4-6', '4-6 aÃ±os'),
-        ('7-9', '7-9 aÃ±os'),
-        ('10+', '10+ aÃ±os')
+        ('0-3', '0-3 años'),
+        ('4-6', '4-6 años'),
+        ('7-9', '7-9 años'),
+        ('10+', '10+ años')
     ]
     # Allow categories not present in the predefined list and make optional for edits
     category = SelectField(
-        'CategorÃ­a',
+        'Categoría',
         choices=CATEGORIES,
         validators=[Optional()],
         validate_choice=False
@@ -84,14 +84,14 @@ class ToyForm(FlaskForm):
         validate_choice=False
     )
     stock = IntegerField('Cantidad en Stock', validators=[Optional(), NumberRange(min=0)])
-    image = FileField('Imagen del Juguete', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Â¡Solo imÃ¡genes!')])
+    image = FileField('Imagen del Juguete', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], '¡Solo imágenes!')])
     submit = SubmitField('Guardar Juguete')
 
 class AddUserForm(FlaskForm):
     username = StringField('Nombre de Usuario', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Correo ElectrÃ³nico', validators=[DataRequired(), Email(), Length(max=120)])
-    password = PasswordField('ContraseÃ±a', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('Confirmar ContraseÃ±a', validators=[DataRequired(), EqualTo('password', message='Las contraseÃ±as deben coincidir.')])
+    email = StringField('Correo Electrónico', validators=[DataRequired(), Email(), Length(max=120)])
+    password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirmar Contraseña', validators=[DataRequired(), EqualTo('password', message='Las contraseñas deben coincidir.')])
     # Definir opciones de centros (ALOHA locations)
     CENTERS = [
         ('aguadulce', 'Aguadulce'),
@@ -108,18 +108,21 @@ class AddUserForm(FlaskForm):
         ('escuela de la salle', 'Escuela De La Salle'),
     ]
     center = SelectField('Centro/Sucursal', choices=CENTERS, validators=[DataRequired()])
-    is_admin = BooleanField('Â¿Es Administrador?', default=False)
-    is_active = BooleanField('Â¿EstÃ¡ Activo?', default=True)
+    balance = FloatField('Saldo Inicial (A$)', validators=[Optional(), NumberRange(min=0)])
+    require_password_change = BooleanField('Requerir cambio de contraseA�a al primer ingreso', default=True)
+    is_admin = BooleanField('¿Es Administrador?', default=False)
+    is_active = BooleanField('¿Está Activo?', default=True)
     submit = SubmitField('Agregar Usuario')
 
 class EditUserForm(FlaskForm):
     username = StringField('Nombre de Usuario', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Correo ElectrÃ³nico', validators=[DataRequired(), Email(), Length(max=120)])
-    new_password = PasswordField('Nueva ContraseÃ±a (dejar en blanco para no cambiar)', validators=[Optional(), Length(min=6)])
-    confirm_new_password = PasswordField('Confirmar Nueva ContraseÃ±a', validators=[EqualTo('new_password', message='Las nuevas contraseÃ±as deben coincidir.')])
+    email = StringField('Correo Electrónico', validators=[DataRequired(), Email(), Length(max=120)])
+    new_password = PasswordField('Nueva Contraseña (dejar en blanco para no cambiar)', validators=[Optional(), Length(min=6)])
+    confirm_new_password = PasswordField('Confirmar Nueva Contraseña', validators=[EqualTo('new_password', message='Las nuevas contraseñas deben coincidir.')])
     center = SelectField('Centro/Sucursal', choices=AddUserForm.CENTERS, validators=[DataRequired()])
-    is_admin = BooleanField('Â¿Es Administrador?')
-    is_active = BooleanField('Â¿EstÃ¡ Activo?')
+    balance = FloatField('Saldo (A$)', validators=[Optional(), NumberRange(min=0)])
+    is_admin = BooleanField('¿Es Administrador?')
+    is_active = BooleanField('¿Está Activo?')
     submit = SubmitField('Guardar Cambios')
 
     def __init__(self, original_username=None, original_email=None, *args, **kwargs):
@@ -130,8 +133,9 @@ class EditUserForm(FlaskForm):
     # Custom validation for password confirmation only if new_password is provided
     def validate_confirm_new_password(self, field):
         if self.new_password.data and not field.data:
-            raise ValidationError('Por favor, confirma la nueva contraseÃ±a.')
+            raise ValidationError('Por favor, confirma la nueva contraseña.')
         if self.new_password.data and field.data != self.new_password.data:
             # This is already handled by EqualTo, but an explicit check can be clearer or allow custom messages
             pass # EqualTo validator handles this
+
 

@@ -366,6 +366,30 @@ def toggle_user(user_id):
     return redirect(url_for('admin.all_users'))
 
 
+@admin_bp.route('/users/<int:user_id>/balance', methods=['POST'])
+@login_required
+def update_user_balance(user_id):
+    """Actualizar saldo (ALOHA Dollars) de un usuario desde el panel admin."""
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Acceso denegado'}), 403
+
+    user = User.query.get_or_404(user_id)
+    try:
+        if request.is_json:
+            data = request.get_json() or {}
+            amount = float(data.get('balance'))
+        else:
+            amount = float(request.form.get('balance'))
+        if amount < 0:
+            return jsonify({'success': False, 'message': 'El saldo no puede ser negativo'}), 400
+        user.balance = amount
+        db.session.commit()
+        return jsonify({'success': True, 'balance': user.balance})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 400
+
+
 @admin_bp.route('/toys/add', methods=['POST'])
 @admin_bp.route('/add_toy', methods=['GET', 'POST'])
 @login_required
@@ -1014,8 +1038,10 @@ def add_user():
             error = True
         
         if error:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'errors': form.errors}), 400
             flash('Por favor corrige los errores en el formulario.', 'warning')
-            return render_template('admin_add_user.html', title='Agregar Usuario', form=form)
+            return redirect(url_for('admin.all_users'))
 
         new_user = User(
             username=form.username.data,
@@ -1024,19 +1050,32 @@ def add_user():
             is_admin=form.is_admin.data,
             is_active=form.is_active.data
         )
+        new_user.balance = (form.balance.data or 0.0)
+        # Marcar que debe cambiar contraseña si el admin lo requiere (por defecto True)
+        try:
+            new_user.must_change_password = bool(getattr(form, 'require_password_change', None) and form.require_password_change.data)
+        except Exception:
+            new_user.must_change_password = True
         new_user.set_password(form.password.data)
         
         try:
             db.session.add(new_user)
             db.session.commit()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'user_id': new_user.id})
             flash(f'Usuario {new_user.username} agregado exitosamente.', 'success')
             return redirect(url_for('admin.all_users'))
         except Exception as e:
             db.session.rollback()
-            flash(f'Error al agregar usuario: {str(e)}', 'danger')
             current_app.logger.error(f"Error adding user {form.username.data}: {str(e)}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': str(e)}), 400
+            flash(f'Error al agregar usuario: {str(e)}', 'danger')
+            return redirect(url_for('admin.all_users'))
 
-    return render_template('admin_add_user.html', title='Agregar Usuario', form=form)
+    # GET: redirigir a la lista de usuarios (el formulario se manejará via modal)
+    if request.method == 'GET':
+        return redirect(url_for('admin.all_users'))
 
 @admin_bp.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -1067,6 +1106,8 @@ def edit_user(user_id):
         user_to_edit.username = form.username.data
         user_to_edit.email = form.email.data
         user_to_edit.center = form.center.data
+        if form.balance.data is not None:
+            user_to_edit.balance = form.balance.data
         user_to_edit.is_admin = form.is_admin.data
         user_to_edit.is_active = form.is_active.data
         
