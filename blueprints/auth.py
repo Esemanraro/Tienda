@@ -35,11 +35,13 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
 
+
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=4, max=80)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     center = StringField('Center', validators=[DataRequired()])
+
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -47,19 +49,19 @@ def login():
     if current_user.is_authenticated:
         print("Usuario ya autenticado, redirigiendo a index")
         return redirect(url_for('shop.index'))
-    
+
     form = LoginForm()
     if form.validate_on_submit():
         print(f"Intentando login con usuario: {form.username.data}")
         user = User.query.filter_by(username=form.username.data).first()
-        
+
         if user:
             print(f"Usuario encontrado: {user.username}")
             if user.check_password(form.password.data):
                 print("Contraseña correcta, iniciando sesión")
                 user.last_login = datetime.now()
                 db.session.commit()
-                
+
                 if login_user(user, remember=True):
                     print("Login exitoso")
                     flash('¡Bienvenido de nuevo!', 'success')
@@ -73,8 +75,9 @@ def login():
         else:
             print("Usuario no encontrado")
             flash('Usuario no encontrado', 'error')
-    
+
     return render_template('login.html', form=form)
+
 
 @auth_bp.route('/logout')
 @login_required
@@ -83,18 +86,27 @@ def logout():
     logout_user()
     return redirect(url_for('shop.index'))
 
+
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     """Página de registro de nuevos usuarios"""
     if current_user.is_authenticated:
         return redirect(url_for('shop.index'))
-    
+
     form = RegisterForm()
     if form.validate_on_submit():
-        if User.query.filter_by(username=form.username.data).first():
-            flash('El nombre de usuario ya existe')
-            return redirect(url_for('auth.register'))
-        
+        # Validar unicidad de username y email para evitar errores 500 por constraints
+        existing_username = User.query.filter_by(username=form.username.data).first()
+        existing_email = User.query.filter_by(email=form.email.data).first()
+
+        if existing_username:
+            flash('El nombre de usuario ya existe', 'warning')
+            return render_template('register.html', form=form)
+
+        if existing_email:
+            flash('El correo electrónico ya está en uso', 'warning')
+            return render_template('register.html', form=form)
+
         user = User(
             username=form.username.data,
             center=form.center.data,
@@ -104,10 +116,18 @@ def register():
             last_login=datetime.now()
         )
         user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        
-        flash('¡Registro exitoso! Ahora puedes iniciar sesión')
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error al registrar usuario: {e}")
+            flash('No se pudo completar el registro. Intenta de nuevo o contacta al administrador.', 'danger')
+            return render_template('register.html', form=form)
+
+        flash('¡Registro exitoso! Ahora puedes iniciar sesión', 'success')
         return redirect(url_for('auth.login'))
-    
+
     return render_template('register.html', form=form)
+
