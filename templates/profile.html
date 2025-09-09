@@ -49,7 +49,7 @@
                 <button onclick="changeTheme('cherry-blossom')" class="theme-btn cherry-blossom">Cherry Blossom 🌸</button>
                 <button onclick="changeTheme('underwater')" class="theme-btn underwater">Bajo el Agua 🌊</button>
                 <button onclick="changeTheme('halloween')" class="theme-btn halloween">Halloween 🎃</button>
-                <button onclick="changeTheme('patriotic')" class="theme-btn patriotic">Patriotico 🇲🇽</button>
+                <button onclick="changeTheme('patriotic')" class="theme-btn patriotic">Patriótico 🇵🇦</button>
             </div>
         </div>
 
@@ -262,7 +262,7 @@
 .theme-btn.cherry-blossom { background: #ffd6e0; color: #ff4d6d; }
 .theme-btn.underwater { background: #e0f7fa; color: #006064; }
 .theme-btn.halloween { background: #ff9800; color: #000000; }
-.theme-btn.patriotic { background: linear-gradient(45deg, #006847, #ffffff, #ce1126); color: #000000; }
+.theme-btn.patriotic { background: linear-gradient(45deg, #003893, #ffffff, #D21034); color: #000000; }
 
 .add-balance-button {
     display: block;
@@ -484,63 +484,22 @@ function closeModal(modalId) {
 }
 
 function changeTheme(themeName) {
-    const themes = {
-        'aloha-light': {
-            '--primary-color': '#4CAF50',
-            '--secondary-color': '#45a049',
-            '--text-color': '#333',
-            '--background-color': '#fff',
-            '--card-bg': '#f9f9f9'
-        },
-        'aloha-dark': {
-            '--primary-color': '#66bb6a',
-            '--secondary-color': '#57a85c',
-            '--text-color': '#fff',
-            '--background-color': '#121212',
-            '--card-bg': '#1e1e1e'
-        },
-        'cherry-blossom': {
-            '--primary-color': '#ff4d6d',
-            '--secondary-color': '#ff758c',
-            '--text-color': '#2c1810',
-            '--background-color': '#fff0f3',
-            '--card-bg': '#ffd6e0'
-        },
-        'underwater': {
-            '--primary-color': '#006064',
-            '--secondary-color': '#00838f',
-            '--text-color': '#004d40',
-            '--background-color': '#e0f7fa',
-            '--card-bg': '#b2ebf2'
-        },
-        'halloween': {
-            '--primary-color': '#ff9800',
-            '--secondary-color': '#f57c00',
-            '--text-color': '#ffffff',
-            '--background-color': '#200f21',
-            '--card-bg': '#382039'
-        },
-        'patriotic': {
-            '--primary-color': '#006847',
-            '--secondary-color': '#ce1126',
-            '--text-color': '#000000',
-            '--background-color': '#ffffff',
-            '--card-bg': '#f8f9fa'
-        }
-    };
-
-    const root = document.documentElement;
-    const theme = themes[themeName];
-    Object.entries(theme).forEach(([property, value]) => {
-        root.style.setProperty(property, value);
-    });
-    localStorage.setItem('theme', themeName);
-}
-
-// Cargar tema guardado
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    changeTheme(savedTheme);
+    try {
+        // Update attribute for site-wide theming (via CSS in themes.css)
+        document.documentElement.setAttribute('data-theme', themeName);
+        localStorage.setItem('theme', themeName);
+        // Update meta theme-color
+        const cs = getComputedStyle(document.documentElement);
+        const primary = cs.getPropertyValue('--primary-color').trim();
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta && primary) meta.setAttribute('content', primary);
+        // Persist on server for account
+        fetch('/user/update_theme', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content },
+            body: JSON.stringify({ theme: themeName })
+        }).catch(()=>{});
+    } catch(e) {}
 }
 </script>
 {% endblock %}

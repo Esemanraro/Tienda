@@ -979,6 +979,43 @@ def all_orders():
                          status_filter=status_filter,
                          total_orders=total_orders)
 
+@admin_bp.route('/orders/<int:order_id>/receipt')
+@login_required
+def download_receipt(order_id):
+    """Descargar recibo simple de la orden como archivo de texto.
+    Evita errores 500 por enlaces en la plantilla y permite exportar detalles básicos.
+    """
+    if not current_user.is_admin:
+        return jsonify({'error': 'Acceso denegado'}), 403
+
+    order = Order.query.get_or_404(order_id)
+    # Construir un recibo simple
+    lines = [
+        f"Tiendita ALOHA - Recibo de Orden #{order.id}",
+        f"Fecha: {order.order_date.strftime('%Y-%m-%d %H:%M:%S') if order.order_date else ''}",
+        f"Usuario: {order.user.username if order.user else 'N/A'}",
+        f"Email: {order.user.email if order.user else 'N/A'}",
+        f"Centro: {order.user.center if order.user else 'N/A'}",
+        "",
+        "Items:",
+    ]
+    total_calc = 0.0
+    for it in order.items:
+        subtotal = (it.price or 0.0) * (it.quantity or 0)
+        total_calc += subtotal
+        toy_name = it.toy.name if getattr(it, 'toy', None) else f"Toy ID {it.toy_id}"
+        lines.append(f" - {toy_name} x{it.quantity} = A$ {subtotal:.2f}")
+    lines.append("")
+    lines.append(f"Total (registro): A$ {float(order.total_price or 0.0):.2f}")
+    lines.append(f"Total (calculado): A$ {total_calc:.2f}")
+
+    from flask import Response
+    content = "\n".join(lines)
+    headers = {
+        'Content-Disposition': f'attachment; filename=receipt-{order.id}.txt'
+    }
+    return Response(content, mimetype='text/plain', headers=headers)
+
 @admin_bp.route('/inventory/send-alerts', methods=['POST'])
 @login_required
 def send_inventory_alerts():

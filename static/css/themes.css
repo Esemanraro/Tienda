@@ -52,13 +52,13 @@
     --primary-color-rgb: 255, 152, 0;
 }
 
-/* Tema Patriotico */
+/* Tema Patriótico (Panamá: azul, blanco y rojo) */
 [data-theme='patriotic'] {
-    --primary-color: #006847;
-    --secondary-color: #ce1126;
-    --text-color: #000000;
+    --primary-color: #003893;     /* Azul bandera Panamá */
+    --secondary-color: #D21034;   /* Rojo bandera Panamá */
+    --text-color: #0b0b0b;
     --background-color: #ffffff;
-    --card-bg: #f8f9fa;
-    --box-shadow: 0 2px 5px rgba(0,104,71,0.2);
-    --primary-color-rgb: 0, 104, 71;
+    --card-bg: #f3f6ff;           /* leve tinte azulado */
+    --box-shadow: 0 2px 5px rgba(0,56,147,0.2);
+    --primary-color-rgb: 0, 56, 147;
 }

@@ -15,6 +15,8 @@ class User(UserMixin, db.Model):
     # Force password reset on first login or when set by admin
     must_change_password = db.Column(db.Boolean, default=False)
     balance = db.Column(db.Float, default=0.0)
+    # User selected UI theme (site-wide), e.g., 'aloha-light', 'aloha-dark', 'patriotic'
+    theme = db.Column(db.String(32), nullable=True, index=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     last_login = db.Column(db.DateTime)
     center = db.Column(db.String(64), index=True)

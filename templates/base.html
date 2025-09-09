@@ -1,18 +1,38 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" {% if current_user.is_authenticated and current_user.theme %}data-theme="{{ current_user.theme }}"{% endif %}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>{% block title %}{% endblock %} | Tiendita ALOHA</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/ALOHALogo12.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#4CAF50">
+    <meta name="theme-color" content="#4CAF50" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Tiendita ALOHA">
+    <script>
+    (function() {
+        // Set data-theme on <html> using user preference or localStorage
+        var userTheme = "{% if current_user.is_authenticated and current_user.theme %}{{ current_user.theme }}{% endif %}".trim();
+        try {
+            var storageTheme = localStorage.getItem('theme') || '';
+            var theme = userTheme || storageTheme || 'aloha-light';
+            document.documentElement.setAttribute('data-theme', theme);
+            if (!userTheme && storageTheme !== theme) {
+                localStorage.setItem('theme', theme);
+            }
+            // Update meta theme-color to match --primary-color
+            var cs = getComputedStyle(document.documentElement);
+            var primary = cs.getPropertyValue('--primary-color').trim();
+            var meta = document.getElementById('meta-theme-color');
+            if (meta && primary) meta.setAttribute('content', primary);
+        } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
     <!-- Header optimizado -->
@@ -136,54 +156,30 @@
     <!-- Script de depuracion simplificado -->
     <script>
         console.log('Script de depuracion cargado');
-        console.log('cart_count:', {{ cart_count|tojson|safe }});
-        
-        // Funcion para actualizar el badge del carrito
-        function updateCartBadge(count) {
-            console.log('Actualizando badge a:', count);
-            // Actualizar badge desktop
-            const desktopBadge = document.querySelector('.cart-badge');
-            const desktopLink = document.querySelector('.cart-link');
-            
-            if (desktopLink) {
-                if (count > 0) {
-                    if (desktopBadge) {
-                        desktopBadge.textContent = count;
-                    } else {
-                        const badge = document.createElement('span');
-                        badge.className = 'cart-badge';
-                        badge.textContent = count;
-                        desktopLink.appendChild(badge);
-                    }
-                } else if (desktopBadge) {
-                    desktopBadge.remove();
+        console.log('cart_count:', {{ cart_count|tojson|safe }});\n        });\n        // Replace house symbol with image icon in desktop & mobile nav
+        document.addEventListener('DOMContentLoaded', function(){
+            try {
+                var homeLink = document.querySelector('.desktop-nav ul > li:first-child a');
+                if (homeLink) {
+                    var img = document.createElement('img');
+                    img.src = "{{ url_for('static', filename='images/logohome.png') }}";
+                    img.alt = 'Inicio';
+                    img.className = 'nav-icon';
+                    // Rebuild contents: icon + text
+                    homeLink.innerHTML = '';
+                    homeLink.appendChild(img);
+                    homeLink.appendChild(document.createTextNode(' Inicio'));
                 }
-            }
-            
-            // Actualizar badge movil
-            const mobileBadge = document.querySelector('.cart-badge-mobile');
-            const mobileLink = document.querySelector('.cart-link-mobile');
-            
-            if (mobileLink) {
-                if (count > 0) {
-                    if (mobileBadge) {
-                        mobileBadge.textContent = count;
-                    } else {
-                        const badge = document.createElement('span');
-                        badge.className = 'cart-badge-mobile';
-                        badge.textContent = count;
-                        mobileLink.appendChild(badge);
-                    }
-                } else if (mobileBadge) {
-                    mobileBadge.remove();
+                var mobileHome = document.querySelector('.mobile-nav a[aria-label="Inicio"]');
+                if (mobileHome) {
+                    mobileHome.innerHTML = '';
+                    var img2 = document.createElement('img');
+                    img2.src = "{{ url_for('static', filename='images/logohome.png') }}";
+                    img2.alt = 'Inicio';
+                    img2.className = 'nav-icon';
+                    mobileHome.appendChild(img2);
                 }
-            }
-        }
-        
-        // Actualizar el badge al cargar la pagina
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM completamente cargado');
-            updateCartBadge({{ cart_count|tojson|safe }});
+            } catch (e) {}
         });
     </script>
     
@@ -369,3 +365,4 @@
     }
 }
 </style>
+

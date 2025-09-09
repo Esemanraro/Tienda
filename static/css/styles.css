@@ -47,6 +47,24 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Small icon used in nav links */
+.nav-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+.desktop-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.mobile-nav .nav-icon {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
 /* Header y navegacion */
 .site-header {
     background: rgba(255, 255, 255, 0.95);

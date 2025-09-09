@@ -262,6 +262,9 @@ def create_app(config_class=None):
             if 'must_change_password' not in cols:
                 with db.engine.begin() as conn:
                     conn.execute(text("ALTER TABLE `user` ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT 0"))
+            if 'theme' not in cols:
+                with db.engine.begin() as conn:
+                    conn.execute(text("ALTER TABLE `user` ADD COLUMN theme VARCHAR(32)"))
         except Exception:
             # Ignorar si no aplica (primera creación o SQLite limitado)
             pass

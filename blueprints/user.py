@@ -9,7 +9,7 @@ from datetime import datetime
 from sqlalchemy import desc
 
 # Importaciones absolutas
-from app.models import Toy, Order, OrderItem
+from app.models import Toy, Order, OrderItem, User
 from app.extensions import db
 from app.filters import format_currency
 
@@ -100,6 +100,25 @@ def update_center():
         return jsonify({'success': True})
     
     return jsonify({'success': False})
+
+@user_bp.route('/update_theme', methods=['POST'])
+@login_required
+def update_theme():
+    """Guardar preferencia de tema del usuario actual."""
+    try:
+        data = request.get_json() or {}
+        theme = (data.get('theme') or '').strip()
+        allowed = {
+            'aloha-light', 'aloha-dark', 'cherry-blossom', 'underwater', 'halloween', 'patriotic'
+        }
+        if theme not in allowed:
+            return jsonify({'success': False, 'message': 'Tema inválido'}), 400
+        current_user.theme = theme
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 400
 
 # Helper function para los templates
 def get_toy(toy_id):

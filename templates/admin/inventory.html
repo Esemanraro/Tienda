@@ -148,6 +148,15 @@
                 <input type="number" step="0.01" id="editToyPrice" name="price" required />
             </div>
             <div class="form-group">
+                <label for="editToyCategory">Categoría</label>
+                <select id="editToyCategory" name="category">
+                    <option value="">(Sin categoría)</option>
+                    {% for value, label in toy_form.category.choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="editToyStock">Stock</label>
                 <input type="number" min="0" id="editToyStock" name="stock" required />
             </div>
@@ -410,6 +419,8 @@ async function showEditToyModal(toyId) {
         document.getElementById('editToyName').value = toy.name || '';
         document.getElementById('editToyDescription').value = toy.description || '';
         document.getElementById('editToyPrice').value = toy.price != null ? toy.price : '';
+        const sel = document.getElementById('editToyCategory');
+        if (sel) sel.value = (toy.category || '');
         document.getElementById('editToyStock').value = toy.stock != null ? toy.stock : '';
         document.getElementById('editToyModal').style.display = 'flex';
     } catch (e) {
@@ -441,6 +452,8 @@ document.getElementById('editToyForm').onsubmit = async function(e) {
             if (descEl) descEl.textContent = form.get('description');
             if (priceEl) priceEl.textContent = `${parseFloat(form.get('price')||0).toFixed(2)} ALOHA Dolares`;
             if (stockEl) stockEl.textContent = form.get('stock');
+            const catEl = card.querySelector('.toy-category');
+            if (catEl) catEl.textContent = form.get('category') || '';
         }
         closeModal('editToyModal');
     } catch (err) {
