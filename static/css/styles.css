@@ -667,7 +667,7 @@ body {
     height: 24px !important;
     max-width: 24px !important;
     max-height: 24px !important;
-    display: block;
+    display: block; /* centers nicely inside the 48x48 circle */
   }
 }
 
