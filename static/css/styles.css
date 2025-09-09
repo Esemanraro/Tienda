@@ -9,18 +9,18 @@
     --text-light: #607D8B;
     --card-bg: white;
     --border-color: #e0e0e0;
-    
+
     /* Estados */
     --success-color: #388E3C;
     --warning-color: #F57C00;
     --error-color: #D32F2F;
     --info-color: #0288D1;
-    
+
     /* Sombras */
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
     --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-    
+
     /* Transiciones */
     --transition-fast: all 0.15s ease;
     --transition-normal: all 0.3s ease;
@@ -47,25 +47,80 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Small icon used in nav links */
+/* ============================
+   NAV ICONS (clean + unified)
+   ============================ */
+
+/* Base icon size everywhere (no em sizing) */
 .nav-icon {
     width: 16px;
     height: 16px;
     object-fit: contain;
     vertical-align: middle;
+    display: inline-block;
+    max-width: none; /* avoid global img {max-width:100%} stretching */
 }
+
+/* Desktop alignment for links with icons */
 .desktop-nav a {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-}
-.mobile-nav .nav-icon {
-    width: 18px;
-    height: 18px;
-    margin: 0;
 }
 
-/* Header y navegacion */
+/* Desktop icon spacing */
+.desktop-nav .nav-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+}
+
+/* Mobile nav: button look/feel */
+.mobile-nav a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.5rem;   /* text size; no longer affects icon */
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+/* Non-Inicio icons in mobile nav (nice size for 48x48 buttons) */
+.mobile-nav a .nav-icon:not(.nav-icon-inicio) {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
+/* Inicio-only default (desktop) */
+.nav-icon-inicio {
+    width: 18px;
+    height: 18px;
+}
+
+/* Mobile: only Inicio a bit bigger and capped */
+@media (max-width: 768px) {
+    .mobile-nav a .nav-icon {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+    }
+    .mobile-nav a .nav-icon-inicio {
+        width: 24px !important;
+        height: 24px !important;
+        max-width: 24px;
+        max-height: 24px;
+    }
+}
+
+/* ============================
+   Header y navegacion
+   ============================ */
+
 .site-header {
     background: rgba(255, 255, 255, 0.95);
     padding: 0.8rem 2rem;
@@ -133,7 +188,10 @@ body {
     color: var(--primary-color);
 }
 
-/* Grid de juguetes */
+/* ============================
+   Grid de juguetes
+   ============================ */
+
 .toys-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -204,7 +262,10 @@ body {
     margin: 0.5rem 0;
 }
 
-/* Botones */
+/* ============================
+   Botones
+   ============================ */
+
 .add-to-cart {
     width: 100%;
     padding: 0.5rem;
@@ -248,7 +309,10 @@ body {
     transform: translateY(-2px);
 }
 
-/* Navegacion movil actualizada */
+/* ============================
+   Navegacion movil
+   ============================ */
+
 .mobile-nav {
     display: none;
     position: fixed;
@@ -270,20 +334,6 @@ body {
     padding: 0;
 }
 
-.mobile-nav a {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--text-color);
-    font-size: 1.5rem;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    transition: var(--transition);
-}
-
 /* Contador del carrito */
 .cart-counter {
     position: absolute;
@@ -301,7 +351,10 @@ body {
     animation: bounce 0.3s ease;
 }
 
-/* Alertas actualizadas */
+/* ============================
+   Alertas
+   ============================ */
+
 .flash-messages {
     position: fixed;
     bottom: 80px;
@@ -326,24 +379,20 @@ body {
     animation: slideUp 0.3s ease;
 }
 
-/* Animaciones */
 @keyframes bounce {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.2); }
 }
 
 @keyframes slideUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
 }
 
-/* Botones de cantidad en el carrito */
+/* ============================
+   Carrito: cantidad
+   ============================ */
+
 .quantity-controls {
     display: flex;
     align-items: center;
@@ -380,42 +429,32 @@ body {
     font-size: 1rem;
 }
 
-/* Responsive */
+/* ============================
+   Responsive
+   ============================ */
+
 @media (max-width: 768px) {
-    .desktop-nav {
-        display: none;
-    }
-    
-    .mobile-nav {
-        display: block;
-    }
-    
-    body {
-        padding-bottom: 80px;
-    }
+    .desktop-nav { display: none; }
+    .mobile-nav  { display: block; }
+    body         { padding-bottom: 80px; }
 }
 
-/* Flash messages */
-.flash-message.success {
-    border-left: 4px solid var(--primary-color);
-}
+/* ============================
+   Flash message variants
+   ============================ */
 
-.flash-message.error {
-    border-left: 4px solid #dc3545;
-}
+.flash-message.success { border-left: 4px solid var(--primary-color); }
+.flash-message.error   { border-left: 4px solid #dc3545; }
 
 @keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0);     opacity: 1; }
 }
 
-/* Tarjetas */
+/* ============================
+   Tarjetas
+   ============================ */
+
 .card {
     background: var(--card-bg);
     border-radius: var(--border-radius);
@@ -447,11 +486,11 @@ body {
     color: var(--text-color);
 }
 
-/* ======================
+/* ============================
    Componentes de UI
-   ====================== */
+   ============================ */
 
-/* Botones */
+/* Botones (admin) */
 .admin-button {
     padding: 0.6rem 1.25rem;
     border: none;
@@ -470,7 +509,7 @@ body {
     user-select: none;
 }
 
-/* Efecto ripple para botones */
+/* Efecto ripple */
 .admin-button::after {
     content: '';
     position: absolute;
@@ -493,62 +532,49 @@ body {
     transition: 0s;
 }
 
-/* Variantes de botones */
+/* Variantes */
 .admin-button.primary {
     background-color: var(--primary-color);
     color: white;
 }
-
 .admin-button.primary:hover {
     background-color: var(--primary-dark);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
 .admin-button.primary:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
 .admin-button.secondary {
     background-color: #f8f9fa;
     color: var(--text-color);
     border: 1px solid #dee2e6;
 }
-
 .admin-button.secondary:hover {
     background-color: #e9ecef;
     border-color: #ced4da;
 }
-
 .admin-button.danger {
     background-color: #dc3545;
     color: white;
 }
-
 .admin-button.danger:hover {
     background-color: #c82333;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(220,53,69,0.2);
 }
 
-/* Tamanos de botones */
-.admin-button.small {
-    padding: 0.35rem 0.8rem;
-    font-size: 0.8rem;
-}
+/* Tamaños */
+.admin-button.small { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+.admin-button.large { padding: 0.75rem 1.5rem; font-size: 1rem; }
+.admin-button.tiny  { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
 
-.admin-button.large {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-}
-
-/* Estados de botones */
-.admin-button:disabled {
-    opacity: 0.6;
+/* Estados */
+.admin-button:disabled,
+.admin-button[disabled] {
+    opacity: 0.65;
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
 /* Grupos de botones */
@@ -558,30 +584,8 @@ body {
     flex-wrap: wrap;
     margin: 0.5rem 0;
 }
-
-.button-group .admin-button {
-    margin: 0;
-}
-.admin-button.secondary:hover {
-    background-color: #5a6268;
-}
-
-/* Size modifiers */
-.admin-button.small {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
-}
-.admin-button.tiny {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
-
-/* Disabled state */
-.admin-button:disabled,
-.admin-button[disabled] {
-    opacity: 0.65;
-    cursor: not-allowed;
-}
+.button-group .admin-button { margin: 0; }
+.admin-button.secondary:hover { background-color: #5a6268; }
 
 /* ------------------------------------------------------------------
    Loading Overlay
@@ -598,7 +602,6 @@ body {
     justify-content: center;
     z-index: 2000;
 }
-
 .loading-overlay .spinner {
     border: 6px solid #f3f3f3;
     border-top: 6px solid var(--primary-color);
@@ -607,55 +610,69 @@ body {
     height: 48px;
     animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
 /* ------------------------------------------------------------------
-   Admin Order Actions Alignment (existing styles)
+   Admin Order Actions Alignment
 ------------------------------------------------------------------ */
 .order-actions {
     display: flex;
-    gap: 0.5rem; /* Adds a small space between buttons */
-    align-items: center; /* Vertically aligns buttons if they have different heights */
-    margin-top: 1rem; /* Adds some space above the button group */
-    /* To push buttons to one side, e.g., right: */
-    /* justify-content: flex-end; */ 
-    /* Or to center them: */
-    /* justify-content: center; */
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
 }
-
 .order-actions .action-button {
-    padding: 0.5rem 1rem; /* Adjust padding as needed */
+    padding: 0.5rem 1rem;
     text-decoration: none;
-    border-radius: var(--border-radius, 8px); /* Use existing variable or a default */
+    border-radius: var(--border-radius, 8px);
     transition: var(--transition, all 0.3s ease);
     font-size: 0.9rem;
     text-align: center;
     cursor: pointer;
-    border: 1px solid transparent; /* Base for consistent height */
+    border: 1px solid transparent;
 }
-
-/* Primary action button style (default for .action-button) */
 .order-actions .action-button {
     background-color: var(--primary-color, #4CAF50);
     color: white;
 }
-
 .order-actions .action-button:hover {
     background-color: var(--secondary-color, #388E3C);
 }
-
-/* Secondary action button style */
 .order-actions .action-button.secondary {
-    background-color: #6c757d; /* A common secondary/gray color */
+    background-color: #6c757d;
     color: white;
-    border-color: #6c757d; /* Ensure border color matches for secondary */
+    border-color: #6c757d;
 }
-
 .order-actions .action-button.secondary:hover {
     background-color: #5a6268;
-    border-color: #545b62; /* Ensure hover border color matches for secondary */
+    border-color: #545b62;
+}
+
+/* High-specificity control for Inicio icon only */
+.desktop-nav a img.nav-icon.nav-icon-inicio {
+  width: 18px !important;
+  height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav a img.nav-icon.nav-icon-inicio {
+    width: 24px !important;
+    height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    display: block;
+  }
+}
+
+/* Ensure generic nav icons are not stretched by global img rules */
+.desktop-nav a img.nav-icon,
+.mobile-nav a img.nav-icon {
+  max-width: none;
 }

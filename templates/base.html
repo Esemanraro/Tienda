@@ -47,7 +47,13 @@
             <!-- Navegacion desktop -->
             <nav class="desktop-nav">
                 <ul>
-                    <li><a href="{{ url_for('shop.index') }}" class="{% if request.endpoint == 'shop.index' %}active{% endif %}">🏠 Inicio</a></li>
+                    <li>
+  <a href="{{ url_for('shop.index') }}" class="{% if request.endpoint == 'shop.index' %}active{% endif %}">
+    <img src="{{ url_for('static', filename='images/logohome.png') }}" alt="Home" style="width:16px; height:16px; vertical-align:middle;">
+    Inicio
+  </a>
+</li>
+
                     <li><a href="{{ url_for('shop.search') }}" class="{% if request.endpoint == 'shop.search' %}active{% endif %}">🔍 Buscar</a></li>
                     {% if current_user.is_authenticated %}
                         {% if current_user.is_admin %}
@@ -156,7 +162,7 @@
     <!-- Script de depuracion simplificado -->
     <script>
         console.log('Script de depuracion cargado');
-        console.log('cart_count:', {{ cart_count|tojson|safe }});\n        });\n        // Replace house symbol with image icon in desktop & mobile nav
+        console.log('cart_count:', {{ cart_count|tojson|safe }});
         document.addEventListener('DOMContentLoaded', function(){
             try {
                 var homeLink = document.querySelector('.desktop-nav ul > li:first-child a');
@@ -164,7 +170,10 @@
                     var img = document.createElement('img');
                     img.src = "{{ url_for('static', filename='images/logohome.png') }}";
                     img.alt = 'Inicio';
-                    img.className = 'nav-icon';
+                    img.className = 'nav-icon nav-icon-inicio';
+            // Fallback sizing in case CSS loads late or global img rules interfere
+            img.style.width = '18px';
+            img.style.height = '18px';
                     // Rebuild contents: icon + text
                     homeLink.innerHTML = '';
                     homeLink.appendChild(img);
@@ -176,7 +185,10 @@
                     var img2 = document.createElement('img');
                     img2.src = "{{ url_for('static', filename='images/logohome.png') }}";
                     img2.alt = 'Inicio';
-                    img2.className = 'nav-icon';
+                    img2.className = 'nav-icon nav-icon-inicio';
+            // Mobile fallback sizing
+            img2.style.width = '24px';
+            img2.style.height = '24px';
                     mobileHome.appendChild(img2);
                 }
             } catch (e) {}
@@ -365,4 +377,5 @@
     }
 }
 </style>
+
 
