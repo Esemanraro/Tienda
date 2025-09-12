@@ -115,31 +115,37 @@
 
 .add-to-cart,
 .login-to-buy {
-    display: inline-block;
     width: 100%;
     padding: 0.8rem;
     border: none;
-    background: var(--primary-color);
-    color: white;
     border-radius: var(--border-radius);
     cursor: pointer;
-    text-align: center;
     text-decoration: none;
     transition: var(--transition);
 }
 
-.add-to-cart:hover,
-.login-to-buy:hover {
+.add-to-cart {
+    background: var(--primary-color);
+    color: white;
+}
+
+.add-to-cart:hover {
     background: var(--secondary-color);
     transform: translateY(-2px);
 }
 
 .login-to-buy {
     background: #666;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .login-to-buy:hover {
     background: #555;
+    transform: translateY(-2px);
 }
 </style>
 
