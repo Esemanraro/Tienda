@@ -31,6 +31,16 @@
     --transition: all 0.3s ease;
 }
 
+/* Reset y utilidades globales para responsividad */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+img, video {
+    max-width: 100%;
+    height: auto;
+}
+
 /* Ajustes generales */
 body {
     font-family: var(--font-family);
@@ -45,6 +55,14 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* Contenedor principal responsivo */
+.main-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
 }
 
 /* ============================
@@ -675,4 +693,126 @@ body {
 .desktop-nav a img.nav-icon,
 .mobile-nav a img.nav-icon {
   max-width: none;
+}
+
+/* ========================================
+   Paginacion responsiva
+   ======================================== */
+.pagination-nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.page-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    min-width: 44px;
+    height: 44px;
+}
+
+.page-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.page-item.active .page-link {
+    background: var(--primary-color);
+    box-shadow: 0 4px 15px rgba(16, 172, 132, 0.4);
+}
+
+.page-item.disabled .page-link {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    color: #6c757d;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.pagination-per-page {
+    text-align: center;
+    margin-top: 0.75rem;
+}
+
+.per-page-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.per-page-selector span,
+.per-page-selector a {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    min-width: 32px;
+    text-align: center;
+    display: inline-block;
+}
+
+.per-page-selector span.selected {
+    background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);
+    box-shadow: 0 3px 8px rgba(16, 172, 132, 0.3);
+    font-weight: 600;
+}
+
+.per-page-selector a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 480px) {
+    .pagination {
+        gap: 0.25rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        min-width: 36px;
+        height: 36px;
+    }
+
+    .per-page-selector {
+        gap: 0.25rem;
+    }
+
+    .per-page-selector span,
+    .per-page-selector a {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        min-width: 28px;
+    }
 }
