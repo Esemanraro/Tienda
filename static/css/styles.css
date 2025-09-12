@@ -128,10 +128,10 @@ body {
         display: block;
     }
     .mobile-nav a .nav-icon-inicio {
-        width: 24px !important;
-        height: 24px !important;
-        max-width: 24px;
-        max-height: 24px;
+        width: 28px !important;
+        height: 28px !important;
+        max-width: 28px;
+        max-height: 28px;
     }
 }
 
@@ -681,10 +681,10 @@ body {
 
 @media (max-width: 768px) {
   .mobile-nav a img.nav-icon.nav-icon-inicio {
-    width: 24px !important;
-    height: 24px !important;
-    max-width: 24px !important;
-    max-height: 24px !important;
+    width: 28px !important;
+    height: 28px !important;
+    max-width: 28px !important;
+    max-height: 28px !important;
     display: block; /* centers nicely inside the 48x48 circle */
   }
 }
