@@ -47,16 +47,20 @@ def login_as_admin(client, app):
 def test_add_toy_redirects_to_inventory(client, app):
     login_as_admin(client, app)
     data = {
-        'name': 'Test Toy',
-        'description': 'A fun toy',
+        'name': 'Muñeco Ñandú',
+        'description': 'Juguete con acentos: á, é, í, ó, ú y la letra ñ',
         'price': '9.99',
-        'category': 'Otro',
+        'toy_type': 'Otro',
+        'gender': 'Mixto',
+        'age_range': '4-6',
         'stock': '5'
     }
     response = client.post('/admin/toys/add', data=data, follow_redirects=False)
     assert response.status_code == 302
     assert response.headers['Location'].endswith('/admin/toys')
     with app.app_context():
-        toy = Toy.query.filter_by(name='Test Toy').first()
+        toy = Toy.query.filter_by(name='Muñeco Ñandú').first()
         assert toy is not None
         assert toy.price == 9.99
+        assert 'ñ' in toy.name
+        assert 'á' in toy.description

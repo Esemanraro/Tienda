@@ -44,16 +44,16 @@ class Toy(db.Model):
     __tablename__ = 'toy'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False, index=True)
-    description = db.Column(db.Text)
+    name = db.Column(db.Unicode(100), nullable=False, index=True)
+    description = db.Column(db.UnicodeText)
     price = db.Column(db.Float, nullable=False)
     image_url = db.Column(db.String(200))
     # Categoria de Juguete (tipo)
-    category = db.Column(db.String(50), index=True)
+    category = db.Column(db.Unicode(50), index=True)
     # Categoria de Edad (rango)
-    age_range = db.Column(db.String(20), index=True)
+    age_range = db.Column(db.Unicode(20), index=True)
     # Categoria de Genero
-    gender_category = db.Column(db.String(20), index=True)
+    gender_category = db.Column(db.Unicode(20), index=True)
     stock = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
@@ -114,7 +114,7 @@ class ToyCenterAvailability(db.Model):
         index=True,
     )
     # Mantener centros como texto para alinear con User.center
-    center = db.Column(db.String(64), nullable=False, index=True)
+    center = db.Column(db.Unicode(64), nullable=False, index=True)
 
     __table_args__ = (
         db.UniqueConstraint('toy_id', 'center', name='uq_toy_center'),

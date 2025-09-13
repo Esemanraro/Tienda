@@ -21,7 +21,7 @@ class ToyForm(FlaskForm):
         ('Bloques', 'Bloques'),
         ('Vehículos', 'Vehículos'),
         ('Outdoor', 'Outdoor'),
-        ('Electronicos', 'Electronicos'),
+        ('Electrónicos', 'Electrónicos'),
         ('Educativo', 'Educativo'),
         ('Muñecas', 'Muñecas'),
         ('Otro', 'Otro'),
@@ -46,23 +46,23 @@ class ToyForm(FlaskForm):
         ('Juego', 'Juego'),
         ('Accesorio', 'Accesorio'),
         ('Bloques', 'Bloques'),
-        ('Vehiculos', 'Vehiculos'),
+        ('Vehículos', 'Vehículos'),
         ('Outdoor', 'Outdoor'),
-        ('Electronicos', 'Electronicos'),
+        ('Electrónicos', 'Electrónicos'),
         ('Educativo', 'Educativo'),
-        ('Munecas', 'Munecas'),
+        ('Muñecas', 'Muñecas'),
         ('Otro', 'Otro'),
     ]
     GENDER_CHOICES = [
-        ('Nina', 'Nina'),
-        ('Nino', 'Nino'),
+        ('Niña', 'Niña'),
+        ('Niño', 'Niño'),
         ('Mixto', 'Mixto'),
     ]
     AGE_CHOICES = [
-        ('0-3', '0-3 anos'),
-        ('4-6', '4-6 anos'),
-        ('7-9', '7-9 anos'),
-        ('10+', '10+ anos'),
+        ('0-3', '0-3 años'),
+        ('4-6', '4-6 años'),
+        ('7-9', '7-9 años'),
+        ('10+', '10+ años'),
     ]
     # Make category fields optional during edit operations
     toy_type = SelectField(

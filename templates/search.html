@@ -25,7 +25,7 @@
             
             <div class="filter-group">
                 <select name="category" class="filter-select">
-                    <option value="">Todas las categorias</option>
+                    <option value="">Todas las categorías</option>
                     {% for cat in categories %}
                         <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
                     {% endfor %}
