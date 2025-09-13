@@ -300,7 +300,7 @@
                                    name="query" 
                                    id="searchInput"
                                    value="{{ current_query }}" 
-                                   placeholder="Buscar juguetes por nombre, categoria o descripcion..."
+                                   placeholder="Buscar juguetes por nombre, categoría o descripción..."
                                    autocomplete="off">
                             <div class="input-group-append">
                                 <button class="btn btn-primary search-btn" type="submit">
@@ -342,10 +342,10 @@
                     {% endif %}
                 </div>
                 
-                <!-- Filtro por Categoria -->
+                <!-- Filtro por Categoría -->
                 {% if facets.categories %}
                 <div class="filter-section">
-                    <div class="filter-title">Categorias</div>
+                    <div class="filter-title">Categorías</div>
                     {% for category in facets.categories %}
                     <div class="facet-item {% if category.active %}active{% endif %}" 
                          onclick="toggleFilter('category', '{{ category.value }}')">
@@ -579,7 +579,7 @@
                     <li>• Terminos de busqueda mas generales</li>
                     <li>• Verificar la ortografia</li>
                     <li>• Usar menos filtros</li>
-                    <li>• Explorar diferentes categorias</li>
+                    <li>• Explorar diferentes categorías</li>
                 </ul>
                 
                 {% if interface_data.popular_searches %}

@@ -7,10 +7,10 @@
     <div class="profile-header">
         <h1>¡Hola {{ current_user.username }}! 👋</h1>
         <div class="balance-box">
-            <span class="balance-label">Mis ALOHA Dolares:</span>
+            <span class="balance-label">Mis ALOHA Dólares:</span>
             <span class="balance-amount">{{ current_user.balance|format_currency }}</span>
             <a href="#" onclick="showAddBalanceModal()" class="add-balance-button">
-                ➕ Agregar ALOHA Dolares
+                ➕ Agregar ALOHA Dólares
             </a>
         </div>
     </div>
@@ -127,7 +127,7 @@
 <!-- Modal para agregar balance -->
 <div id="addBalanceModal" class="modal">
     <div class="modal-content">
-        <h2>💰 Agregar ALOHA Dolares</h2>
+        <h2>💰 Agregar ALOHA Dólares</h2>
         <form action="{{ url_for('user.add_balance') }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">

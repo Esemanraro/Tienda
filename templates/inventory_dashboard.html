@@ -194,11 +194,11 @@
                         <thead>
                             <tr>
                                 <th>Producto</th>
-                                <th>Categoria</th>
+                                <th>Categoría</th>
                                 <th>Stock Actual</th>
                                 <th>Precio</th>
                                 <th>Nivel de Alerta</th>
-                                <th>Ultima Actualizacion</th>
+                                <th>Última Actualización</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -287,12 +287,12 @@
     </div>
     {% endif %}
 
-    <!-- Categorias con Stock Bajo -->
+    <!-- Categorías con Stock Bajo -->
     {% if report.stats.categories_with_low_stock %}
     <div class="row">
         <div class="col-12">
             <div class="inventory-card">
-                <h4 class="mb-3">📊 Categorias Afectadas</h4>
+                <h4 class="mb-3">📊 Categorías Afectadas</h4>
                 <div class="row">
                     {% for category, count in report.stats.categories_with_low_stock.items() %}
                     <div class="col-md-4 mb-3">
