@@ -90,9 +90,13 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="mailto:{{ user.email }}" class="user-email">
-                                        {{ user.email }}
-                                    </a>
+                                    {% if user.email %}
+                                        <a href="mailto:{{ user.email }}" class="user-email">
+                                            {{ user.email }}
+                                        </a>
+                                    {% else %}
+                                        <span class="user-email no-email">Sin correo</span>
+                                    {% endif %}
                                 </td>
                                 <td>{{ user.center or 'No especificado' }}</td>
                                 <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
@@ -370,6 +374,12 @@
     text-decoration: none;
 }
 
+.user-email.no-email {
+    color: var(--muted-text, #6c757d);
+    cursor: default;
+    text-decoration: none;
+}
+
 .user-email:hover {
     text-decoration: underline;
 }
@@ -625,8 +635,8 @@ async function editBalance(userId, currentFormatted){
       <label>Nombre de Usuario
         <input class="text-input" type="text" name="username" required />
       </label>
-      <label>Correo Electrónico
-        <input class="text-input" type="email" name="email" required />
+      <label>Correo Electrónico (opcional)
+        <input class="text-input" type="email" name="email" />
       </label>
       <label>Centro/Sucursal
         <select class="text-input" name="center" required>

@@ -57,7 +57,7 @@
                         </div>
                         <div class="order-user">
                             <span class="user-name">👤 {{ order.user.username }}</span>
-                            <span class="user-email">✉️ {{ order.user.email }}</span>
+                            <span class="user-email">✉️ {{ order.user.email or 'Sin correo' }}</span>
                             <span class="user-center">🏪 {{ order.user.center }}</span>
                         </div>
                     </div>
