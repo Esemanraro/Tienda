@@ -152,14 +152,11 @@ def advanced_search():
 def basic_search():
     """BÃºsqueda bÃ¡sica (fallback)"""
     query = request.args.get('query', '').strip()
-    toy_type = request.args.get('toy_type') or request.args.get('category', '')
+    toy_type = (request.args.get('toy_type') or request.args.get('category') or '').strip()
     # New filters
     age = request.args.get('age') or request.args.get('age_range') or ''
     gender = request.args.get('gender', '')
     sort = request.args.get('sort', 'name')
-    page = PaginationHelper.get_page_number()
-    per_page = PaginationHelper.get_per_page(default=12)
-    
     # Construir consulta base
     toys_query = Toy.query.filter_by(is_active=True)
     # Filtrar por centro si el usuario estÃ¡ autenticado
@@ -185,7 +182,10 @@ def basic_search():
         )
     
     if toy_type:
-        toys_query = toys_query.filter(Toy.category == toy_type)
+        normalized_category = toy_type.lower()
+        toys_query = toys_query.filter(
+            db.func.lower(db.func.trim(Toy.category)) == normalized_category
+        )
     
     # Nuevos filtros por columnas del item (Toy)
     if age:
@@ -203,16 +203,8 @@ def basic_search():
     else:  # fallback
         toys_query = toys_query.order_by(Toy.created_at.desc())
     
-    # PaginaciÃ³n
-    toys_pagination = toys_query.paginate(
-        page=page, per_page=per_page, error_out=False
-    )
-    
-    # URLs de paginaciÃ³n
-    pagination_urls = PaginationHelper.build_pagination_urls(
-        toys_pagination, 'shop.search', 
-        query=query, category=toy_type, toy_type=toy_type, age=age, gender=gender, sort=sort
-    )
+    # Obtener todos los resultados sin paginación para garantizar que se muestren todos los juguetes
+    toys = toys_query.all()
     
     # Obtener categorÃ­as para filtros
     categories = db.session.query(Toy.category).filter(
@@ -220,13 +212,11 @@ def basic_search():
         Toy.category.isnot(None)
     ).distinct().all()
 
-    category_list = sorted(cat[0] for cat in categories)
+    category_list = sorted({cat[0].strip() for cat in categories if cat[0]})
     
     return render_template(
         'search.html',
-        toys=toys_pagination.items,
-        pagination=toys_pagination,
-        pagination_urls=pagination_urls,
+        toys=toys,
         query=query,
         category=toy_type,
         toy_type=toy_type,

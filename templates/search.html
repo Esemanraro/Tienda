@@ -53,10 +53,22 @@
                             <h3>{{ toy.name }}</h3>
                             <p class="toy-description">{{ toy.description }}</p>
                             <p class="toy-price">{{ toy.price|format_currency }}</p>
+                            {% set stock = toy.stock or 0 %}
+                            {% if stock > 0 %}
+                                <p class="toy-stock in-stock">✅ En stock ({{ stock }})</p>
+                            {% else %}
+                                <p class="toy-stock out-of-stock">❌ Sin stock</p>
+                            {% endif %}
                             {% if current_user.is_authenticated %}
-                                <button onclick="addToCart({{ toy.id }})" class="add-to-cart" data-toy-id="{{ toy.id }}">
-                                    🛒 Agregar al Carrito
-                                </button>
+                                {% if stock > 0 %}
+                                    <button onclick="addToCart({{ toy.id }})" class="add-to-cart" data-toy-id="{{ toy.id }}">
+                                        🛒 Agregar al Carrito
+                                    </button>
+                                {% else %}
+                                    <button class="add-to-cart" disabled>
+                                        🚫 Sin stock disponible
+                                    </button>
+                                {% endif %}
                             {% else %}
                                 <a href="{{ url_for('auth.login') }}" class="login-to-buy">
                                     🔑 Inicia sesion para comprar
@@ -167,6 +179,19 @@
     outline: none;
 }
 
+.toy-stock {
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+.toy-stock.in-stock {
+    color: #2e7d32;
+}
+
+.toy-stock.out-of-stock {
+    color: #c62828;
+}
+
 .results-count {
     text-align: center;
     color: var(--text-color);
@@ -212,6 +237,12 @@
 .reset-search:hover {
     background: var(--secondary-color);
     transform: translateY(-2px);
+}
+
+.add-to-cart:disabled {
+    background: #b0b0b0;
+    cursor: not-allowed;
+    transform: none;
 }
 
 @media (max-width: 768px) {
