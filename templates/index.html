@@ -26,10 +26,22 @@
                     <h3>{{ toy.name }}</h3>
                     <p class="toy-description">{{ toy.description }}</p>
                     <p class="toy-price">A$ {{ "%.2f"|format(toy.price) }}</p>
+                    {% set stock = toy.stock or 0 %}
+                    {% if stock > 0 %}
+                        <p class="toy-stock in-stock">✅ En stock ({{ stock }})</p>
+                    {% else %}
+                        <p class="toy-stock out-of-stock">❌ Sin stock</p>
+                    {% endif %}
                     {% if current_user.is_authenticated %}
-                        <button type="button" class="add-to-cart" data-toy-id="{{ toy.id }}" onclick="addToCart({{ toy.id }})">
-                            🛒 Agregar al Carrito
-                        </button>
+                        {% if stock > 0 %}
+                            <button type="button" class="add-to-cart" data-toy-id="{{ toy.id }}" onclick="addToCart({{ toy.id }})">
+                                🛒 Agregar al Carrito
+                            </button>
+                        {% else %}
+                            <button type="button" class="add-to-cart" disabled>
+                                🚫 Sin stock disponible
+                            </button>
+                        {% endif %}
                     {% else %}
                         <a href="{{ url_for('auth.login') }}" class="login-to-buy">
                             🔑 Inicia sesion para comprar
@@ -113,6 +125,19 @@
     margin: 0 0 1rem 0;
 }
 
+.toy-stock {
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+.toy-stock.in-stock {
+    color: #2e7d32;
+}
+
+.toy-stock.out-of-stock {
+    color: #c62828;
+}
+
 .add-to-cart,
 .login-to-buy {
     width: 100%;
@@ -132,6 +157,12 @@
 .add-to-cart:hover {
     background: var(--secondary-color);
     transform: translateY(-2px);
+}
+
+.add-to-cart:disabled {
+    background: #b0b0b0;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .login-to-buy {
