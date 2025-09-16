@@ -347,8 +347,8 @@
                 <form id="alertForm">
                     <div class="form-group">
                         <label for="adminEmail">Email del Administrador:</label>
-                        <input type="email" class="form-control" id="adminEmail" 
-                               value="{{ current_user.email }}" required>
+                        <input type="email" class="form-control" id="adminEmail"
+                               value="{{ current_user.email or '' }}" required>
                     </div>
                     <div class="alert alert-info">
                         <strong>Se enviaran:</strong>

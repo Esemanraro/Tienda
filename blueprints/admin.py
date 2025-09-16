@@ -994,7 +994,7 @@ def download_receipt(order_id):
         f"Tiendita ALOHA - Recibo de Orden #{order.id}",
         f"Fecha: {order.order_date.strftime('%Y-%m-%d %H:%M:%S') if order.order_date else ''}",
         f"Usuario: {order.user.username if order.user else 'N/A'}",
-        f"Email: {order.user.email if order.user else 'N/A'}",
+        f"Email: {order.user.email if order.user and order.user.email else 'N/A'}",
         f"Centro: {order.user.center if order.user else 'N/A'}",
         "",
         "Items:",
@@ -1064,13 +1064,14 @@ def add_user():
     form = AddUserForm()
     if form.validate_on_submit():
         existing_user_username = User.query.filter_by(username=form.username.data).first()
-        existing_user_email = User.query.filter_by(email=form.email.data).first()
+        email_data = form.email.data
+        existing_user_email = User.query.filter_by(email=email_data).first() if email_data else None
         
         error = False
         if existing_user_username:
             form.username.errors.append('Este nombre de usuario ya está en uso.')
             error = True
-        if existing_user_email:
+        if email_data and existing_user_email:
             form.email.errors.append('Este correo electrónico ya está en uso.')
             error = True
         
@@ -1082,7 +1083,7 @@ def add_user():
 
         new_user = User(
             username=form.username.data,
-            email=form.email.data,
+            email=email_data,
             center=form.center.data,
             is_admin=form.is_admin.data,
             is_active=form.is_active.data
@@ -1130,9 +1131,10 @@ def edit_user(user_id):
             if User.query.filter(User.username == form.username.data, User.id != user_id).first():
                 form.username.errors.append('Este nombre de usuario ya está en uso por otro usuario.')
                 error = True
-        
-        if form.email.data != user_to_edit.email:
-            if User.query.filter(User.email == form.email.data, User.id != user_id).first():
+
+        email_data = form.email.data
+        if email_data != user_to_edit.email:
+            if email_data and User.query.filter(User.email == email_data, User.id != user_id).first():
                 form.email.errors.append('Este correo electrónico ya está en uso por otro usuario.')
                 error = True
             
@@ -1141,7 +1143,7 @@ def edit_user(user_id):
             return render_template('admin_edit_user.html', title='Editar Usuario', form=form, user_id=user_id)
 
         user_to_edit.username = form.username.data
-        user_to_edit.email = form.email.data
+        user_to_edit.email = email_data
         user_to_edit.center = form.center.data
         if form.balance.data is not None:
             user_to_edit.balance = form.balance.data

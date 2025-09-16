@@ -35,7 +35,7 @@ except Exception as e:
         'user', metadata,
         Column('id', Integer, primary_key=True),
         Column('username', String(64), unique=True, nullable=False, index=True),
-        Column('email', String(120), unique=True, nullable=False, index=True),
+        Column('email', String(120), unique=True, nullable=True, index=True),
         Column('password_hash', String(128), nullable=False),
         Column('is_admin', Boolean, default=False),
         Column('balance', Float, default=0.0),

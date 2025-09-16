@@ -89,7 +89,11 @@ class ToyForm(FlaskForm):
 
 class AddUserForm(FlaskForm):
     username = StringField('Nombre de Usuario', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Correo Electrónico', validators=[DataRequired(), Email(), Length(max=120)])
+    email = StringField(
+        'Correo Electrónico',
+        validators=[Optional(), Email(), Length(max=120)],
+        filters=[lambda value: value.strip() if value else None]
+    )
     password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirmar Contraseña', validators=[DataRequired(), EqualTo('password', message='Las contraseñas deben coincidir.')])
     # Definir opciones de centros (ALOHA locations)
@@ -116,7 +120,11 @@ class AddUserForm(FlaskForm):
 
 class EditUserForm(FlaskForm):
     username = StringField('Nombre de Usuario', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Correo Electrónico', validators=[DataRequired(), Email(), Length(max=120)])
+    email = StringField(
+        'Correo Electrónico',
+        validators=[Optional(), Email(), Length(max=120)],
+        filters=[lambda value: value.strip() if value else None]
+    )
     new_password = PasswordField('Nueva Contraseña (dejar en blanco para no cambiar)', validators=[Optional(), Length(min=6)])
     confirm_new_password = PasswordField('Confirmar Nueva Contraseña', validators=[EqualTo('new_password', message='Las nuevas contraseñas deben coincidir.')])
     center = SelectField('Centro/Sucursal', choices=AddUserForm.CENTERS, validators=[DataRequired()])
