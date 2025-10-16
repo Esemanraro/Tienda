@@ -95,6 +95,38 @@ def create_app(config_class=None):
         format=app.config.get('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     )
 
+    # Ensure console logging is available for debugging in development
+    log_format = logging.Formatter(app.config.get('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG if app.debug else logging.INFO)
+
+    security_log_path = app.config.get('SECURITY_LOG_FILENAME', 'security.log')
+    security_log_path = os.path.abspath(security_log_path)
+    file_handler_configured = any(
+        isinstance(handler, logging.FileHandler) and getattr(handler, 'baseFilename', None) == security_log_path
+        for handler in root_logger.handlers
+    )
+    if not file_handler_configured:
+        file_handler = logging.FileHandler(security_log_path)
+        file_handler.setFormatter(log_format)
+        file_handler.setLevel(logging.INFO)
+        root_logger.addHandler(file_handler)
+
+    console_handler_configured = any(
+        isinstance(handler, logging.StreamHandler) and getattr(handler, '_aloha_console', False)
+        for handler in root_logger.handlers
+    )
+    if not console_handler_configured:
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_format)
+        console_handler.setLevel(logging.DEBUG if app.debug else logging.INFO)
+        console_handler._aloha_console = True  # Marcar para evitar duplicados en recargas
+        root_logger.addHandler(console_handler)
+
+    app.logger.handlers = []
+    app.logger.setLevel(root_logger.level)
+    app.logger.propagate = True
+
     # -------- Inicializar extensiones --------
     db.init_app(app)
     migrate.init_app(app, db)

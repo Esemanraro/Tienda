@@ -1105,11 +1105,17 @@ def add_user():
             return redirect(url_for('admin.all_users'))
         except Exception as e:
             db.session.rollback()
-            current_app.logger.error(f"Error adding user {form.username.data}: {str(e)}")
+            current_app.logger.exception("Error adding user %s", form.username.data)
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'success': False, 'message': str(e)}), 400
             flash(f'Error al agregar usuario: {str(e)}', 'danger')
             return redirect(url_for('admin.all_users'))
+
+    if request.method == 'POST':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'errors': form.errors or {'form': ['Formulario invalido']}}), 400
+        flash('No se pudo agregar el usuario. Revisa los errores del formulario.', 'danger')
+        return redirect(url_for('admin.all_users'))
 
     # GET: redirigir a la lista de usuarios (el formulario se manejará via modal)
     if request.method == 'GET':
