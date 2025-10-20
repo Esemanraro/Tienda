@@ -56,55 +56,59 @@ function showToast(message, type = 'info', duration = 1500) {
         
         toast.textContent = message;
         
-        // Agregar funcionalidad de cerrar al hacer clic
-        toast.addEventListener('click', () => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(-120%)'; // Salida hacia la izquierda
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
-        });
-        
         // Agregar al DOM
         toastContainer.appendChild(toast);
-        
+
         // Forzar reflow para activar la transicion
         void toast.offsetWidth;
-        
+
         // Animar entrada
         requestAnimationFrame(() => {
             toast.style.opacity = '1';
             toast.style.transform = 'translateX(0)';
         });
-        
+
         // Configurar eliminacion
-        let removeTimeout = setTimeout(() => {
+        let removeTimeout;
+        let isExiting = false;
+
+        const finishRemoval = () => {
+            if (removeTimeout) {
+                clearTimeout(removeTimeout);
+                removeTimeout = null;
+            }
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        };
+
+        const startExit = (direction = 120) => {
+            if (isExiting) {
+                return;
+            }
+            isExiting = true;
+
             toast.style.opacity = '0';
-            toast.style.transform = 'translateX(120%)';
-            
-            // Eliminar despues de la animacion
+            toast.style.transform = `translateX(${direction}%)`;
+
+            const fallbackTimeout = setTimeout(() => {
+                finishRemoval();
+            }, 320);
+
             toast.addEventListener('transitionend', function handler() {
                 toast.removeEventListener('transitionend', handler);
-                if (toast.parentNode === toastContainer) {
-                    toastContainer.removeChild(toast);
-                }
+                clearTimeout(fallbackTimeout);
+                finishRemoval();
             }, { once: true });
+        };
+
+        removeTimeout = setTimeout(() => {
+            startExit(120);
         }, duration);
-        
+
         // Cerrar al hacer clic
         toast.addEventListener('click', () => {
-            clearTimeout(removeTimeout);
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(120%)';
-            
-            toast.addEventListener('transitionend', function handler() {
-                toast.removeEventListener('transitionend', handler);
-                if (toast.parentNode === toastContainer) {
-                    toastContainer.removeChild(toast);
-                }
-            }, { once: true });
+            startExit(-120);
         });
     });
 }
