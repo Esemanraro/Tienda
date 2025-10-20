@@ -12,3 +12,4 @@ bleach
 pyotp
 reportlab
 python-dotenv
+email-validator>=2.2.0
