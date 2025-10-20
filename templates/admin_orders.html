@@ -43,7 +43,7 @@
     </div>
 
     <!-- Lista de ordenes -->
-    <div class="admin-orders-list">
+    <div class="admin-orders-list" data-reset-url="{{ url_for('admin.all_orders') }}">
         {% if orders.items %}
             {% for order in orders.items %}
                 <div class="order-card">
@@ -481,11 +481,92 @@
 document.addEventListener('DOMContentLoaded', function () {
     const deleteForms = document.querySelectorAll('.order-delete-form');
     deleteForms.forEach(function (form) {
-        form.addEventListener('submit', function (event) {
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
             const orderId = form.getAttribute('action').split('/').filter(Boolean).pop();
-            const confirmed = confirm(`¿Seguro que deseas cancelar la orden #${orderId}? Se reembolsará al comprador y se restaurará el inventario.`);
+            const confirmed = window.confirm(`¿Seguro que deseas cancelar la orden #${orderId}? Se reembolsará al comprador y se restaurará el inventario.`);
             if (!confirmed) {
-                event.preventDefault();
+                return;
+            }
+
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            const formData = new FormData(form);
+            const csrfToken = formData.get('csrf_token');
+            const headers = {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            };
+
+            if (csrfToken) {
+                headers['X-CSRFToken'] = csrfToken;
+            }
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers
+                });
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    data = null;
+                }
+
+                if (!response.ok) {
+                    const message = data && data.message ? data.message : 'Ha ocurrido un error al cancelar la orden.';
+                    const level = data && data.level === 'warning' ? 'warning' : 'error';
+                    throw { message, level };
+                }
+
+                if (!data || data.success !== true) {
+                    const message = data && data.message ? data.message : 'No fue posible cancelar la orden.';
+                    const level = data && data.level === 'warning' ? 'warning' : 'error';
+                    throw { message, level };
+                }
+
+                const message = data.message || 'Orden cancelada correctamente.';
+                if (typeof showToast === 'function') {
+                    showToast(message, 'success');
+                }
+
+                const orderCard = form.closest('.order-card');
+                if (orderCard) {
+                    orderCard.remove();
+                }
+
+                const remainingCards = document.querySelectorAll('.order-card');
+                if (remainingCards.length === 0) {
+                    const ordersList = document.querySelector('.admin-orders-list');
+                    if (ordersList && !ordersList.querySelector('.no-results')) {
+                        const emptyState = document.createElement('div');
+                        emptyState.className = 'no-results';
+                        emptyState.innerHTML = `
+                            <p>No se encontraron ordenes que coincidan con los criterios de búsqueda.</p>
+                            <a href="${ordersList.getAttribute('data-reset-url') || '#'}" class="action-button">
+                                Limpiar filtros
+                            </a>
+                        `;
+                        ordersList.appendChild(emptyState);
+                    }
+                }
+            } catch (error) {
+                const message = error && error.message ? error.message : 'No fue posible cancelar la orden.';
+                const level = error && error.level === 'warning' ? 'warning' : 'error';
+                if (typeof showToast === 'function') {
+                    showToast(message, level);
+                }
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
             }
         });
     });
