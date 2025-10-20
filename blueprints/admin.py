@@ -356,7 +356,7 @@ def toggle_user(user_id):
     if user_to_toggle.id == current_user.id and not user_to_toggle.is_active:
         flash('No puedes desactivar tu propia cuenta de administrador.', 'warning')
         return redirect(url_for('admin.all_users'))
-        
+
     user_to_toggle.is_active = not user_to_toggle.is_active
     try:
         db.session.commit()
@@ -364,6 +364,34 @@ def toggle_user(user_id):
     except Exception as e:
         db.session.rollback()
         flash(f'Error al actualizar estado de activación: {str(e)}', 'danger')
+    return redirect(url_for('admin.all_users'))
+
+
+@admin_bp.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    if not current_user.is_admin:
+        flash('Acceso denegado.', 'danger')
+        return redirect(url_for('shop.index'))
+
+    if user_id == current_user.id:
+        flash('No puedes eliminar tu propia cuenta.', 'warning')
+        return redirect(url_for('admin.all_users'))
+
+    user_to_delete = User.query.get_or_404(user_id)
+
+    if user_to_delete.is_admin:
+        flash('No puedes eliminar a otro administrador.', 'warning')
+        return redirect(url_for('admin.all_users'))
+
+    try:
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        flash(f'Usuario {user_to_delete.username} eliminado correctamente.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar usuario: {str(e)}', 'danger')
+
     return redirect(url_for('admin.all_users'))
 
 

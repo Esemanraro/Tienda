@@ -112,15 +112,15 @@
                                             Ver
                                         </a>
                                         {% if not user.is_admin %}
-                                            <form action="{{ url_for('admin.toggle_admin', user_id=user.id) }}" 
+                                            <form action="{{ url_for('admin.toggle_admin', user_id=user.id) }}"
                                                   method="POST" class="inline-form">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                 <button type="submit" class="action-button {% if user.is_admin %}danger{% else %}secondary{% endif %}">
                                                     {{ 'Quitar Admin' if user.is_admin else 'Hacer Admin' }}
                                                 </button>
                                             </form>
-                                            
-                                            <form action="{{ url_for('admin.toggle_user', user_id=user.id) }}" 
+
+                                            <form action="{{ url_for('admin.toggle_user', user_id=user.id) }}"
                                                   method="POST" class="inline-form">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                 <button type="submit" class="action-button {% if user.is_active %}danger{% else %}success{% endif %}">
@@ -128,6 +128,14 @@
                                                 </button>
                                             </form>
                                             <button type="button" class="action-button secondary" onclick="editBalance({{ user.id }}, '{{ '%.2f'|format(user.balance or 0.0) }}')">Editar Saldo</button>
+                                            <form action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                                                  method="POST" class="inline-form"
+                                                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar al usuario {{ user.username }}? Esta acción no se puede deshacer.');">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="action-button danger">
+                                                    Eliminar
+                                                </button>
+                                            </form>
                                         {% endif %}
                                     </div>
                                 </td>
