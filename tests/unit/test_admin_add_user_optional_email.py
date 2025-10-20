@@ -68,3 +68,60 @@ def test_admin_can_create_user_without_email(client, app):
         assert created_user is not None
         assert created_user.email is None
         assert created_user.must_change_password is True
+
+
+def test_admin_rejects_duplicate_email_case_insensitive(client, app):
+    login_as_admin(client)
+
+    with app.app_context():
+        existing_user = User(username='student', email='student@example.com', center='david', is_active=True)
+        existing_user.set_password('Password123')
+        db.session.add(existing_user)
+        db.session.commit()
+
+    form_data = {
+        'username': 'student-duplicate-email',
+        'email': 'Student@Example.COM',
+        'center': 'david',
+        'balance': '',
+        'password': 'Temp1234',
+        'confirm_password': 'Temp1234',
+        'require_password_change': 'y',
+        'is_admin': '',
+        'is_active': 'y',
+    }
+
+    response = client.post('/admin/add_user', data=form_data, follow_redirects=False)
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/admin/users')
+
+    with app.app_context():
+        assert User.query.filter_by(username='student-duplicate-email').first() is None
+        assert User.query.count() == 2  # admin + existing user
+
+
+def test_admin_normalizes_email_before_save(client, app):
+    login_as_admin(client)
+
+    form_data = {
+        'username': 'student-normalized-email',
+        'email': 'NewStudent@Example.COM ',
+        'center': 'david',
+        'balance': '',
+        'password': 'Temp1234',
+        'confirm_password': 'Temp1234',
+        'require_password_change': 'y',
+        'is_admin': '',
+        'is_active': 'y',
+    }
+
+    response = client.post('/admin/add_user', data=form_data, follow_redirects=False)
+
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/admin/users')
+
+    with app.app_context():
+        created_user = User.query.filter_by(username='student-normalized-email').first()
+        assert created_user is not None
+        assert created_user.email == 'newstudent@example.com'

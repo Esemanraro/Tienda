@@ -4,6 +4,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def normalize_email(value):
+    """Normalize an email address by stripping whitespace and lowercasing."""
+    if value is None:
+        return None
+
+    normalized = value.strip().lower()
+    return normalized or None
+
+
 def format_currency(amount):
     """Format a number as currency with A$ prefix"""
     if amount is None:

@@ -18,6 +18,7 @@ from app.models import User, Toy, Order, OrderItem, ToyCenterAvailability
 from app.extensions import db
 from app.forms import ToyForm, AddUserForm, EditUserForm
 from pagination_helpers import PaginationHelper, paginate_query
+from utils import normalize_email
 
 # 💾 Importar Sistema de Backup Simplificado
 try:
@@ -1064,7 +1065,7 @@ def add_user():
     form = AddUserForm()
     if form.validate_on_submit():
         existing_user_username = User.query.filter_by(username=form.username.data).first()
-        email_data = form.email.data
+        email_data = normalize_email(form.email.data)
         existing_user_email = User.query.filter_by(email=email_data).first() if email_data else None
         
         error = False
@@ -1138,8 +1139,9 @@ def edit_user(user_id):
                 form.username.errors.append('Este nombre de usuario ya está en uso por otro usuario.')
                 error = True
 
-        email_data = form.email.data
-        if email_data != user_to_edit.email:
+        email_data = normalize_email(form.email.data)
+        existing_email = normalize_email(user_to_edit.email)
+        if email_data != existing_email:
             if email_data and User.query.filter(User.email == email_data, User.id != user_id).first():
                 form.email.errors.append('Este correo electrónico ya está en uso por otro usuario.')
                 error = True
