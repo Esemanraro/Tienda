@@ -998,11 +998,83 @@ def all_orders():
     # Calcular totales
     total_orders = orders.total
     
-    return render_template('admin_orders.html', 
+    return render_template('admin_orders.html',
                          orders=orders,
                          search_query=search_query,
                          status_filter=status_filter,
                          total_orders=total_orders)
+
+
+@admin_bp.route('/orders/<int:order_id>/delete', methods=['POST'])
+@login_required
+def delete_order(order_id):
+    """Cancelar una orden, restaurando inventario y saldo del comprador."""
+    if not current_user.is_admin:
+        message = 'Acceso denegado'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json:
+            return jsonify({'success': False, 'message': message}), 403
+        flash(message, 'error')
+        return redirect(url_for('shop.index'))
+
+    order = Order.query.options(
+        selectinload(Order.items).selectinload(OrderItem.toy),
+        selectinload(Order.user)
+    ).get(order_id)
+
+    if order is None:
+        message = 'Orden no encontrada'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json:
+            return jsonify({'success': False, 'message': message}), 404
+        flash(message, 'error')
+        return redirect(url_for('admin.all_orders'))
+
+    if order.status in {'cancelled', 'cancelada'} or not order.is_active:
+        message = 'La orden ya fue cancelada anteriormente.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json:
+            return jsonify({'success': False, 'message': message}), 400
+        flash(message, 'warning')
+        return redirect(url_for('admin.all_orders'))
+
+    try:
+        refund_amount = Decimal('0.00')
+
+        if not order.user:
+            raise ValueError('La orden no tiene un usuario asociado para procesar el reembolso.')
+
+        for item in order.items:
+            quantity = item.quantity or 0
+            price = Decimal(str(item.price or 0))
+            refund_amount += price * quantity
+
+            if item.toy:
+                current_stock = item.toy.stock or 0
+                item.toy.stock = current_stock + quantity
+
+            item.is_active = False
+
+        user_balance = Decimal(str(order.user.balance or 0))
+        order.user.balance = float(user_balance + refund_amount)
+
+        order.status = 'cancelled'
+        order.is_active = False
+        order.deleted_at = datetime.now()
+        order.updated_at = datetime.now()
+
+        db.session.commit()
+
+        success_message = f'Orden #{order.id} cancelada y reembolsada correctamente.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json:
+            return jsonify({'success': True, 'message': success_message})
+        flash(success_message, 'success')
+        return redirect(url_for('admin.all_orders'))
+    except Exception as exc:
+        db.session.rollback()
+        error_message = f'No se pudo cancelar la orden: {str(exc)}'
+        current_app.logger.exception(error_message)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json:
+            return jsonify({'success': False, 'message': error_message}), 500
+        flash(error_message, 'error')
+        return redirect(url_for('admin.all_orders'))
 
 @admin_bp.route('/orders/<int:order_id>/receipt')
 @login_required
