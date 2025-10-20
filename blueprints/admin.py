@@ -380,10 +380,6 @@ def delete_user(user_id):
 
     user_to_delete = User.query.get_or_404(user_id)
 
-    if user_to_delete.is_admin:
-        flash('No puedes eliminar a otro administrador.', 'warning')
-        return redirect(url_for('admin.all_users'))
-
     try:
         db.session.delete(user_to_delete)
         db.session.commit()
