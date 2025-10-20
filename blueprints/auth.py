@@ -13,6 +13,7 @@ from datetime import datetime
 # Importaciones absolutas
 from app.models import User
 from app.extensions import db
+from utils import normalize_email
 
 
 def validate_password_strength(password):
@@ -97,7 +98,8 @@ def register():
     if form.validate_on_submit():
         # Validar unicidad de username y email para evitar errores 500 por constraints
         existing_username = User.query.filter_by(username=form.username.data).first()
-        existing_email = User.query.filter_by(email=form.email.data).first()
+        normalized_email = normalize_email(form.email.data)
+        existing_email = User.query.filter_by(email=normalized_email).first() if normalized_email else None
 
         if existing_username:
             flash('El nombre de usuario ya existe', 'warning')
@@ -112,7 +114,7 @@ def register():
             center=form.center.data,
             balance=0.0,
             created_at=datetime.now(),
-            email=form.email.data,
+            email=normalized_email,
             last_login=datetime.now()
         )
         user.set_password(form.password.data)
