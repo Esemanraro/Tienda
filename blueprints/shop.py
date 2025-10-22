@@ -621,7 +621,27 @@ def generate_pdf(order):
         fonts_folder = os.path.join(static_folder, 'fonts')
         FUTURA_NORMAL_PATH = os.path.join(fonts_folder, 'Futura-Medium.ttf')
         FUTURA_BOLD_PATH = os.path.join(fonts_folder, 'Futura-Bold.ttf')
-        LOGO_PATH = os.path.join(static_folder, 'images', 'ALOHALogo12.png')
+
+        default_logo_filename = 'ALOHALogo12.png'
+        default_logo_path = os.path.join(static_folder, 'images', default_logo_filename)
+
+        configured_logo_path = current_app.config.get('PDF_LOGO_PATH')
+        if configured_logo_path:
+            normalized_logo_path = os.path.normpath(configured_logo_path)
+
+            if not os.path.isabs(normalized_logo_path):
+                normalized_logo_path = os.path.join(current_app.root_path, normalized_logo_path)
+
+            if os.path.isdir(normalized_logo_path):
+                LOGO_PATH = os.path.join(normalized_logo_path, default_logo_filename)
+            else:
+                _, ext = os.path.splitext(normalized_logo_path)
+                if ext:
+                    LOGO_PATH = normalized_logo_path
+                else:
+                    LOGO_PATH = os.path.join(normalized_logo_path, default_logo_filename)
+        else:
+            LOGO_PATH = default_logo_path
 
         try:
             if os.path.exists(FUTURA_NORMAL_PATH) and 'Futura' not in pdfmetrics.getRegisteredFontNames():
