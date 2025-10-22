@@ -675,7 +675,7 @@ def generate_pdf(order):
         if os.path.exists(LOGO_PATH):
             try:
                 aloha_logo = Image(LOGO_PATH, width=1.5*72, height=0.75*72) # 1.5 inch width, 0.75 inch height
-                aloha_logo.hAlign = 'CENTER'
+                aloha_logo.hAlign = 'LEFT'
                 elements.append(aloha_logo)
                 elements.append(Spacer(1, 12))
             except Exception as e:
@@ -751,7 +751,7 @@ def generate_pdf(order):
         # Mensaje de agradecimiento y datos de contacto
         footer_lines = [
             "&iexcl;Gracias por comprar en Tiendita ALOHA!",
-            "Si necesita ayuda, escr&iacute;banos a info@aloha.edu.gt o visite www.aloha.edu.gt."
+            "Si necesita ayuda, escr&iacute;banos a info@alohapanama.com o visite alohapanama.com."
         ]
 
         for line in footer_lines:
