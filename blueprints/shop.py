@@ -616,10 +616,12 @@ def generate_pdf(order):
             bottomMargin=36
         )
         
-        # --- Registro de Fuentes Personalizadas ---
-        FUTURA_NORMAL_PATH = '/Users/frobertsv./CascadeProjects/ALOHA Tienda 2025/tienditas-aloha-app-2/static/fonts/Futura-Medium.ttf'
-        FUTURA_BOLD_PATH = '/Users/frobertsv./CascadeProjects/ALOHA Tienda 2025/tienditas-aloha-app-2/static/fonts/Futura-Bold.ttf'
-        LOGO_PATH = '/Users/frobertsv./CascadeProjects/ALOHA Tienda 2025/tienditas-aloha-app-2/static/images/aloha_logo.png'
+        # --- Recursos estaticos ---
+        static_folder = os.path.join(current_app.root_path, 'static')
+        fonts_folder = os.path.join(static_folder, 'fonts')
+        FUTURA_NORMAL_PATH = os.path.join(fonts_folder, 'Futura-Medium.ttf')
+        FUTURA_BOLD_PATH = os.path.join(fonts_folder, 'Futura-Bold.ttf')
+        LOGO_PATH = os.path.join(static_folder, 'images', 'ALOHALogo12.png')
 
         try:
             if os.path.exists(FUTURA_NORMAL_PATH) and 'Futura' not in pdfmetrics.getRegisteredFontNames():
@@ -733,9 +735,27 @@ def generate_pdf(order):
         elements.append(Paragraph(f"<b>Total: {format_currency(order.total_price)}</b>", styles["TotalText"]))
         elements.append(Spacer(1, 30))
         
-        # Mensaje de agradecimiento
-        elements.append(Paragraph("Â¡Gracias por su compra en Tiendita ALOHA!", styles["Center"]))
-        elements.append(Paragraph("Para cualquier consulta, contÃ¡ctenos en info@aloha.edu.gt o visite www.aloha.edu.gt", styles["Center"]))
+        # Saldo restante del usuario
+        try:
+            user_balance = getattr(order.user, 'balance', None)
+        except Exception:
+            user_balance = None
+
+        if user_balance is not None:
+            elements.append(Paragraph(
+                f"<b>Saldo disponible despu&eacute;s de la compra:</b> {format_currency(user_balance)}",
+                styles["Normal"]
+            ))
+            elements.append(Spacer(1, 20))
+
+        # Mensaje de agradecimiento y datos de contacto
+        footer_lines = [
+            "&iexcl;Gracias por comprar en Tiendita ALOHA!",
+            "Si necesita ayuda, escr&iacute;banos a info@aloha.edu.gt o visite www.aloha.edu.gt."
+        ]
+
+        for line in footer_lines:
+            elements.append(Paragraph(line, styles["Center"]))
         
         # Generar PDF
         print("Construyendo documento PDF...")
