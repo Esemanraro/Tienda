@@ -23,6 +23,9 @@ class Config:
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max-limit
     UPLOAD_FOLDER = os.path.join('static', 'images', 'toys')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+    # PDF/Receipt assets
+    PDF_LOGO_PATH = os.environ.get('PDF_LOGO_PATH')
     
     # Password Security
     PASSWORD_MIN_LENGTH = 8
