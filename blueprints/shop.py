@@ -706,13 +706,31 @@ def generate_pdf(order):
 
         elements.append(Paragraph("Recibo de Compra", styles["Subtitle"]))
         elements.append(Spacer(1, 20))
-        
-        # InformaciÃ³n de la orden
-        elements.append(Paragraph(f"<b>Orden #:</b> {order.id}", styles["NormalBold"]))
+
+        # Información de la orden
+        elements.append(Paragraph("<b>Información de la Orden</b>", styles["NormalBold"]))
+        elements.append(Paragraph(f"<b>Orden #:</b> {order.id}", styles["Normal"]))
         elements.append(Paragraph(f"<b>Fecha:</b> {order.order_date.strftime('%d/%m/%Y %H:%M')}", styles["Normal"]))
-        elements.append(Paragraph(f"<b>Cliente:</b> {order.user.username}", styles["Normal"]))
+        elements.append(Spacer(1, 12))
+
+        # Información del usuario asociado
+        elements.append(Paragraph("<b>Información del Cliente</b>", styles["NormalBold"]))
+        user = getattr(order, "user", None)
+        if user:
+            user_details = [
+                ("Nombre de usuario", getattr(user, "username", "N/A") or "N/A"),
+                ("ID de usuario", getattr(user, "id", "N/A") or "N/A"),
+                ("Email", getattr(user, "email", None) or "No registrado"),
+                ("Centro", getattr(user, "center", None) or "No asignado"),
+            ]
+
+            for label, value in user_details:
+                elements.append(Paragraph(f"<b>{label}:</b> {value}", styles["Normal"]))
+        else:
+            elements.append(Paragraph("No hay información del usuario asociada a esta orden.", styles["Normal"]))
+
         elements.append(Spacer(1, 20))
-        
+
         # Tabla de productos
         data = [["Producto", "Cantidad", "Precio", "Subtotal"]]
         for item in order.items:
@@ -755,17 +773,37 @@ def generate_pdf(order):
         elements.append(Paragraph(f"<b>Total: {format_currency(order.total_price)}</b>", styles["TotalText"]))
         elements.append(Spacer(1, 30))
         
-        # Saldo restante del usuario
+        # Saldos del usuario relacionados a la compra
+        from decimal import Decimal, InvalidOperation
+
         try:
-            user_balance = getattr(order.user, 'balance', None)
+            user_balance = getattr(order.user, "balance", None)
         except Exception:
             user_balance = None
+
+        balance_before_purchase = None
+
+        if user_balance is not None:
+            try:
+                balance_after_decimal = Decimal(str(user_balance))
+                total_decimal = Decimal(str(order.total_price or 0))
+                balance_before_purchase = balance_after_decimal + total_decimal
+            except (InvalidOperation, TypeError):
+                balance_before_purchase = None
+
+        if balance_before_purchase is not None:
+            elements.append(Paragraph(
+                f"<b>Saldo disponible antes de la compra:</b> {format_currency(float(balance_before_purchase))}",
+                styles["Normal"]
+            ))
 
         if user_balance is not None:
             elements.append(Paragraph(
                 f"<b>Saldo disponible despu&eacute;s de la compra:</b> {format_currency(user_balance)}",
                 styles["Normal"]
             ))
+
+        if balance_before_purchase is not None or user_balance is not None:
             elements.append(Spacer(1, 20))
 
         # Mensaje de agradecimiento y datos de contacto
