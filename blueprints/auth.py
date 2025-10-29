@@ -6,12 +6,12 @@ Incluye: login, logout, registro
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, SelectField
 from wtforms.validators import DataRequired, Length, Email
 from datetime import datetime
 
 # Importaciones absolutas
-from app.models import User
+from app.models import User, Center
 from app.extensions import db
 from utils import normalize_email
 
@@ -41,7 +41,7 @@ class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=4, max=80)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-    center = StringField('Center', validators=[DataRequired()])
+    center = SelectField('Center', validators=[DataRequired()], choices=[])
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -95,11 +95,20 @@ def register():
         return redirect(url_for('shop.index'))
 
     form = RegisterForm()
+    center_choices = [(c.slug, c.name) for c in Center.query.order_by(Center.name.asc()).all()]
+    form.center.choices = center_choices
+
     if form.validate_on_submit():
         # Validar unicidad de username y email para evitar errores 500 por constraints
         existing_username = User.query.filter_by(username=form.username.data).first()
         normalized_email = normalize_email(form.email.data)
         existing_email = User.query.filter_by(email=normalized_email).first() if normalized_email else None
+
+        center_slug = (form.center.data or '').strip().lower()
+        center_record = Center.query.filter_by(slug=center_slug).first()
+        if not center_record:
+            flash('El centro seleccionado no es válido', 'warning')
+            return render_template('register.html', form=form)
 
         if existing_username:
             flash('El nombre de usuario ya existe', 'warning')
@@ -111,7 +120,7 @@ def register():
 
         user = User(
             username=form.username.data,
-            center=form.center.data,
+            center=center_record.slug,
             balance=0.0,
             created_at=datetime.now(),
             email=normalized_email,

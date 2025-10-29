@@ -50,7 +50,7 @@
                 <div class="toy-centers">
                     {% if toy.centers and toy.centers|length > 0 %}
                         {% for tc in toy.centers %}
-                            <span class="center-chip">{{ tc.center|title }}</span>
+                            <span class="center-chip">{{ centers_by_slug.get((tc.center or '')|lower, tc.center|title) }}</span>
                         {% endfor %}
                     {% else %}
                         <span class="center-chip center-all">Todos los centros</span>
@@ -102,18 +102,13 @@
                 <div class="form-group">
                     <label>Centros disponibles</label>
                     <div class="centers-group" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem;">
-                        <label><input type="checkbox" name="centers" value="aguadulce"> Aguadulce</label>
-                        <label><input type="checkbox" name="centers" value="anclas mall"> Anclas Mall</label>
-                        <label><input type="checkbox" name="centers" value="brisas del golf"> Brisas del Golf</label>
-                        <label><input type="checkbox" name="centers" value="calle 50"> Calle 50</label>
-                        <label><input type="checkbox" name="centers" value="costa del este"> Costa del Este</label>
-                        <label><input type="checkbox" name="centers" value="david"> David</label>
-                        <label><input type="checkbox" name="centers" value="chitre"> Chitre</label>
-                        <label><input type="checkbox" name="centers" value="santiago"> Santiago</label>
-                        <label><input type="checkbox" name="centers" value="condado del rey"> Condado Del Rey</label>
-                        <label><input type="checkbox" name="centers" value="centro autorizado arraijan"> Centro Autorizado Arraijan</label>
-                        <label><input type="checkbox" name="centers" value="escuela bet yacoov"> Escuela Bet Yacoov</label>
-                        <label><input type="checkbox" name="centers" value="escuela de la salle"> Escuela De La Salle</label>
+                        {% if center_choices %}
+                            {% for slug, label in center_choices %}
+                                <label><input type="checkbox" name="centers" value="{{ slug }}"> {{ label }}</label>
+                            {% endfor %}
+                        {% else %}
+                            <span>No hay centros configurados.</span>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="form-group">
@@ -176,18 +171,13 @@
         <form id="editCentersForm">
             <input type="hidden" id="centersToyId" name="toy_id" />
             <div class="centers-group" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem;max-height:260px;overflow:auto;border:1px solid var(--border-color);padding:.6rem;border-radius:6px;">
-                <label><input type="checkbox" name="centers" value="aguadulce"> Aguadulce</label>
-                <label><input type="checkbox" name="centers" value="anclas mall"> Anclas Mall</label>
-                <label><input type="checkbox" name="centers" value="brisas del golf"> Brisas del Golf</label>
-                <label><input type="checkbox" name="centers" value="calle 50"> Calle 50</label>
-                <label><input type="checkbox" name="centers" value="costa del este"> Costa del Este</label>
-                <label><input type="checkbox" name="centers" value="david"> David</label>
-                <label><input type="checkbox" name="centers" value="chitre"> Chitre</label>
-                <label><input type="checkbox" name="centers" value="santiago"> Santiago</label>
-                <label><input type="checkbox" name="centers" value="condado del rey"> Condado Del Rey</label>
-                <label><input type="checkbox" name="centers" value="centro autorizado arraijan"> Centro Autorizado Arraijan</label>
-                <label><input type="checkbox" name="centers" value="escuela bet yacoov"> Escuela Bet Yacoov</label>
-                <label><input type="checkbox" name="centers" value="escuela de la salle"> Escuela De La Salle</label>
+                {% if center_choices %}
+                    {% for slug, label in center_choices %}
+                        <label><input type="checkbox" name="centers" value="{{ slug }}"> {{ label }}</label>
+                    {% endfor %}
+                {% else %}
+                    <span>No hay centros configurados.</span>
+                {% endif %}
             </div>
             <div class="form-actions" style="margin-top:1rem;display:flex;gap:.5rem;justify-content:flex-end;">
                 <button type="button" class="btn-secondary" onclick="closeModal('editCentersModal')">Cancelar</button>

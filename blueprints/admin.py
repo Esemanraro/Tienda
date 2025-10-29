@@ -14,7 +14,7 @@ from sqlalchemy.orm import selectinload
 from decimal import Decimal, InvalidOperation
 
 # Importaciones absolutas
-from app.models import User, Toy, Order, OrderItem, ToyCenterAvailability
+from app.models import User, Toy, Order, OrderItem, ToyCenterAvailability, Center
 from app.extensions import db
 from app.forms import ToyForm, AddUserForm, EditUserForm
 from pagination_helpers import PaginationHelper, paginate_query
@@ -218,7 +218,7 @@ def get_sales_chart_data():
     """Obtener datos para el gráfico de ventas de los últimos 7 días"""
     dates = []
     sales_data = []
-    
+
     try:
         # Ventas de los últimos 7 días (usa índice idx_order_active_date)
         for i in range(7):
@@ -244,6 +244,24 @@ def get_sales_chart_data():
         sales_data = [0] * 7
     
     return {'dates': dates, 'sales_data': sales_data}
+
+
+def get_center_choices():
+    try:
+        centers = Center.query.order_by(Center.name.asc()).all()
+        return [(c.slug, c.name) for c in centers]
+    except Exception:
+        return []
+
+
+def normalize_center_slug(value):
+    if not value:
+        return ''
+    return value.strip().lower()
+
+
+def get_center_slug_set():
+    return {slug for slug, _ in get_center_choices()}
 
 
 @admin_bp.route('/users')
@@ -467,6 +485,12 @@ def add_toy():
 
             # Validar centros seleccionados (mínimo uno)
             selected_centers = request.form.getlist('centers') or []
+            valid_centers = get_center_slug_set()
+            selected_centers = [
+                normalize_center_slug(center)
+                for center in selected_centers
+                if normalize_center_slug(center) in valid_centers
+            ]
             
             # Crear nuevo juguete con categorias separadas
             new_toy = Toy(
@@ -511,6 +535,8 @@ def bulk_upload_toys():
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
         return redirect(url_for('shop.index'))
+
+    valid_centers = get_center_slug_set()
 
     if request.method == 'POST':
         csv_file = request.files.get('csv_file')
@@ -574,14 +600,15 @@ def bulk_upload_toys():
 
                 centers_str = data.get('center')
                 if centers_str:
-                    centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
+                    centers = [normalize_center_slug(c) for c in re.split(r'[;,]', centers_str) if c.strip()]
                     if 'all' in centers:
-                        for center, _ in AddUserForm.CENTERS:
-                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        for center_slug in valid_centers:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center_slug))
                         db.session.commit()
                     else:
-                        for center in centers:
-                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        filtered = [center for center in centers if center in valid_centers]
+                        for center_slug in filtered:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center_slug))
                         db.session.commit()
 
                 created += 1
@@ -814,7 +841,9 @@ def manage_toy_centers(toy_id):
             new_centers = request.form.getlist('centers') or []
 
         # Normalizar (opcional): valores en minúscula para consistencia
-        new_centers = [c.strip().lower() for c in new_centers if isinstance(c, str)]
+        requested_centers = [normalize_center_slug(c) for c in new_centers if isinstance(c, str)]
+        valid_centers = get_center_slug_set()
+        new_centers = [c for c in requested_centers if c in valid_centers]
 
         # Centros actuales
         existing_rows = ToyCenterAvailability.query.filter_by(toy_id=toy.id).all()
@@ -1103,7 +1132,22 @@ def download_receipt(order_id):
         toy_name = it.toy.name if getattr(it, 'toy', None) else f"Toy ID {it.toy_id}"
         lines.append(f" - {toy_name} x{it.quantity} = A$ {subtotal:.2f}")
     lines.append("")
-    lines.append(f"Total (registro): A$ {float(order.total_price or 0.0):.2f}")
+    subtotal = float(order.subtotal_price or order.total_price or 0.0)
+    discount_amount = float(order.discount_amount or 0.0)
+    final_total = float(order.total_price or 0.0)
+    discount_label = ''
+    if getattr(order, 'discount_center', None):
+        center_obj = Center.query.filter_by(slug=order.discount_center).first()
+        name = center_obj.name if center_obj else order.discount_center
+        if getattr(order, 'discount_percentage', 0):
+            discount_label = f"{name} ({order.discount_percentage:.0f}%)"
+        else:
+            discount_label = name
+    lines.append(f"Subtotal: A$ {subtotal:.2f}")
+    if discount_amount > 0:
+        label = f"{discount_label}: " if discount_label else ''
+        lines.append(f"Descuento {label}-A$ {discount_amount:.2f}")
+    lines.append(f"Total (registro): A$ {final_total:.2f}")
     lines.append(f"Total (calculado): A$ {total_calc:.2f}")
 
     from flask import Response
@@ -1159,6 +1203,8 @@ def add_user():
         return redirect(url_for('admin.dashboard'))
     
     form = AddUserForm()
+    form.center.choices = get_center_choices()
+
     if form.validate_on_submit():
         existing_user_username = User.query.filter_by(username=form.username.data).first()
         email_data = normalize_email(form.email.data)
@@ -1178,10 +1224,19 @@ def add_user():
             flash('Por favor corrige los errores en el formulario.', 'warning')
             return redirect(url_for('admin.all_users'))
 
+        center_slug = normalize_center_slug(form.center.data)
+        center_record = Center.query.filter_by(slug=center_slug).first()
+        if not center_record:
+            form.center.errors.append('El centro seleccionado no es válido.')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'errors': form.errors}), 400
+            flash('Por favor selecciona un centro válido.', 'warning')
+            return redirect(url_for('admin.all_users'))
+
         new_user = User(
             username=form.username.data,
             email=email_data,
-            center=form.center.data,
+            center=center_record.slug,
             is_admin=form.is_admin.data,
             is_active=form.is_active.data
         )
@@ -1227,6 +1282,7 @@ def edit_user(user_id):
 
     user_to_edit = User.query.get_or_404(user_id)
     form = EditUserForm(original_username=user_to_edit.username, original_email=user_to_edit.email, obj=user_to_edit)
+    form.center.choices = get_center_choices()
 
     if form.validate_on_submit():
         error = False
@@ -1246,9 +1302,16 @@ def edit_user(user_id):
             flash('Por favor corrige los errores en el formulario.', 'warning')
             return render_template('admin_edit_user.html', title='Editar Usuario', form=form, user_id=user_id)
 
+        center_slug = normalize_center_slug(form.center.data)
+        center_record = Center.query.filter_by(slug=center_slug).first()
+        if not center_record:
+            form.center.errors.append('El centro seleccionado no es válido.')
+            flash('Por favor selecciona un centro válido.', 'warning')
+            return render_template('admin_edit_user.html', title='Editar Usuario', form=form, user_id=user_id)
+
         user_to_edit.username = form.username.data
         user_to_edit.email = email_data
-        user_to_edit.center = form.center.data
+        user_to_edit.center = center_record.slug
         if form.balance.data is not None:
             user_to_edit.balance = form.balance.data
         user_to_edit.is_admin = form.is_admin.data

@@ -235,6 +235,22 @@ def create_app(config_class=None):
             cart_count = sum(item.get('quantity', 0) for item in session['cart'].values())
         return dict(cart_count=cart_count)
 
+    @app.context_processor
+    def inject_centers():
+        try:
+            centers = models.Center.query.order_by(models.Center.name.asc()).all()
+            center_choices = [(center.slug, center.name) for center in centers]
+            centers_map = {center.slug: center.name for center in centers}
+        except Exception:
+            centers = []
+            center_choices = []
+            centers_map = {}
+        return {
+            'all_centers': centers,
+            'center_choices': center_choices,
+            'centers_by_slug': centers_map,
+        }
+
     # -------- Manejadores de error --------
     # Mantén los tuyos existentes y añade 400 que usabas en app/app.py
     try:
