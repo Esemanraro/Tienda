@@ -327,21 +327,6 @@ def centers_admin():
         .subquery()
     )
 
-    centers_with_metrics = (
-        db.session.query(
-            Center,
-            db.func.coalesce(user_stats_subquery.c.user_count, 0).label('user_count'),
-            db.func.coalesce(user_stats_subquery.c.total_balance, 0.0).label('total_balance'),
-            db.func.coalesce(order_stats_subquery.c.order_count, 0).label('order_count'),
-            db.func.coalesce(order_stats_subquery.c.order_total, 0.0).label('order_total'),
-            db.func.coalesce(order_stats_subquery.c.discount_total, 0.0).label('discount_total')
-        )
-        .outerjoin(user_stats_subquery, user_stats_subquery.c.center_slug == db.func.lower(Center.slug))
-        .outerjoin(order_stats_subquery, order_stats_subquery.c.center_slug == db.func.lower(Center.slug))
-        .order_by(Center.name.asc())
-        .all()
-    )
-
     centers_payload = []
     overall_stats = {
         'total_centers': 0,
@@ -352,27 +337,119 @@ def centers_admin():
         'discount_total': 0.0,
     }
 
-    for center_obj, user_count, total_balance, order_count, order_total, discount_total in centers_with_metrics:
-        centers_payload.append({
-            'id': center_obj.id,
-            'slug': center_obj.slug,
-            'name': center_obj.name,
-            'discount_percentage': center_obj.discount_percentage,
-            'created_at': center_obj.created_at,
-            'updated_at': center_obj.updated_at,
+    def _friendly_name_from_slug(slug: str) -> str:
+        cleaned = slug.replace('-', ' ').replace('_', ' ').strip()
+        return cleaned.title() if cleaned else slug
+
+    centers_query = Center.query.order_by(Center.name.asc()).all()
+    centers_by_slug = {}
+    ordered_center_slugs = []
+    for center_obj in centers_query:
+        normalized_slug = normalize_center_slug(center_obj.slug)
+        if not normalized_slug:
+            continue
+        centers_by_slug[normalized_slug] = center_obj
+        ordered_center_slugs.append(normalized_slug)
+
+    user_stats_rows = db.session.query(
+        user_stats_subquery.c.center_slug,
+        user_stats_subquery.c.user_count,
+        user_stats_subquery.c.total_balance,
+    ).all()
+    user_stats_map = {}
+    for slug_value, user_count, total_balance in user_stats_rows:
+        normalized_slug = normalize_center_slug(slug_value)
+        if not normalized_slug:
+            continue
+        user_stats_map[normalized_slug] = {
             'user_count': int(user_count or 0),
             'total_balance': float(total_balance or 0.0),
+        }
+
+    order_stats_rows = db.session.query(
+        order_stats_subquery.c.center_slug,
+        order_stats_subquery.c.order_count,
+        order_stats_subquery.c.order_total,
+        order_stats_subquery.c.discount_total,
+    ).all()
+    order_stats_map = {}
+    for slug_value, order_count, order_total, discount_total in order_stats_rows:
+        normalized_slug = normalize_center_slug(slug_value)
+        if not normalized_slug:
+            continue
+        order_stats_map[normalized_slug] = {
             'order_count': int(order_count or 0),
             'order_total': float(order_total or 0.0),
             'discount_total': float(discount_total or 0.0),
+        }
+
+    all_slugs = set(ordered_center_slugs)
+    all_slugs.update(user_stats_map.keys())
+    all_slugs.update(order_stats_map.keys())
+
+    def _collect_metrics(normalized_slug: str):
+        user_metrics = user_stats_map.get(normalized_slug, {})
+        order_metrics = order_stats_map.get(normalized_slug, {})
+        return (
+            int(user_metrics.get('user_count', 0)),
+            float(user_metrics.get('total_balance', 0.0)),
+            int(order_metrics.get('order_count', 0)),
+            float(order_metrics.get('order_total', 0.0)),
+            float(order_metrics.get('discount_total', 0.0)),
+        )
+
+    def _append_center_record(*, slug_for_metrics: str, center_obj=None):
+        user_count, total_balance, order_count, order_total, discount_total = _collect_metrics(slug_for_metrics)
+
+        if center_obj is not None:
+            record = {
+                'id': center_obj.id,
+                'slug': center_obj.slug,
+                'name': center_obj.name,
+                'discount_percentage': center_obj.discount_percentage,
+                'created_at': center_obj.created_at,
+                'updated_at': center_obj.updated_at,
+                'can_edit_discount': True,
+                'is_legacy': False,
+            }
+        else:
+            display_slug = slug_for_metrics
+            record = {
+                'id': None,
+                'slug': display_slug,
+                'name': _friendly_name_from_slug(display_slug),
+                'discount_percentage': 0.0,
+                'created_at': None,
+                'updated_at': None,
+                'can_edit_discount': False,
+                'is_legacy': True,
+            }
+
+        record.update({
+            'user_count': user_count,
+            'total_balance': total_balance,
+            'order_count': order_count,
+            'order_total': order_total,
+            'discount_total': discount_total,
         })
 
-        overall_stats['total_centers'] += 1
-        overall_stats['total_users'] += int(user_count or 0)
-        overall_stats['total_balance'] += float(total_balance or 0.0)
-        overall_stats['total_orders'] += int(order_count or 0)
-        overall_stats['order_total'] += float(order_total or 0.0)
-        overall_stats['discount_total'] += float(discount_total or 0.0)
+        centers_payload.append(record)
+
+        overall_stats['total_users'] += user_count
+        overall_stats['total_balance'] += total_balance
+        overall_stats['total_orders'] += order_count
+        overall_stats['order_total'] += order_total
+        overall_stats['discount_total'] += discount_total
+
+    for normalized_slug in ordered_center_slugs:
+        center_obj = centers_by_slug.get(normalized_slug)
+        _append_center_record(slug_for_metrics=normalized_slug, center_obj=center_obj)
+
+    legacy_slugs = sorted(all_slugs - set(ordered_center_slugs))
+    for normalized_slug in legacy_slugs:
+        _append_center_record(slug_for_metrics=normalized_slug)
+
+    overall_stats['total_centers'] = len(centers_payload)
 
     unassigned_users_query = db.session.query(
         db.func.count(User.id),
