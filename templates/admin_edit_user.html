@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}✏️ Editar Usuario{% endblock %}
+
+{% block content %}
+<div class="admin-edit-user-container">
+    <div class="admin-edit-user-card">
+        <div class="card-header">
+            <h2>✏️ Editar Usuario</h2>
+            <p>Actualiza la informacion del usuario y guarda los cambios.</p>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.edit_user', user_id=user_id) }}" class="edit-user-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.username.label(class="form-label") }}
+                        {{ form.username(class="form-input", placeholder="Nombre de usuario") }}
+                        {% if form.username.errors %}
+                            <div class="form-errors">
+                                {% for error in form.username.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-input", placeholder="Correo electronico") }}
+                        {% if form.email.errors %}
+                            <div class="form-errors">
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.center.label(class="form-label") }}
+                        {{ form.center(class="form-input") }}
+                        {% if form.center.errors %}
+                            <div class="form-errors">
+                                {% for error in form.center.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.balance.label(class="form-label") }}
+                        {{ form.balance(class="form-input", placeholder="Saldo del usuario") }}
+                        {% if form.balance.errors %}
+                            <div class="form-errors">
+                                {% for error in form.balance.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            {{ form.is_admin() }}
+                            <span>{{ form.is_admin.label.text }}</span>
+                        </label>
+                        {% if form.is_admin.errors %}
+                            <div class="form-errors">
+                                {% for error in form.is_admin.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            {{ form.is_active() }}
+                            <span>{{ form.is_active.label.text }}</span>
+                        </label>
+                        {% if form.is_active.errors %}
+                            <div class="form-errors">
+                                {% for error in form.is_active.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.new_password.label(class="form-label") }}
+                        {{ form.new_password(class="form-input", placeholder="Nueva contrasena (opcional)") }}
+                        {% if form.new_password.errors %}
+                            <div class="form-errors">
+                                {% for error in form.new_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.confirm_new_password.label(class="form-label") }}
+                        {{ form.confirm_new_password(class="form-input", placeholder="Confirmar nueva contrasena") }}
+                        {% if form.confirm_new_password.errors %}
+                            <div class="form-errors">
+                                {% for error in form.confirm_new_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    {{ form.submit(class="action-button primary") }}
+                    <a href="{{ url_for('admin.all_users') }}" class="action-button secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-edit-user-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.admin-edit-user-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    background: rgba(33, 150, 243, 0.1);
+    padding: 2rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(33, 150, 243, 0.1);
+}
+
+.card-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.card-header p {
+    margin-top: 0.5rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.edit-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.form-input {
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(33, 150, 243, 0.2);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: white;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.checkbox-group {
+    align-items: flex-start;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.form-errors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: #d32f2f;
+    font-size: 0.9rem;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    font-weight: 600;
+}
+
+.action-button.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-button.secondary {
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--primary-color);
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(33, 150, 243, 0.15);
+}
+
+@media (max-width: 600px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-button {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
