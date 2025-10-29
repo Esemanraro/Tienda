@@ -13,6 +13,7 @@ from flask_caching import Cache
 
 # Extensiones compartidas
 from .extensions import db, migrate, login_manager
+from .db_maintenance import ensure_order_table_columns
 
 # Modelos y utilidades
 from . import models as models  # register once; access via models.User / models.Toy
@@ -302,6 +303,7 @@ def create_app(config_class=None):
     # Crear tablas si no existen (desarrollo)
     with app.app_context():
         db.create_all()
+        ensure_order_table_columns()
         # Asegurar columna para forzar cambio de contraseña en usuarios existente
         try:
             from sqlalchemy import inspect, text
