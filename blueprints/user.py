@@ -9,7 +9,7 @@ from datetime import datetime
 from sqlalchemy import desc
 
 # Importaciones absolutas
-from app.models import Toy, Order, OrderItem, User
+from app.models import Toy, Order, OrderItem, User, Center
 from app.extensions import db
 from app.filters import format_currency
 
@@ -92,14 +92,23 @@ def change_password():
 def update_center():
     """Actualizar centro del usuario"""
     data = request.get_json()
-    new_center = data.get('center')
-    
-    if new_center:
-        current_user.center = new_center
+    new_center = (data.get('center') or '').strip().lower()
+
+    if not new_center:
+        return jsonify({'success': False, 'message': 'Centro inválido'}), 400
+
+    center_record = Center.query.filter_by(slug=new_center).first()
+    if not center_record:
+        return jsonify({'success': False, 'message': 'Centro no encontrado'}), 404
+
+    try:
+        current_user.center = center_record.slug
         db.session.commit()
         return jsonify({'success': True})
-    
-    return jsonify({'success': False})
+    except Exception as exc:
+        db.session.rollback()
+        current_app.logger.error(f"Error al actualizar centro: {exc}")
+        return jsonify({'success': False, 'message': 'No se pudo actualizar el centro'}), 500
 
 @user_bp.route('/update_theme', methods=['POST'])
 @login_required

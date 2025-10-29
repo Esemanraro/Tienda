@@ -340,7 +340,13 @@ a.nav-card:hover {
             <h3 style="margin:10px 0 5px; font-size:1.3rem; font-weight:600;">Ordenes</h3>
             <p style="margin:0; color:rgba(255,255,255,0.9); font-size:0.95rem;">Historial de compras</p>
         </a>
-        
+
+        <a href="{{ url_for('admin.centers_admin') }}" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-radius:15px; padding:25px; text-decoration:none; box-shadow:0 8px 25px rgba(102,126,234,0.3); transition:all 0.3s ease;">
+            <div style="font-size:2rem;">🏢</div>
+            <h3 style="margin:10px 0 5px; font-size:1.3rem; font-weight:600;">Centros</h3>
+            <p style="margin:0; color:rgba(255,255,255,0.9); font-size:0.95rem;">Gestionar descuentos y métricas</p>
+        </a>
+
         <a href="{{ url_for('admin.backup_dashboard') }}" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-radius:15px; padding:25px; text-decoration:none; box-shadow:0 8px 25px rgba(102,126,234,0.3); transition:all 0.3s ease;">
             <div style="font-size:2rem;">💾</div>
             <h3 style="margin:10px 0 5px; font-size:1.3rem; font-weight:600;">Backup</h3>

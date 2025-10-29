@@ -33,7 +33,22 @@
             <!-- Resumen de la orden -->
             <div class="order-summary">
                 <div class="summary-row">
-                    <span>Total de la Orden:</span>
+                    <span>Subtotal:</span>
+                    <span>{{ format_currency(order.subtotal_price or order.total_price) }}</span>
+                </div>
+                {% if order.discount_amount %}
+                <div class="summary-row">
+                    <span>
+                        Descuento
+                        {% if order.discount_center %}
+                            ({{ centers_by_slug.get(order.discount_center, order.discount_center|title) }}{% if order.discount_percentage %} - {{ '%.2f'|format(order.discount_percentage) }}%{% endif %})
+                        {% endif %}
+                    </span>
+                    <span>-{{ format_currency(order.discount_amount) }}</span>
+                </div>
+                {% endif %}
+                <div class="summary-row total-row">
+                    <span>Total con descuento:</span>
                     <span class="total-amount">{{ format_currency(order.total_price) }}</span>
                 </div>
             </div>
@@ -63,7 +78,11 @@
         <div style="text-align: center;">
             <h2 style="color: #4CAF50; margin-bottom: 1rem;">¡Compra Realizada con Exito! 🎉</h2>
             <p>Tu orden #{{ order.id }} ha sido procesada correctamente.</p>
-            <p>Total: {{ format_currency(order.total_price) }}</p>
+            <p>Subtotal: {{ format_currency(order.subtotal_price or order.total_price) }}</p>
+            {% if order.discount_amount %}
+            <p>Descuento aplicado: -{{ format_currency(order.discount_amount) }}{% if order.discount_percentage %} ({{ '%.2f'|format(order.discount_percentage) }}%){% endif %}</p>
+            {% endif %}
+            <p>Total a pagar: {{ format_currency(order.total_price) }}</p>
             
             <div style="margin: 2rem 0;">
                 <a href="{{ url_for('shop.download_receipt', order_id=order.id) }}" 
@@ -210,6 +229,12 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     font-size: 1.2rem;
     font-weight: bold;
+}
+
+.total-row {
+    border-top: 2px solid rgba(76, 175, 80, 0.2);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
 }
 
 .total-amount {

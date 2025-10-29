@@ -96,22 +96,7 @@ class AddUserForm(FlaskForm):
     )
     password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirmar Contraseña', validators=[DataRequired(), EqualTo('password', message='Las contraseñas deben coincidir.')])
-    # Definir opciones de centros (ALOHA locations)
-    CENTERS = [
-        ('aguadulce', 'Aguadulce'),
-        ('anclas mall', 'Anclas Mall'),
-        ('brisas del golf', 'Brisas del Golf'),
-        ('calle 50', 'Calle 50'),
-        ('costa del este', 'Costa del Este'),
-        ('david', 'David'),
-        ('chitre', 'Chitre'),
-        ('santiago', 'Santiago'),
-        ('condado del rey', 'Condado Del Rey'),
-        ('centro autorizado arraijan', 'Centro Autorizado Arraijan'),
-        ('escuela bet yacoov', 'Escuela Bet Yacoov'),
-        ('escuela de la salle', 'Escuela De La Salle'),
-    ]
-    center = SelectField('Centro/Sucursal', choices=CENTERS, validators=[DataRequired()])
+    center = SelectField('Centro/Sucursal', choices=[], validators=[DataRequired()])
     balance = FloatField('Saldo Inicial (A$)', validators=[Optional(), NumberRange(min=0)])
     require_password_change = BooleanField('Requerir cambio de contraseA�a al primer ingreso', default=True)
     is_admin = BooleanField('¿Es Administrador?', default=False)
@@ -127,7 +112,7 @@ class EditUserForm(FlaskForm):
     )
     new_password = PasswordField('Nueva Contraseña (dejar en blanco para no cambiar)', validators=[Optional(), Length(min=6)])
     confirm_new_password = PasswordField('Confirmar Nueva Contraseña', validators=[EqualTo('new_password', message='Las nuevas contraseñas deben coincidir.')])
-    center = SelectField('Centro/Sucursal', choices=AddUserForm.CENTERS, validators=[DataRequired()])
+    center = SelectField('Centro/Sucursal', choices=[], validators=[DataRequired()])
     balance = FloatField('Saldo (A$)', validators=[Optional(), NumberRange(min=0)])
     is_admin = BooleanField('¿Es Administrador?')
     is_active = BooleanField('¿Está Activo?')

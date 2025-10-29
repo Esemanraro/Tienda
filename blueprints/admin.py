@@ -14,7 +14,7 @@ from sqlalchemy.orm import selectinload
 from decimal import Decimal, InvalidOperation
 
 # Importaciones absolutas
-from app.models import User, Toy, Order, OrderItem, ToyCenterAvailability
+from app.models import User, Toy, Order, OrderItem, ToyCenterAvailability, Center
 from app.extensions import db
 from app.forms import ToyForm, AddUserForm, EditUserForm
 from pagination_helpers import PaginationHelper, paginate_query
@@ -214,11 +214,205 @@ def get_dashboard_stats_optimized():
     
     return sales_stats
 
+
+@admin_bp.route('/centers', methods=['GET', 'POST'])
+@login_required
+def centers_admin():
+    """Administración de centros ALOHA con métricas agregadas."""
+    if not current_user.is_admin:
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('shop.index'))
+
+    redirect_to_self = False
+
+    if request.method == 'POST':
+        action = request.form.get('action', '').strip()
+        try:
+            if action == 'create':
+                name = (request.form.get('name') or '').strip()
+                raw_slug = (request.form.get('slug') or '').strip()
+                discount_input = (request.form.get('discount_percentage') or '0').strip()
+
+                if not raw_slug and name:
+                    raw_slug = name
+
+                slug = raw_slug.lower().replace(' ', '-')
+                slug = ''.join(ch for ch in slug if ch.isalnum() or ch in ('-', '_'))
+                slug = slug.strip('-_')
+
+                if not name or not slug:
+                    flash('El nombre y el identificador del centro son obligatorios.', 'error')
+                else:
+                    try:
+                        discount_value = float(Decimal(discount_input.replace('%', '').replace(',', '.')))
+                    except (InvalidOperation, ValueError):
+                        flash('El descuento debe ser un número válido.', 'error')
+                        discount_value = None
+
+                    if discount_value is not None:
+                        if discount_value < 0 or discount_value > 100:
+                            flash('El descuento debe estar entre 0% y 100%.', 'error')
+                        elif Center.query.filter(db.func.lower(Center.slug) == slug.lower()).first():
+                            flash('Ya existe un centro con ese identificador.', 'error')
+                        else:
+                            new_center = Center(
+                                slug=slug,
+                                name=name,
+                                discount_percentage=discount_value
+                            )
+                            db.session.add(new_center)
+                            db.session.commit()
+                            flash(f'Centro "{name}" creado exitosamente.', 'success')
+            elif action == 'update_discount':
+                center_id_raw = request.form.get('center_id')
+                discount_input = (request.form.get('discount_percentage') or '0').strip()
+
+                try:
+                    discount_value = float(Decimal(discount_input.replace('%', '').replace(',', '.')))
+                except (InvalidOperation, ValueError):
+                    flash('El descuento debe ser un número válido.', 'error')
+                    discount_value = None
+
+                if discount_value is not None:
+                    if discount_value < 0 or discount_value > 100:
+                        flash('El descuento debe estar entre 0% y 100%.', 'error')
+                    else:
+                        try:
+                            center_id = int(center_id_raw)
+                        except (TypeError, ValueError):
+                            center = None
+                        else:
+                            center = Center.query.get(center_id)
+
+                        if not center:
+                            flash('No se encontró el centro especificado.', 'error')
+                        else:
+                            center.discount_percentage = discount_value
+                            db.session.commit()
+                            flash(f'Descuento actualizado para {center.name}.', 'success')
+            else:
+                flash('Acción no reconocida.', 'error')
+        except Exception as exc:
+            logging.exception('Error administrando centros: %s', exc)
+            db.session.rollback()
+            flash('Ocurrió un error al procesar la solicitud.', 'error')
+
+        redirect_to_self = True
+
+    if redirect_to_self:
+        return redirect(url_for('admin.centers_admin'))
+
+    # Métricas agregadas
+    user_stats_subquery = (
+        db.session.query(
+            db.func.lower(User.center).label('center_slug'),
+            db.func.count(User.id).label('user_count'),
+            db.func.coalesce(db.func.sum(User.balance), 0.0).label('total_balance')
+        )
+        .filter(User.is_active == True)
+        .group_by(db.func.lower(User.center))
+        .subquery()
+    )
+
+    order_stats_subquery = (
+        db.session.query(
+            db.func.lower(Order.discount_center).label('center_slug'),
+            db.func.count(Order.id).label('order_count'),
+            db.func.coalesce(db.func.sum(Order.total_price), 0.0).label('order_total'),
+            db.func.coalesce(db.func.sum(Order.discount_amount), 0.0).label('discount_total')
+        )
+        .filter(Order.is_active == True)
+        .group_by(db.func.lower(Order.discount_center))
+        .subquery()
+    )
+
+    centers_with_metrics = (
+        db.session.query(
+            Center,
+            db.func.coalesce(user_stats_subquery.c.user_count, 0).label('user_count'),
+            db.func.coalesce(user_stats_subquery.c.total_balance, 0.0).label('total_balance'),
+            db.func.coalesce(order_stats_subquery.c.order_count, 0).label('order_count'),
+            db.func.coalesce(order_stats_subquery.c.order_total, 0.0).label('order_total'),
+            db.func.coalesce(order_stats_subquery.c.discount_total, 0.0).label('discount_total')
+        )
+        .outerjoin(user_stats_subquery, user_stats_subquery.c.center_slug == db.func.lower(Center.slug))
+        .outerjoin(order_stats_subquery, order_stats_subquery.c.center_slug == db.func.lower(Center.slug))
+        .order_by(Center.name.asc())
+        .all()
+    )
+
+    centers_payload = []
+    overall_stats = {
+        'total_centers': 0,
+        'total_users': 0,
+        'total_balance': 0.0,
+        'total_orders': 0,
+        'order_total': 0.0,
+        'discount_total': 0.0,
+    }
+
+    for center_obj, user_count, total_balance, order_count, order_total, discount_total in centers_with_metrics:
+        centers_payload.append({
+            'id': center_obj.id,
+            'slug': center_obj.slug,
+            'name': center_obj.name,
+            'discount_percentage': center_obj.discount_percentage,
+            'created_at': center_obj.created_at,
+            'updated_at': center_obj.updated_at,
+            'user_count': int(user_count or 0),
+            'total_balance': float(total_balance or 0.0),
+            'order_count': int(order_count or 0),
+            'order_total': float(order_total or 0.0),
+            'discount_total': float(discount_total or 0.0),
+        })
+
+        overall_stats['total_centers'] += 1
+        overall_stats['total_users'] += int(user_count or 0)
+        overall_stats['total_balance'] += float(total_balance or 0.0)
+        overall_stats['total_orders'] += int(order_count or 0)
+        overall_stats['order_total'] += float(order_total or 0.0)
+        overall_stats['discount_total'] += float(discount_total or 0.0)
+
+    unassigned_users_query = db.session.query(
+        db.func.count(User.id),
+        db.func.coalesce(db.func.sum(User.balance), 0.0)
+    ).filter(
+        User.is_active == True,
+        or_(User.center == None, db.func.trim(User.center) == '')
+    ).first()
+
+    orders_without_center_query = db.session.query(
+        db.func.count(Order.id),
+        db.func.coalesce(db.func.sum(Order.total_price), 0.0)
+    ).filter(
+        Order.is_active == True,
+        or_(Order.discount_center == None, db.func.trim(Order.discount_center) == '')
+    ).first()
+
+    unassigned_users = {
+        'count': int(unassigned_users_query[0] or 0) if unassigned_users_query else 0,
+        'balance': float(unassigned_users_query[1] or 0.0) if unassigned_users_query else 0.0,
+    }
+
+    orders_without_center = {
+        'count': int(orders_without_center_query[0] or 0) if orders_without_center_query else 0,
+        'total': float(orders_without_center_query[1] or 0.0) if orders_without_center_query else 0.0,
+    }
+
+    return render_template(
+        'admin_centers.html',
+        centers=centers_payload,
+        overall_stats=overall_stats,
+        unassigned_users=unassigned_users,
+        orders_without_center=orders_without_center
+    )
+
+
 def get_sales_chart_data():
     """Obtener datos para el gráfico de ventas de los últimos 7 días"""
     dates = []
     sales_data = []
-    
+
     try:
         # Ventas de los últimos 7 días (usa índice idx_order_active_date)
         for i in range(7):
@@ -244,6 +438,24 @@ def get_sales_chart_data():
         sales_data = [0] * 7
     
     return {'dates': dates, 'sales_data': sales_data}
+
+
+def get_center_choices():
+    try:
+        centers = Center.query.order_by(Center.name.asc()).all()
+        return [(c.slug, c.name) for c in centers]
+    except Exception:
+        return []
+
+
+def normalize_center_slug(value):
+    if not value:
+        return ''
+    return value.strip().lower()
+
+
+def get_center_slug_set():
+    return {slug for slug, _ in get_center_choices()}
 
 
 @admin_bp.route('/users')
@@ -467,6 +679,12 @@ def add_toy():
 
             # Validar centros seleccionados (mínimo uno)
             selected_centers = request.form.getlist('centers') or []
+            valid_centers = get_center_slug_set()
+            selected_centers = [
+                normalize_center_slug(center)
+                for center in selected_centers
+                if normalize_center_slug(center) in valid_centers
+            ]
             
             # Crear nuevo juguete con categorias separadas
             new_toy = Toy(
@@ -511,6 +729,8 @@ def bulk_upload_toys():
     if not current_user.is_admin:
         flash('Acceso denegado', 'error')
         return redirect(url_for('shop.index'))
+
+    valid_centers = get_center_slug_set()
 
     if request.method == 'POST':
         csv_file = request.files.get('csv_file')
@@ -574,14 +794,15 @@ def bulk_upload_toys():
 
                 centers_str = data.get('center')
                 if centers_str:
-                    centers = [c.strip().lower() for c in re.split(r'[;,]', centers_str) if c.strip()]
+                    centers = [normalize_center_slug(c) for c in re.split(r'[;,]', centers_str) if c.strip()]
                     if 'all' in centers:
-                        for center, _ in AddUserForm.CENTERS:
-                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        for center_slug in valid_centers:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center_slug))
                         db.session.commit()
                     else:
-                        for center in centers:
-                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center))
+                        filtered = [center for center in centers if center in valid_centers]
+                        for center_slug in filtered:
+                            db.session.add(ToyCenterAvailability(toy_id=toy.id, center=center_slug))
                         db.session.commit()
 
                 created += 1
@@ -814,7 +1035,9 @@ def manage_toy_centers(toy_id):
             new_centers = request.form.getlist('centers') or []
 
         # Normalizar (opcional): valores en minúscula para consistencia
-        new_centers = [c.strip().lower() for c in new_centers if isinstance(c, str)]
+        requested_centers = [normalize_center_slug(c) for c in new_centers if isinstance(c, str)]
+        valid_centers = get_center_slug_set()
+        new_centers = [c for c in requested_centers if c in valid_centers]
 
         # Centros actuales
         existing_rows = ToyCenterAvailability.query.filter_by(toy_id=toy.id).all()
@@ -1103,7 +1326,22 @@ def download_receipt(order_id):
         toy_name = it.toy.name if getattr(it, 'toy', None) else f"Toy ID {it.toy_id}"
         lines.append(f" - {toy_name} x{it.quantity} = A$ {subtotal:.2f}")
     lines.append("")
-    lines.append(f"Total (registro): A$ {float(order.total_price or 0.0):.2f}")
+    subtotal = float(order.subtotal_price or order.total_price or 0.0)
+    discount_amount = float(order.discount_amount or 0.0)
+    final_total = float(order.total_price or 0.0)
+    discount_label = ''
+    if getattr(order, 'discount_center', None):
+        center_obj = Center.query.filter_by(slug=order.discount_center).first()
+        name = center_obj.name if center_obj else order.discount_center
+        if getattr(order, 'discount_percentage', 0):
+            discount_label = f"{name} ({order.discount_percentage:.0f}%)"
+        else:
+            discount_label = name
+    lines.append(f"Subtotal: A$ {subtotal:.2f}")
+    if discount_amount > 0:
+        label = f"{discount_label}: " if discount_label else ''
+        lines.append(f"Descuento {label}-A$ {discount_amount:.2f}")
+    lines.append(f"Total (registro): A$ {final_total:.2f}")
     lines.append(f"Total (calculado): A$ {total_calc:.2f}")
 
     from flask import Response
@@ -1159,6 +1397,8 @@ def add_user():
         return redirect(url_for('admin.dashboard'))
     
     form = AddUserForm()
+    form.center.choices = get_center_choices()
+
     if form.validate_on_submit():
         existing_user_username = User.query.filter_by(username=form.username.data).first()
         email_data = normalize_email(form.email.data)
@@ -1178,10 +1418,19 @@ def add_user():
             flash('Por favor corrige los errores en el formulario.', 'warning')
             return redirect(url_for('admin.all_users'))
 
+        center_slug = normalize_center_slug(form.center.data)
+        center_record = Center.query.filter_by(slug=center_slug).first()
+        if not center_record:
+            form.center.errors.append('El centro seleccionado no es válido.')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'errors': form.errors}), 400
+            flash('Por favor selecciona un centro válido.', 'warning')
+            return redirect(url_for('admin.all_users'))
+
         new_user = User(
             username=form.username.data,
             email=email_data,
-            center=form.center.data,
+            center=center_record.slug,
             is_admin=form.is_admin.data,
             is_active=form.is_active.data
         )
@@ -1227,6 +1476,7 @@ def edit_user(user_id):
 
     user_to_edit = User.query.get_or_404(user_id)
     form = EditUserForm(original_username=user_to_edit.username, original_email=user_to_edit.email, obj=user_to_edit)
+    form.center.choices = get_center_choices()
 
     if form.validate_on_submit():
         error = False
@@ -1246,9 +1496,16 @@ def edit_user(user_id):
             flash('Por favor corrige los errores en el formulario.', 'warning')
             return render_template('admin_edit_user.html', title='Editar Usuario', form=form, user_id=user_id)
 
+        center_slug = normalize_center_slug(form.center.data)
+        center_record = Center.query.filter_by(slug=center_slug).first()
+        if not center_record:
+            form.center.errors.append('El centro seleccionado no es válido.')
+            flash('Por favor selecciona un centro válido.', 'warning')
+            return render_template('admin_edit_user.html', title='Editar Usuario', form=form, user_id=user_id)
+
         user_to_edit.username = form.username.data
         user_to_edit.email = email_data
-        user_to_edit.center = form.center.data
+        user_to_edit.center = center_record.slug
         if form.balance.data is not None:
             user_to_edit.balance = form.balance.data
         user_to_edit.is_admin = form.is_admin.data

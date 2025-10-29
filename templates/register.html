@@ -42,19 +42,14 @@
                     Centro ALOHA
                 </label>
                 <select name="center" id="center" class="auth-input" required>
-                    <option value="" disabled selected>Selecciona tu centro</option>
-                    <option value="aguadulce">Aguadulce</option>
-                    <option value="anclas mall">Anclas Mall</option>
-                    <option value="brisas del golf">Brisas del Golf</option>
-                    <option value="calle 50">Calle 50</option>
-                    <option value="costa del este">Costa del Este</option>
-                    <option value="david">David</option>
-                    <option value="chitre">Chitre</option>
-                    <option value="santiago">Santiago</option>
-                    <option value="condado del rey">Condado Del Rey</option>
-                    <option value="centro autorizado arraijan">Centro Autorizado Arraijan</option>
-                    <option value="escuela bet yacoov">Escuela Bet Yacoov</option>
-                    <option value="escuela de la salle">Escuela De La Salle</option>
+                    {% if center_choices %}
+                        <option value="" disabled {% if not form.center.data %}selected{% endif %}>Selecciona tu centro</option>
+                        {% for slug, label in center_choices %}
+                            <option value="{{ slug }}" {% if form.center.data == slug %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="" disabled selected>No hay centros disponibles</option>
+                    {% endif %}
                 </select>
             </div>
 
