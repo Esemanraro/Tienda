@@ -98,7 +98,7 @@
                                         <span class="user-email no-email">Sin correo</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ user.center or 'No especificado' }}</td>
+                                <td>{{ centers_by_slug.get((user.center or '')|lower, user.center or 'No especificado') }}</td>
                                 <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
                                 <td>
                                     <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
@@ -648,18 +648,14 @@ async function editBalance(userId, currentFormatted){
       </label>
       <label>Centro/Sucursal
         <select class="text-input" name="center" required>
-          <option value="aguadulce">Aguadulce</option>
-          <option value="anclas mall">Anclas Mall</option>
-          <option value="brisas del golf">Brisas del Golf</option>
-          <option value="calle 50">Calle 50</option>
-          <option value="costa del este">Costa del Este</option>
-          <option value="david">David</option>
-          <option value="chitre">Chitre</option>
-          <option value="santiago">Santiago</option>
-          <option value="condado del rey">Condado Del Rey</option>
-          <option value="centro autorizado arraijan">Centro Autorizado Arraijan</option>
-          <option value="escuela bet yacoov">Escuela Bet Yacoov</option>
-          <option value="escuela de la salle">Escuela De La Salle</option>
+          {% if center_choices %}
+            <option value="" disabled selected>Selecciona un centro</option>
+            {% for slug, label in center_choices %}
+              <option value="{{ slug }}">{{ label }}</option>
+            {% endfor %}
+          {% else %}
+            <option value="" disabled selected>No hay centros disponibles</option>
+          {% endif %}
         </select>
       </label>
       <label>Saldo Inicial (A$)

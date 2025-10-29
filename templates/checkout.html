@@ -42,14 +42,27 @@
 
                 <div class="summary-details">
                     <div class="summary-row">
-                        <span>Descuento:</span>
-                        <span>A$ 0.00</span>
+                        <span>Subtotal:</span>
+                        <span>{{ format_currency(total) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>
+                            Descuento
+                            {% if center_discount %}
+                                ({{ center_discount.name }}{% if discount_percentage %} - {{ '%.2f'|format(discount_percentage) }}%{% endif %})
+                            {% endif %}
+                        </span>
+                        <span>-{{ format_currency(discount_amount) }}</span>
                     </div>
                     <div class="summary-total">
                         <span>Total a Pagar:</span>
-                        <span class="total-amount">{{ format_currency(total) }}</span>
+                        <span class="total-amount">{{ format_currency(discounted_total) }}</span>
                     </div>
                 </div>
+
+                {% if center_discount and discount_amount > 0 %}
+                <p class="discount-note">Tu centro {{ center_discount.name }} aplicó un descuento del {{ '%.2f'|format(discount_percentage) }}%.</p>
+                {% endif %}
 
                 <div class="summary-actions">
                     <form id="checkoutForm" action="{{ url_for('shop.checkout') }}" method="POST" onsubmit="return handleCheckoutSubmit(event);">
@@ -217,6 +230,12 @@
     padding-top: 1rem;
     margin-top: 1rem;
     border-top: 2px solid rgba(76, 175, 80, 0.1);
+}
+
+.discount-note {
+    margin-top: 0.75rem;
+    color: var(--primary-color);
+    font-size: 0.95rem;
 }
 
 .total-amount {

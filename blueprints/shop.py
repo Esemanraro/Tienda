@@ -17,7 +17,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 # Importaciones absolutas
-from app.models import Toy, Order, OrderItem, User
+from app.models import Toy, Order, OrderItem, User, Center
 from app.extensions import db
 from app.filters import format_currency
 from pagination_helpers import PaginationHelper, paginate_query
@@ -481,22 +481,22 @@ def update_cart(toy_id):
 @shop_bp.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    """Proceso de checkout idempotente y finalizaciÃ³n de compra"""
-    # Si se recibe un POST pero el carrito ya estÃ¡ vacÃ­o porque la orden
-    # se procesÃ³ en un envÃ­o anterior, redirigir al Ãºltimo resumen de orden.
+    """Proceso de checkout idempotente y finalización de compra"""
+    # Si se recibe un POST pero el carrito ya está vacío porque la orden
+    # se procesó en un envío anterior, redirigir al último resumen de orden.
     if request.method == 'POST' and ('cart' not in session or not session['cart']):
         last_order_id = session.pop('last_order_id', None)
         if last_order_id:
             return redirect(url_for('shop.order_summary', order_id=last_order_id))
-    """Proceso de checkout y finalizaciÃ³n de compra"""
+    """Proceso de checkout y finalización de compra"""
     if 'cart' not in session or not session['cart']:
-        flash('Tu carrito estÃ¡ vacÃ­o', 'error')
+        flash('Tu carrito está vacío', 'error')
         return redirect(url_for('shop.view_cart'))
-    
+
     # Calcular total y obtener items del carrito
     cart_items = []
     total = 0
-    
+
     try:
         if 'cart' in session:
             for toy_id, item in session['cart'].items():
@@ -514,34 +514,63 @@ def checkout():
         print(f"Error al cargar el carrito: {str(e)}")
         flash('Error al cargar el carrito', 'error')
         return redirect(url_for('shop.view_cart'))
-    
+
+    subtotal = total
+    discount_percentage = 0.0
+    discount_amount = 0.0
+    discounted_total = subtotal
+    center_record = None
+
+    try:
+        center_slug = (getattr(current_user, 'center', '') or '').strip().lower()
+        if center_slug:
+            center_record = Center.query.filter_by(slug=center_slug).first()
+            if center_record:
+                discount_percentage = float(center_record.discount_percentage or 0.0)
+                if discount_percentage > 0:
+                    discount_amount = round(subtotal * (discount_percentage / 100.0), 2)
+                    if discount_amount > subtotal:
+                        discount_amount = subtotal
+                    discounted_total = round(subtotal - discount_amount, 2)
+    except Exception as exc:
+        current_app.logger.error(f"Error al calcular descuento de centro: {exc}")
+        discount_percentage = 0.0
+        discount_amount = 0.0
+        discounted_total = subtotal
+        center_record = None
+
     if request.method == 'POST':
         # Verificar balance
-        if current_user.balance < total:
+        if current_user.balance < discounted_total:
             flash('No tienes suficientes ALOHA Dollars', 'error')
             return redirect(url_for('shop.view_cart'))
-        
+
         try:
             # Crear la orden
             order = Order(
                 user_id=current_user.id,
-                total_price=total,
+                subtotal_price=subtotal,
+                discount_percentage=discount_percentage,
+                discount_amount=discount_amount,
+                discounted_total=discounted_total,
+                discount_center=center_record.slug if center_record else None,
+                total_price=discounted_total,
                 order_date=datetime.now(),
                 status='completada'
             )
             db.session.add(order)
-            
+
             # Agregar items a la orden y actualizar stock
             for toy_id, item in session['cart'].items():
                 # Obtener el juguete con bloqueo para evitar condiciones de carrera
                 toy = Toy.query.with_for_update().get(int(toy_id))
                 if not toy:
                     raise Exception(f"Juguete con ID {toy_id} no encontrado")
-                
+
                 # Verificar stock disponible
                 if toy.stock < item['quantity']:
                     raise Exception(f"Stock insuficiente para {toy.name}. Disponible: {toy.stock}, Solicitado: {item['quantity']}")
-                
+
                 # Crear item de orden
                 order_item = OrderItem(
                     order=order,
@@ -550,38 +579,42 @@ def checkout():
                     price=item['price']
                 )
                 db.session.add(order_item)
-                
+
                 # Actualizar stock del juguete
                 toy.stock -= item['quantity']
                 print(f"Stock actualizado para {toy.name}: {toy.stock + item['quantity']} -> {toy.stock}")
-            
+
             # Actualizar balance del usuario
-            current_user.balance -= total
-            
+            current_user.balance -= discounted_total
+
             # Guardar cambios
             db.session.commit()
 
-            # Guardar el Ãºltimo order_id en sesiÃ³n para manejar reenvÃ­os accidentales
+            # Guardar el último order_id en sesión para manejar reenvíos accidentales
             session['last_order_id'] = order.id
-            
-            # Limpiar carrito despuÃ©s de confirmar que todo estÃ¡ bien
+
+            # Limpiar carrito después de confirmar que todo está bien
             session.pop('cart', None)
-            
+
             # Redirigir al resumen de la orden sin mostrar mensaje flash adicional
-            # ya que ahora mostramos un modal en la pÃ¡gina de resumen
+            # ya que ahora mostramos un modal en la página de resumen
             return redirect(url_for('shop.order_summary', order_id=order.id))
-            
+
         except Exception as e:
             db.session.rollback()
             error_msg = f"Error al procesar la compra: {str(e)}"
             print(error_msg)
             flash(error_msg, 'error')
             return redirect(url_for('shop.view_cart'))
-    
-    # Para GET, mostrar la pÃ¡gina de checkout
-    return render_template('checkout.html', 
-                         cart_items=cart_items, 
-                         total=total)
+
+    # Para GET, mostrar la página de checkout
+    return render_template('checkout.html',
+                         cart_items=cart_items,
+                         total=subtotal,
+                         discount_percentage=discount_percentage,
+                         discount_amount=discount_amount,
+                         discounted_total=discounted_total,
+                         center_discount=center_record)
 
 def format_currency(amount):
     """Formatea un monto como moneda"""
@@ -769,8 +802,27 @@ def generate_pdf(order):
         elements.append(table)
         elements.append(Spacer(1, 20))
         
-        # Total
-        elements.append(Paragraph(f"<b>Total: {format_currency(order.total_price)}</b>", styles["TotalText"]))
+        subtotal_display = format_currency(getattr(order, 'subtotal_price', None) or order.total_price)
+        elements.append(Paragraph(f"<b>Subtotal:</b> {subtotal_display}", styles["TotalText"]))
+
+        discount_amount = getattr(order, 'discount_amount', 0) or 0
+        if discount_amount:
+            center_label = None
+            if getattr(order, 'discount_center', None):
+                center_obj = Center.query.filter_by(slug=order.discount_center).first()
+                center_label = center_obj.name if center_obj else order.discount_center
+            percent = getattr(order, 'discount_percentage', 0) or 0
+            label = ""
+            if center_label:
+                label = center_label
+                if percent:
+                    label = f"{label} ({percent:.0f}%)"
+            elif percent:
+                label = f"{percent:.0f}%"
+            prefix = f"<b>Descuento {label}:</b>" if label else "<b>Descuento:</b>"
+            elements.append(Paragraph(f"{prefix} -{format_currency(discount_amount)}", styles["TotalText"]))
+
+        elements.append(Paragraph(f"<b>Total:</b> {format_currency(order.total_price)}", styles["TotalText"]))
         elements.append(Spacer(1, 30))
         
         # Saldos del usuario relacionados a la compra

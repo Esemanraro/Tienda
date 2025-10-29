@@ -51,7 +51,16 @@ def setup_order(app):
         db.session.add_all([buyer, toy])
         db.session.commit()
 
-        order = Order(user_id=buyer.id, total_price=30.0, status='completed', is_active=True)
+        order = Order(
+            user_id=buyer.id,
+            subtotal_price=30.0,
+            discount_amount=0.0,
+            discount_percentage=0.0,
+            discounted_total=30.0,
+            total_price=30.0,
+            status='completed',
+            is_active=True,
+        )
         db.session.add(order)
         db.session.commit()
 

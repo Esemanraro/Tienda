@@ -4,6 +4,25 @@ from datetime import datetime
 from sqlalchemy import CheckConstraint
 from flask_login import UserMixin
 
+
+class Center(db.Model):
+    __tablename__ = 'center'
+
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    name = db.Column(db.String(120), nullable=False)
+    discount_percentage = db.Column(db.Float, nullable=False, default=0.0)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    __table_args__ = (
+        CheckConstraint('discount_percentage >= 0'),
+        CheckConstraint('discount_percentage <= 100'),
+    )
+
+    def __repr__(self):
+        return f"<Center {self.slug} ({self.discount_percentage}%)>"
+
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     
@@ -74,19 +93,32 @@ class Toy(db.Model):
 
 class Order(db.Model):
     __tablename__ = 'order'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     order_date = db.Column(db.DateTime, nullable=False, default=datetime.now, index=True)
+    subtotal_price = db.Column(db.Float, nullable=False, default=0.0)
+    discount_percentage = db.Column(db.Float, nullable=False, default=0.0)
+    discount_amount = db.Column(db.Float, nullable=False, default=0.0)
+    discounted_total = db.Column(db.Float, nullable=False, default=0.0)
+    discount_center = db.Column(db.String(64), nullable=True, index=True)
     total_price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='completada', nullable=False)  # completada, en_proceso, cancelada
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now)
     deleted_at = db.Column(db.DateTime, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
-    
+
     # Relaciones
     items = db.relationship('OrderItem', backref='order', lazy='select', cascade='all, delete-orphan')
+
+    __table_args__ = (
+        CheckConstraint('subtotal_price >= 0'),
+        CheckConstraint('discount_amount >= 0'),
+        CheckConstraint('discount_percentage >= 0'),
+        CheckConstraint('discounted_total >= 0'),
+        CheckConstraint('total_price >= 0'),
+    )
 
 class OrderItem(db.Model):
     __tablename__ = 'order_item'

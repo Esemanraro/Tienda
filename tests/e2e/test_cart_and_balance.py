@@ -171,9 +171,14 @@ def test_order_creation():
             
             # Crear orden de prueba
             try:
+                total_price = toy.price * 2
                 orden = Order(
                     user_id=user.id,
-                    total_price=toy.price * 2,  # 2 unidades
+                    subtotal_price=total_price,
+                    discount_percentage=0.0,
+                    discount_amount=0.0,
+                    discounted_total=total_price,
+                    total_price=total_price,
                     is_active=True
                 )
                 db.session.add(orden)

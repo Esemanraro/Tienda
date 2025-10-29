@@ -26,7 +26,16 @@ with app.app_context():
     if not toy:
         toy = Toy(name='Dummy', description='Test', price=5.0, stock=10)
         db.session.add(toy); db.session.commit()
-    order = Order(user_id=admin.id, order_date=datetime.now(), total_price=5.0, status='completada')
+    order = Order(
+        user_id=admin.id,
+        order_date=datetime.now(),
+        subtotal_price=5.0,
+        discount_percentage=0.0,
+        discount_amount=0.0,
+        discounted_total=5.0,
+        total_price=5.0,
+        status='completada'
+    )
     db.session.add(order); db.session.flush()
     db.session.add(OrderItem(order_id=order.id, toy_id=toy.id, quantity=1, price=5.0))
     db.session.commit()
