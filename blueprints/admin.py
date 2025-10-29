@@ -19,6 +19,7 @@ from app.extensions import db
 from app.forms import ToyForm, AddUserForm, EditUserForm
 from pagination_helpers import PaginationHelper, paginate_query
 from utils import normalize_email
+from app.utils.centers import collect_center_choices, normalize_center_slug
 
 # 💾 Importar Sistema de Backup Simplificado
 try:
@@ -442,20 +443,18 @@ def get_sales_chart_data():
 
 def get_center_choices():
     try:
-        centers = Center.query.order_by(Center.name.asc()).all()
-        return [(c.slug, c.name) for c in centers]
+        choices, _ = collect_center_choices()
+        return choices
     except Exception:
         return []
 
 
-def normalize_center_slug(value):
-    if not value:
-        return ''
-    return value.strip().lower()
-
-
 def get_center_slug_set():
-    return {slug for slug, _ in get_center_choices()}
+    try:
+        choices, _ = collect_center_choices()
+        return {slug for slug, _ in choices}
+    except Exception:
+        return set()
 
 
 @admin_bp.route('/users')

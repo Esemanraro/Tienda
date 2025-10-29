@@ -14,6 +14,7 @@ from flask_caching import Cache
 # Extensiones compartidas
 from .extensions import db, migrate, login_manager
 from .db_maintenance import ensure_order_table_columns
+from .utils.centers import collect_center_choices
 
 # Modelos y utilidades
 from . import models as models  # register once; access via models.User / models.Toy
@@ -240,10 +241,11 @@ def create_app(config_class=None):
     def inject_centers():
         try:
             centers = models.Center.query.order_by(models.Center.name.asc()).all()
-            center_choices = [(center.slug, center.name) for center in centers]
-            centers_map = {center.slug: center.name for center in centers}
         except Exception:
             centers = []
+        try:
+            center_choices, centers_map = collect_center_choices()
+        except Exception:
             center_choices = []
             centers_map = {}
         return {
