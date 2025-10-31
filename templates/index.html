@@ -25,7 +25,11 @@
                 <div class="toy-content">
                     <h3>{{ toy.name }}</h3>
                     <p class="toy-description">{{ toy.description }}</p>
-                    <p class="toy-price">A$ {{ "%.2f"|format(toy.price) }}</p>
+                    {% if current_user.is_authenticated %}
+                        <p class="toy-price">A$ {{ "%.2f"|format(toy.price) }}</p>
+                    {% else %}
+                        <p class="toy-price toy-price--blurred">Inicia sesión para ver el precio</p>
+                    {% endif %}
                     {% set stock = toy.stock or 0 %}
                     {% if stock > 0 %}
                         <p class="toy-stock in-stock">✅ En stock ({{ stock }})</p>
@@ -123,6 +127,12 @@
     font-weight: bold;
     color: var(--primary-color);
     margin: 0 0 1rem 0;
+}
+
+.toy-price--blurred {
+    color: var(--text-color);
+    opacity: 0.75;
+    font-style: italic;
 }
 
 .toy-stock {
