@@ -31,6 +31,15 @@
                     {% endfor %}
                 </select>
 
+                {% if current_user.is_authenticated and current_user.is_admin and center_choices %}
+                    <select name="center" class="filter-select">
+                        <option value="">Todos los centros</option>
+                        {% for slug, label in center_choices %}
+                            <option value="{{ slug }}" {% if selected_center == slug %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+
                 <select name="sort" class="filter-select">
                     <option value="name" {% if sort == 'name' %}selected{% endif %}>Nombre A-Z</option>
                     <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>

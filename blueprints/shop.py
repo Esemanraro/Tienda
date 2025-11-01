@@ -17,10 +17,11 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 # Importaciones absolutas
-from app.models import Toy, Order, OrderItem, User, Center
+from app.models import Toy, Order, OrderItem, User, Center, ToyCenterAvailability
 from app.extensions import db
 from app.filters import format_currency
 from pagination_helpers import PaginationHelper, paginate_query
+from app.utils import collect_center_choices, normalize_center_slug
 
 # Importar sistemas avanzados
 try:
@@ -157,6 +158,10 @@ def basic_search():
     age = request.args.get('age') or request.args.get('age_range') or ''
     gender = request.args.get('gender', '')
     sort = request.args.get('sort', 'name')
+    center_slug = request.args.get('center', '')
+    normalized_center = normalize_center_slug(center_slug)
+    center_choices = []
+    selected_center = ""
     # Construir consulta base
     toys_query = Toy.query.filter_by(is_active=True)
     # Filtrar por centro si el usuario estÃ¡ autenticado
@@ -168,6 +173,17 @@ def basic_search():
                     Toy.centers.any(center=current_user.center)
                 )
             )
+        elif current_user.is_authenticated and getattr(current_user, 'is_admin', False):
+            center_choices, _ = collect_center_choices()
+            selected_center = normalized_center
+            if normalized_center:
+                center_condition = db.func.lower(ToyCenterAvailability.center) == normalized_center
+                toys_query = toys_query.filter(
+                    db.or_(
+                        ~Toy.centers.any(),
+                        Toy.centers.any(center_condition)
+                    )
+                )
     except Exception:
         pass
     
@@ -223,7 +239,9 @@ def basic_search():
         age=age,
         gender=gender,
         sort=sort,
-        categories=category_list
+        categories=category_list,
+        center_choices=center_choices,
+        selected_center=selected_center
     )
 
 @shop_bp.route('/search/suggestions')

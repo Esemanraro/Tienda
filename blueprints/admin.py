@@ -518,11 +518,15 @@ def get_sales_chart_data():
     return {'dates': dates, 'sales_data': sales_data}
 
 
-def get_center_choices():
+def get_center_choices(include_lookup: bool = False):
     try:
-        choices, _ = collect_center_choices()
+        choices, lookup = collect_center_choices()
+        if include_lookup:
+            return choices, lookup
         return choices
     except Exception:
+        if include_lookup:
+            return [], {}
         return []
 
 
@@ -1473,7 +1477,8 @@ def add_user():
         return redirect(url_for('admin.dashboard'))
     
     form = AddUserForm()
-    form.center.choices = get_center_choices()
+    center_choices, center_lookup = get_center_choices(include_lookup=True)
+    form.center.choices = center_choices
 
     if form.validate_on_submit():
         existing_user_username = User.query.filter_by(username=form.username.data).first()
@@ -1494,19 +1499,22 @@ def add_user():
             flash('Por favor corrige los errores en el formulario.', 'warning')
             return redirect(url_for('admin.all_users'))
 
-        center_slug = normalize_center_slug(form.center.data)
-        center_record = Center.query.filter_by(slug=center_slug).first()
-        if not center_record:
+        center_input = form.center.data
+        center_slug = normalize_center_slug(center_input)
+        if not center_slug or center_slug not in center_lookup:
             form.center.errors.append('El centro seleccionado no es válido.')
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'success': False, 'errors': form.errors}), 400
             flash('Por favor selecciona un centro válido.', 'warning')
             return redirect(url_for('admin.all_users'))
 
+        center_record = Center.query.filter(db.func.lower(Center.slug) == center_slug).first() if center_slug else None
+        center_value = center_record.slug if center_record else center_slug
+
         new_user = User(
             username=form.username.data,
             email=email_data,
-            center=center_record.slug,
+            center=center_value,
             is_admin=form.is_admin.data,
             is_active=form.is_active.data
         )

@@ -13,6 +13,7 @@ from datetime import datetime
 # Importaciones absolutas
 from app.models import User, Center
 from app.extensions import db
+from app.utils.centers import collect_center_choices, normalize_center_slug
 from utils import normalize_email
 
 
@@ -95,7 +96,7 @@ def register():
         return redirect(url_for('shop.index'))
 
     form = RegisterForm()
-    center_choices = [(c.slug, c.name) for c in Center.query.order_by(Center.name.asc()).all()]
+    center_choices, centers_map = collect_center_choices()
     form.center.choices = center_choices
 
     if form.validate_on_submit():
@@ -104,11 +105,12 @@ def register():
         normalized_email = normalize_email(form.email.data)
         existing_email = User.query.filter_by(email=normalized_email).first() if normalized_email else None
 
-        center_slug = (form.center.data or '').strip().lower()
-        center_record = Center.query.filter_by(slug=center_slug).first()
-        if not center_record:
+        center_slug = normalize_center_slug(form.center.data)
+        if center_slug not in centers_map:
             flash('El centro seleccionado no es válido', 'warning')
             return render_template('register.html', form=form)
+
+        center_record = Center.query.filter_by(slug=center_slug).first() if center_slug else None
 
         if existing_username:
             flash('El nombre de usuario ya existe', 'warning')
@@ -120,7 +122,7 @@ def register():
 
         user = User(
             username=form.username.data,
-            center=center_record.slug,
+            center=center_record.slug if center_record else center_slug,
             balance=0.0,
             created_at=datetime.now(),
             email=normalized_email,
