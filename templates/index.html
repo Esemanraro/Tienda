@@ -211,14 +211,14 @@ function addToCart(toyId) {
     .then(response => {
         if (response.redirected) {
             // Si hay redireccion, probablemente fue exitoso
-            showToast('✨ ¡Producto agregado al carrito!', 'success');
             return { success: true };
         }
         return response.json();
     })
     .then(data => {
         if (data.success) {
-            showToast('✨ ¡Producto agregado al carrito!', 'success');
+            const successMessage = data.message || '✨ ¡Producto agregado al carrito!';
+            showToast(successMessage, 'success');
         } else {
             showToast(data.message || '❌ Error al agregar al carrito', 'error');
         }
