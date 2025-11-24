@@ -409,8 +409,8 @@
         padding: var(--mobile-gap-large);
         margin-top: var(--mobile-gap-large);
         box-shadow: var(--box-shadow);
-        position: sticky;
-        bottom: calc(var(--bottom-nav-height) + 10px);
+        position: relative;
+        margin-bottom: calc(var(--bottom-nav-height) + 10px);
     }
     
     .cart-total {
