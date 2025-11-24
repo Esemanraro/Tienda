@@ -177,7 +177,6 @@ function addToCart(toyId) {
         console.log('Respuesta recibida:', response.status);
         if (response.redirected) {
             // Si hay redireccion, probablemente fue exitoso
-            showToast('✨ ¡Producto agregado al carrito!', 'success');
             return { success: true };
         }
         return response.json();
@@ -185,7 +184,8 @@ function addToCart(toyId) {
     .then(data => {
         console.log('Datos recibidos:', data);
         if (data.success) {
-            showToast('✨ ¡Producto agregado al carrito!', 'success');
+            const successMessage = data.message || '✨ ¡Producto agregado al carrito!';
+            showToast(successMessage, 'success');
             // Actualizar el badge del carrito si existe cart_count en la respuesta
             if (data.cart_count !== undefined) {
                 updateCartBadge(data.cart_count);

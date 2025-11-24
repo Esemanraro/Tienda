@@ -309,7 +309,7 @@ def add_to_cart():
         except Exception as e:
             # Fallback a sesiÃ³n
             is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-            add_to_session_cart(toy_id, quantity, toy.name, show_flash_message=is_ajax)
+            add_to_session_cart(toy_id, quantity, toy.name, show_flash_message=not is_ajax)
             if is_ajax:
                 # Calcular cart_count para incluir en la respuesta
                 cart_count = 0
@@ -322,7 +322,7 @@ def add_to_cart():
                 })
     else:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        add_to_session_cart(toy_id, quantity, toy.name, show_flash_message=is_ajax)
+        add_to_session_cart(toy_id, quantity, toy.name, show_flash_message=not is_ajax)
         if is_ajax:
             # Calcular cart_count para incluir en la respuesta
             cart_count = 0
